@@ -74,6 +74,42 @@ export const createCollection = asyncHandler((req, res) => __awaiter(void 0, voi
         return res.status(500).json(new ApiError("Failed to create collection", 500, error));
     }
 }));
+export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, upiId, transactionId, } = req.body;
+    console.log(req.body);
+    const file = req.file;
+    if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
+        return res.status(400).json(new ApiError("Missing required fields", 400, {}));
+    }
+    if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName)) {
+        return res.status(400).json(new ApiError("Missing cheque details or image", 400, {}));
+    }
+    if (paymentMethod === 'online' && (!upiId || !transactionId)) {
+        return res.status(400).json(new ApiError("Missing online payment details or image", 400, {}));
+    }
+    const imageUrl = `/${file === null || file === void 0 ? void 0 : file.destination}`;
+    try {
+        const collection = yield prisma.collection.create({
+            data: Object.assign(Object.assign({ partyId,
+                partyName,
+                empId, amount: parseFloat(amount.toString()), paymentMethod }, (paymentMethod === 'cheque' && {
+                chequeNumber,
+                chequeDate,
+                bankName,
+                imageUrl
+            })), (paymentMethod === 'online' && {
+                upiId,
+                transactionId,
+                imageUrl
+            }))
+        });
+        return res.status(201).json(new ApiResponse(201, "Collection created successfully", collection));
+    }
+    catch (err) {
+        console.error("Error creating collection:", err);
+        return res.status(500).json(new ApiError("Failed to create collection", 500, err));
+    }
+}));
 // fix - collection name should be pulled by party id
 export const getCollectionsByEmpId = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { empId } = req.params;

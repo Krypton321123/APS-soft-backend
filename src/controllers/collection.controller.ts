@@ -103,6 +103,79 @@ export const createCollection = asyncHandler(async (req: Request, res: Response)
     }
 });
 
+export const createCollectionWithMult = asyncHandler(async (req: Request, res: Response) => {
+
+        const { 
+            partyId, 
+            partyName, 
+            empId, 
+            amount, 
+            paymentMethod,
+            chequeNumber,
+            chequeDate,
+            bankName,
+            upiId,
+            transactionId,
+        } = req.body;   
+
+        console.log(req.body); 
+
+        const file = req.file; 
+    if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
+        return res.status(400).json(
+            new ApiError("Missing required fields", 400, {})
+        );
+    }
+    if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName)) {
+        return res.status(400).json(
+            new ApiError("Missing cheque details or image", 400, {})
+        );
+    }
+
+    if (paymentMethod === 'online' && (!upiId || !transactionId)) {
+        return res.status(400).json(
+            new ApiError("Missing online payment details or image", 400, {})
+        );
+    }
+
+    const imageUrl = `/${file?.destination}`
+
+    try {
+
+
+        const collection = await prisma.collection.create({
+            data: {
+                partyId,
+                partyName,
+                empId,
+                amount: parseFloat(amount.toString()),
+                paymentMethod,
+                ...(paymentMethod === 'cheque' && {
+                    chequeNumber,
+                    chequeDate,
+                    bankName,
+                    imageUrl
+                }),
+                ...(paymentMethod === 'online' && {
+                    upiId,
+                    transactionId,
+                    imageUrl
+                }),
+            }
+        });
+
+        return res.status(201).json(
+            new ApiResponse(201, "Collection created successfully", collection)
+        );
+
+    } catch (err) {
+        console.error("Error creating collection:", err);
+        return res.status(500).json(
+            new ApiError("Failed to create collection", 500, err)
+        );
+    }
+})
+
 // fix - collection name should be pulled by party id
 export const getCollectionsByEmpId = asyncHandler(async (req: Request, res: Response) => {
     const { empId } = req.params;

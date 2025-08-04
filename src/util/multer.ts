@@ -1,14 +1,7 @@
 import multer from 'multer'; 
 import path from 'path'
 import fs from 'fs'
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-
-
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const partyImagesDest = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -42,4 +35,30 @@ const partyImagesDest = multer.diskStorage({
     }
 }) 
 
+const collectionImagesDest = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const empId = req.body.empId
+        const paymentType = req.body.paymentType;
+        const partyId = req.body.partyId
+
+        const dateString = new Date().toISOString().split('T')[0]
+        const folderPath = path.join('../', 'uploads', 'collection', `${paymentType}`, `${empId}`, `${partyId}-${dateString}`); 
+
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, {recursive: true})
+        }
+
+        cb(null, folderPath); 
+    }, 
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname)
+        const randomId = Math.random().toString(36).substring(2, 15);
+        const filename = randomId.toString(); 
+
+        cb(null, `${filename}${ext}`); 
+        
+    }
+})
+
+export const collectionImageUpload = multer({ storage: collectionImagesDest })
 export const partyImageUpload = multer({storage: partyImagesDest})
