@@ -1,0 +1,202 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "./generated"
+  previewFeatures = ["views"]
+  binaryTargets   = ["native", "windows"]
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id     Int           @id @default(autoincrement())
+  username    String        @unique
+  password    String
+  untcd       String        @default("")
+  stcd        String        @default("")
+  stnm        String        @default("")
+  untnm       String        @default("")
+  usrnm       String        @default("")
+  attendance  Attendance[]
+  partyImages partyImages[]
+}
+
+model partyImages {
+  image_id        String   @id @default(cuid())
+  partyId         String
+  createdAt       DateTime @default(now())
+  imageUrl2       String?
+  imageUrl3       String?
+  profileImageUrl String
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [username])
+}
+
+model Order {
+  order_id       String          @id @default(cuid())
+  partyId        String
+  partyName      String
+  empId          String
+  totalAmount    Decimal         @db.Decimal(18, 2)
+  discountAmount Decimal         @db.Decimal(18, 2)
+  createdAt      DateTime        @default(now())
+  creditDays     Int?
+  paymentMode    String          @default("")
+  status         String          @default("pending")
+  bulkRate       Decimal?        @db.Decimal(18, 2)
+  consumerRate   Decimal?        @db.Decimal(18, 2)
+  accept         AcceptedOrders?
+  orderItems     OrderItem[]
+  reject         RejectedOrders?
+}
+
+model AcceptedOrders {
+  accept_id String   @id @default(cuid())
+  order_id  String   @unique
+  createdAt DateTime @default(now())
+  Order     Order    @relation(fields: [order_id], references: [order_id])
+}
+
+model RejectedOrders {
+  reject_id String   @id @default(cuid())
+  order_id  String   @unique
+  createdAt DateTime @default(now())
+  Order     Order    @relation(fields: [order_id], references: [order_id])
+}
+
+model OrderItem {
+  id       String  @id @default(cuid())
+  orderId  String
+  itemCode String
+  itemName String
+  quantity Int
+  rate     Decimal @db.Decimal(18, 2)
+  amount   Decimal @db.Decimal(18, 2)
+  packType String  @default("")
+  order    Order   @relation(fields: [orderId], references: [order_id])
+}
+
+model Collection {
+  collection_id String    @id @default(cuid())
+  partyId       String
+  partyName     String
+  empId         String
+  amount        Decimal   @db.Decimal(18, 2)
+  paymentMethod String
+  chequeNumber  String?
+  chequeDate    String?
+  bankName      String?
+  upiId         String?
+  transactionId String?
+  createdAt     DateTime  @default(now())
+  verified      Boolean   @default(false)
+  verifiedAt    DateTime?
+  imageUrl      String?   @default("")
+}
+
+model PartyEditRequest {
+  request_id           String   @id @default(cuid())
+  partyId              String
+  partyName            String
+  empId                String
+  updatedName          String?
+  updatedAddress       String?
+  updatedContactPerson String?
+  updatedMobileNumber  String?
+  updatedEmailId       String?
+  shopImage1           String?
+  shopImage2           String?
+  status               String   @default("pending")
+  adminComment         String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model Stock {
+  stock_id   String      @id @default(cuid())
+  partyId    String
+  partyName  String
+  empId      String
+  createdAt  DateTime    @default(now())
+  stockItems StockItem[]
+}
+
+model StockItem {
+  id       String @id @default(cuid())
+  stockId  String
+  itemCode String
+  itemName String
+  quantity Int
+  stock    Stock  @relation(fields: [stockId], references: [stock_id])
+}
+
+model admin {
+  admin_id String @id @default(cuid())
+  username String @unique
+  password String
+}
+
+model Attendance {
+  attendance_id String    @id @default(cuid())
+  userId        String
+  date          DateTime  @db.Date
+  status        String    @default("not_marked")
+  markedAt      DateTime?
+  markedBy      String?
+  absentReason  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [username])
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model DailyRateList {
+  rate_id      String   @default(cuid())
+  untcd        String   @default("")
+  date         DateTime
+  bulkRate     Int      @default(0)
+  consumerRate Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  @@unique([untcd, date])
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view mstemp {
+  empcd String  @unique @db.VarChar(50)
+  ledcd String  @db.VarChar(250)
+  lednm String? @db.VarChar(250)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view mstparty {
+  ledcd   String  @unique @db.VarChar(250)
+  lednm   String? @db.VarChar(250)
+  empcd   String? @db.VarChar(50)
+  areacd  String  @db.VarChar(50)
+  areanm  String? @db.VarChar(250)
+  ledadr1 String? @db.VarChar(500)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view mstitm {
+  rowid     BigInt
+  itmcd     String   @unique @db.VarChar(50)
+  itmnm     String   @db.VarChar(250)
+  pcksz     Decimal? @db.Decimal(18, 0)
+  wgtconv   Decimal? @db.Decimal(18, 3)
+  itmsubcat String?  @db.VarChar(50)
+  itmcatgrp String?  @db.VarChar(50)
+  lsitmnm   String?  @db.VarChar(250)
+  itmrate   Int
+}
+
+view OutstandingAmt {
+  ledcd  String   @id @unique @db.VarChar(250)
+  outamt Decimal? @db.Decimal(38, 2)
+}

@@ -1,0 +1,22 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[AcceptedOrders] ADD [createdAt] DATETIME2 NOT NULL CONSTRAINT [AcceptedOrders_createdAt_df] DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE [dbo].[RejectedOrders] ADD [createdAt] DATETIME2 NOT NULL CONSTRAINT [RejectedOrders_createdAt_df] DEFAULT CURRENT_TIMESTAMP;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

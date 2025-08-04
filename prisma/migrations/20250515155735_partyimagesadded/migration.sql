@@ -1,0 +1,24 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- CreateTable
+CREATE TABLE [dbo].[partyImages] (
+    [image_id] NVARCHAR(1000) NOT NULL,
+    [partyId] NVARCHAR(1000) NOT NULL,
+    [imageUrl] NVARCHAR(1000) NOT NULL,
+    CONSTRAINT [partyImages_pkey] PRIMARY KEY CLUSTERED ([image_id])
+);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

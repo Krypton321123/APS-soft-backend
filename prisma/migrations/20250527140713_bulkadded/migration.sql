@@ -1,0 +1,23 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[Order] ADD [bulkRate] DECIMAL(18,2),
+[consumerRate] DECIMAL(18,2);
+
+-- AlterTable
+ALTER TABLE [dbo].[OrderItem] ADD [packType] NVARCHAR(1000) NOT NULL CONSTRAINT [OrderItem_packType_df] DEFAULT '';
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
