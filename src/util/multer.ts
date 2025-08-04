@@ -22,7 +22,7 @@ const partyImagesDest = multer.diskStorage({
         const year = date.getFullYear();
         const dateStr = `${day}-${month}-${year}`
 
-       const fullPath = path.join('./', 'uploads', `party_images`, `${empId}`, `${partyId}-${dateStr}`)
+       const fullPath = path.join('../', 'uploads', `party_images`, `${empId}`, `${partyId}-${dateStr}`)
 
        if (!fs.existsSync(fullPath)) {
         fs.mkdirSync(fullPath, {recursive: true});
