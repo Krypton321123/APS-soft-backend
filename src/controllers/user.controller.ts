@@ -421,6 +421,8 @@ export const submitRates = asyncHandler(async (req: Request, res: Response) => {
 
 export const getSummary = asyncHandler(async (req: Request, res: Response) => {
   const { username, date } = req.body; 
+  console.log("here")
+  console.log(username, date)
 
   try {
 
@@ -436,32 +438,6 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
     console.log(startDate.toLocaleString(), endDate)
     
 
-    const data = await prisma.$transaction([
-      prisma.order.findMany({
-      where: {
-        empId: username, AND: [
-          { createdAt: { gte: startDate }}, 
-          { createdAt: { lte: endDate }}
-        ]
-      }, 
-      select: {
-        totalAmount: true, partyId: true,   
-      }
-    }), 
-    prisma.collection.findMany({
-      where: {
-        empId: username, AND: [
-          {createdAt: {gte: startDate}}, 
-          {createdAt: {lte: endDate}}
-        ]     
-     }, select: {
-      amount: true
-     }
-    })
-    ])
-   
-    console.log(data)
-
     const order = await prisma.order.findMany({
       where: {
         empId: username, AND: [
@@ -470,12 +446,17 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         ]
       }, 
       select: {
-        totalAmount: true, partyId: true,   
+        partyId: true, orderItems: true 
       }
     })
 
+
     const sendOrder = await Promise.all(
-      order.map(async (item) => {
+      order.map(async (item, index) => {
+
+        const quan = item.orderItems.map((item) => item.quantity).reduce((acc: number, curr: number) => acc + curr, 0)
+
+
         const partyName = await prisma.mstparty.findUnique({
           where: {
             ledcd: item.partyId
@@ -484,9 +465,11 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           }
         }); 
 
-        return {...item, partyName: partyName?.lednm}
+        return {...item, partyName: partyName?.lednm, totalAmount: quan}
       })
     )
+
+    
 
     const collection = await prisma.collection.findMany({
       where: {
@@ -514,13 +497,26 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
       }
     })
 
+    const sendCollection = await Promise.all(
+      collection.map(async (item) => {
+          const partyName = await prisma.mstparty.findUnique({
+            where: {
+              ledcd: item.partyId
+            }, select: {
+              lednm: true
+            }
+        }); 
+
+        return {...item, partyName: partyName?.lednm}; 
+      })
+    )
   
 
-    console.log(collection)
+    console.log(sendCollection)
 
 
 
-    return res.status(200).json(new ApiResponse(200, "Fetched successfully", {order: sendOrder, collection, stock}))
+    return res.status(200).json(new ApiResponse(200, "Fetched successfully", {order: sendOrder, collection: sendCollection, stock}))
 
   } catch (err: any) {
     console.log("Summary error: ", err)

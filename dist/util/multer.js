@@ -33,7 +33,6 @@ const collectionImagesDest = multer.diskStorage({
         const empId = req.body.empId;
         const paymentType = req.body.paymentType;
         const partyId = req.body.partyId;
-        console.log('MULTER REQ.BODY->', req.body);
         const dateString = new Date().toISOString().split('T')[0];
         const folderPath = path.join('../', 'uploads', 'collection', `${paymentType}`, `${empId}`, `${partyId}-${dateString}`);
         if (!fs.existsSync(folderPath)) {

@@ -359,6 +359,8 @@ export const submitRates = asyncHandler((req, res) => __awaiter(void 0, void 0, 
 }));
 export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, date } = req.body;
+    console.log("here");
+    console.log(username, date);
     try {
         if (!username || !date) {
             return res.status(400).json(new ApiError("Username or date is invalid", 400));
@@ -369,30 +371,6 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
         let endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
         console.log(startDate.toLocaleString(), endDate);
-        const data = yield prisma.$transaction([
-            prisma.order.findMany({
-                where: {
-                    empId: username, AND: [
-                        { createdAt: { gte: startDate } },
-                        { createdAt: { lte: endDate } }
-                    ]
-                },
-                select: {
-                    totalAmount: true, partyId: true,
-                }
-            }),
-            prisma.collection.findMany({
-                where: {
-                    empId: username, AND: [
-                        { createdAt: { gte: startDate } },
-                        { createdAt: { lte: endDate } }
-                    ]
-                }, select: {
-                    amount: true
-                }
-            })
-        ]);
-        console.log(data);
         const order = yield prisma.order.findMany({
             where: {
                 empId: username, AND: [
@@ -401,10 +379,11 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
                 ]
             },
             select: {
-                totalAmount: true, partyId: true,
+                partyId: true, orderItems: true
             }
         });
-        const sendOrder = yield Promise.all(order.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+        const sendOrder = yield Promise.all(order.map((item, index) => __awaiter(void 0, void 0, void 0, function* () {
+            const quan = item.orderItems.map((item) => item.quantity).reduce((acc, curr) => acc + curr, 0);
             const partyName = yield prisma.mstparty.findUnique({
                 where: {
                     ledcd: item.partyId
@@ -412,7 +391,7 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
                     lednm: true
                 }
             });
-            return Object.assign(Object.assign({}, item), { partyName: partyName === null || partyName === void 0 ? void 0 : partyName.lednm });
+            return Object.assign(Object.assign({}, item), { partyName: partyName === null || partyName === void 0 ? void 0 : partyName.lednm, totalAmount: quan });
         })));
         const collection = yield prisma.collection.findMany({
             where: {
@@ -438,8 +417,18 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
                 }
             }
         });
-        console.log(collection);
-        return res.status(200).json(new ApiResponse(200, "Fetched successfully", { order: sendOrder, collection, stock }));
+        const sendCollection = yield Promise.all(collection.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+            const partyName = yield prisma.mstparty.findUnique({
+                where: {
+                    ledcd: item.partyId
+                }, select: {
+                    lednm: true
+                }
+            });
+            return Object.assign(Object.assign({}, item), { partyName: partyName === null || partyName === void 0 ? void 0 : partyName.lednm });
+        })));
+        console.log(sendCollection);
+        return res.status(200).json(new ApiResponse(200, "Fetched successfully", { order: sendOrder, collection: sendCollection, stock }));
     }
     catch (err) {
         console.log("Summary error: ", err);
