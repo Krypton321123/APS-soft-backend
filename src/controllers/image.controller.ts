@@ -92,7 +92,8 @@ export const searchImages = async (req: Request, res: Response) => {
 export const getImages = asyncHandler(async (req: Request, res: Response) => {
   const { depot, employee, startDate, endDate } = req.query
 
-  const ipAdd = ip.address(); 
+  let ipAdd = ip.address(); 
+  if (process.env.PRODUCTION_MODE === "prod") ipAdd = "157.15.93.224"
 
    const user = await prisma.user.findFirst({
       where: {
