@@ -213,12 +213,14 @@ export const uploadPartyImagesWithMulter = asyncHandler(async (req: Request, res
   const file = req.file; 
   const {partyId, userId} = req.body;
 
-  console.log(file?.destination)
+  console.log(file?.destination.toString()); 
+  console.log(file?.filename)
+
 
 
   await prisma.partyImages.create({
     data: {
-      partyId: partyId, profileImageUrl: `/${file?.destination.toString()}` || "", userId: userId
+      partyId: partyId, profileImageUrl: `${file?.destination.toString()}/${file?.filename}` || "", userId: userId
     }
   })
 

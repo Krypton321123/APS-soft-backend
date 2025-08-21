@@ -19,13 +19,15 @@ import prisma from './util/prisma.js';
 import adminRouter from './routes/admin.router.js';
 import attendanceRouter from './routes/attendance.router.js';
 import imageRouter from './routes/image.router.js';
+import path from 'path';
 const app = express();
+const pathForStatic = path.join('');
 app.use(cors({
     origin: '*',
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(globalCatch);
+app.use(express.static('../uploads'));
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
@@ -46,5 +48,5 @@ app.use("/api/v1/stock", stockRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/attendance', attendanceRouter);
 app.use('/api/v1/images', imageRouter);
-app.use('/api/v1/images', imageRouter);
+app.use(globalCatch);
 export default app;

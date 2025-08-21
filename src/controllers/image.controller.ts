@@ -4,6 +4,9 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import asyncHandler from '../util/asyncHandler.js';
+import ApiResponse from '../util/ApiResponse.js';
+import ip from 'ip'
 
 const __fileName = fileURLToPath(import.meta.url)
 const __dirname = dirname(__fileName)
@@ -85,3 +88,94 @@ export const searchImages = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to search images' });
   }
 };
+
+export const getImages = asyncHandler(async (req: Request, res: Response) => {
+  const { depot, employee, startDate, endDate } = req.query
+
+  const ipAdd = ip.address(); 
+
+   const user = await prisma.user.findFirst({
+      where: {
+        untnm: depot as string,
+        usrnm: employee as string
+      },
+      select: { username: true }
+    });
+
+    if (!user) return res.json([]);
+
+    const images = await prisma.partyImages.findMany({
+      where: {
+        userId: user.username,
+        createdAt: {
+          gte: startDate ? new Date(startDate as string) : undefined,
+          lte: endDate ? new Date(endDate as string) : undefined
+        }
+      },
+      select: {
+        profileImageUrl: true,
+        createdAt: true,
+        partyId: true
+      }
+    });
+
+    const sendData = await Promise.all(
+      images.map(async (item, index) => {
+        const startDate = new Date(item.createdAt)
+        startDate.setUTCHours(0, 0, 0, 0); 
+        const endDate = new Date(startDate); 
+        endDate.setUTCHours(23, 59, 59, 999); 
+
+
+        const order = await prisma.order.findFirst({
+          where: {
+            AND: [
+              {createdAt: {gte: startDate}}, 
+              {createdAt: {lte: endDate}}
+            ], 
+            empId: user.username, 
+            partyId: item.partyId
+          }, 
+          select: {
+            orderItems: true
+          }
+        })
+
+        const collection = await prisma.collection.findFirst({
+          where: {
+            AND: [
+              {createdAt: {gte: startDate}}, 
+              {createdAt: {lte: endDate}}
+            ], 
+            empId: user.username, 
+            partyId: item.partyId
+          }, 
+          select: {
+            amount: true
+          }
+        })
+
+        const party = await prisma.mstparty.findFirst({
+          where: {
+            ledcd: item.partyId
+          }, 
+          select: {
+            lednm: true
+          }
+        })
+
+        
+        const orderQuantity = order?.orderItems.map((item) => item.quantity).reduce((acc, curr) => acc + curr, 0); 
+
+        const imageString = `http://${ipAdd}:${process.env.PORT}${item.profileImageUrl.split('uploads')[1]}`
+ 
+
+        return {
+          ...item, partyName: party?.lednm, profileImageUrl: imageString, orderQuantity: orderQuantity || 0, collectionAmount: collection?.amount || 0 
+        }
+      })
+    )
+
+    return res.status(200).json(new ApiResponse(200, "fetched", sendData))
+
+})

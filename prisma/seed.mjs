@@ -1,4 +1,6 @@
 import { PrismaClient } from "./generated/index.js";
+import fs from 'fs'; 
+import path from 'path'
 
 const prisma = new PrismaClient();
 
@@ -18,4 +20,67 @@ const create = async () => {
   console.log(partyImages)
 };
 
-create();
+const edit = async () => {
+  const partyImages = await prisma.partyImages.findMany({}); 
+
+  await Promise.all(
+    partyImages.map(async (item) => {
+      let profileImage = item.profileImageUrl; 
+      if (profileImage.startsWith("/../")) {
+        profileImage = profileImage.replaceAll("/..", ""); 
+      }
+
+      await prisma.partyImages.update({
+        where: {
+          image_id: item.image_id
+        }, 
+        data: {
+          profileImageUrl: profileImage
+        }
+      })
+    })
+  )
+
+  console.log("Its done"); 
+}
+
+const fixImage = async () => {
+
+  const startDate = new Date('08-05-2025')
+  startDate.setHours(0,0,0,0)
+  const endDate = new Date('08-20-2025'); 
+  endDate.setHours(23,59,59,999)
+
+  const images = await prisma.partyImages.findMany({
+    where: {
+      AND: [
+        {createdAt: {gte: startDate}}, 
+        {createdAt: {lte: endDate}}
+      ]
+    }
+  }); 
+
+
+  await Promise.all(
+    images.map(async (item, index) => {
+      let profileImage = item.profileImageUrl
+      const indexOfYear = profileImage.indexOf("2025") + 4; 
+     
+      if (!(profileImage[indexOfYear] === "/")) {
+        profileImage = `${profileImage.slice(0, indexOfYear)}/${profileImage.slice(indexOfYear)}`
+
+        await prisma.partyImages.update({
+          where: {
+            image_id: item.image_id
+          }, 
+          data: {
+            profileImageUrl: profileImage
+          }
+        })
+      }
+    })
+  )
+}
+
+
+fixImage().catch((err) => console.error("error: ", err)); 

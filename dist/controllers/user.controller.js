@@ -187,10 +187,11 @@ export const uploadPartyImage = asyncHandler((req, res) => __awaiter(void 0, voi
 export const uploadPartyImagesWithMulter = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     const { partyId, userId } = req.body;
-    console.log(file === null || file === void 0 ? void 0 : file.destination);
+    console.log(file === null || file === void 0 ? void 0 : file.destination.toString());
+    console.log(file === null || file === void 0 ? void 0 : file.filename);
     yield prisma.partyImages.create({
         data: {
-            partyId: partyId, profileImageUrl: `/${file === null || file === void 0 ? void 0 : file.destination.toString()}` || "", userId: userId
+            partyId: partyId, profileImageUrl: `${file === null || file === void 0 ? void 0 : file.destination.toString()}/${file === null || file === void 0 ? void 0 : file.filename}` || "", userId: userId
         }
     });
     return res.status(200).json(new ApiResponse(200, "Photo uploaded successfully", {}));
