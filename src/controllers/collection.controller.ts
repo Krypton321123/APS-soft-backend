@@ -138,7 +138,7 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
         );
     }
 
-    const imageUrl = `/${file?.destination}`
+    const imageUrl = `${file?.destination.toString()}/${file?.filename}`
 
     try {
 
@@ -250,10 +250,27 @@ export const getCollectionsByLocation = asyncHandler(async (req: Request, res: R
         }, 
     });
 
+    const updatedCollections = await Promise.all(
+        collections.map(async (item) => {
+            let empName = "Unknown"
+  
+            const employee = await prisma.user.findFirst({
+            where: { username: item.empId },
+            select: { usrnm: true }
+            });
+
+            empName = employee?.usrnm || "Unknown";
+
+            return {
+            ...item,
+            empName
+            };
+        })
+    );
     
 
     return res.status(200).json(
-        new ApiResponse(200, "Collections fetched successfully", collections)
+        new ApiResponse(200, "Collections fetched successfully", updatedCollections)
     );
 });
 

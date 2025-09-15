@@ -92,7 +92,9 @@ export const searchImages = (req, res) => __awaiter(void 0, void 0, void 0, func
 });
 export const getImages = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { depot, employee, startDate, endDate } = req.query;
-    const ipAdd = ip.address();
+    let ipAdd = ip.address();
+    if (process.env.PRODUCTION_MODE === "prod")
+        ipAdd = "157.15.93.224";
     const user = yield prisma.user.findFirst({
         where: {
             untnm: depot,

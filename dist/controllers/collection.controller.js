@@ -87,7 +87,7 @@ export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(voi
     if (paymentMethod === 'online' && (!upiId || !transactionId)) {
         return res.status(400).json(new ApiError("Missing online payment details or image", 400, {}));
     }
-    const imageUrl = `/${file === null || file === void 0 ? void 0 : file.destination}`;
+    const imageUrl = `${file === null || file === void 0 ? void 0 : file.destination.toString()}/${file === null || file === void 0 ? void 0 : file.filename}`;
     try {
         const collection = yield prisma.collection.create({
             data: Object.assign(Object.assign({ partyId,
@@ -169,7 +169,16 @@ export const getCollectionsByLocation = asyncHandler((req, res) => __awaiter(voi
             createdAt: 'desc'
         },
     });
-    return res.status(200).json(new ApiResponse(200, "Collections fetched successfully", collections));
+    const updatedCollections = yield Promise.all(collections.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+        let empName = "Unknown";
+        const employee = yield prisma.user.findFirst({
+            where: { username: item.empId },
+            select: { usrnm: true }
+        });
+        empName = (employee === null || employee === void 0 ? void 0 : employee.usrnm) || "Unknown";
+        return Object.assign(Object.assign({}, item), { empName });
+    })));
+    return res.status(200).json(new ApiResponse(200, "Collections fetched successfully", updatedCollections));
 }));
 export const verifyCollection = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { collections } = req.body;
