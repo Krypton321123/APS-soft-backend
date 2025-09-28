@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../util/prisma.js';
 import ApiResponse from '../util/ApiResponse.js';
+import asyncHandler from '../util/asyncHandler.js';
 
 // Get distinct depot names
 export const getDepots = async (req: Request, res: Response) => {
@@ -102,3 +103,4 @@ export const getAttendance = async (req: Request, res: Response) => {
         return res.status(500).json(new ApiResponse(500, message, null));
     }
 };
+

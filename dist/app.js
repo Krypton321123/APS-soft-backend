@@ -20,6 +20,7 @@ import adminRouter from './routes/admin.router.js';
 import attendanceRouter from './routes/attendance.router.js';
 import imageRouter from './routes/image.router.js';
 import path from 'path';
+import locationRouter from './routes/location.router.js';
 const app = express();
 const pathForStatic = path.join('');
 app.use(cors({
@@ -48,5 +49,6 @@ app.use("/api/v1/stock", stockRouter);
 app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/attendance', attendanceRouter);
 app.use('/api/v1/images', imageRouter);
+app.use('/api/v1/location', locationRouter);
 app.use(globalCatch);
 export default app;

@@ -213,9 +213,13 @@ export const getItems = asyncHandler((req, res) => __awaiter(void 0, void 0, voi
     }
 }));
 export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     console.log(req.body);
     try {
-        const { userId, status, time, absentReason, markedBy } = req.body;
+        const { userId, status, absentReason, markedBy } = req.body;
+        let { time } = req.body;
+        // time = time.split(',')[0]; 
+        console.log("this is time:", time);
         // Validate required fields
         if (!userId || !status || !time) {
             return res.status(400).json({
@@ -230,8 +234,14 @@ export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fu
                 message: "Status must be either 'present' or 'absent'"
             });
         }
+        let imageUrl = '';
+        if (req.file) {
+            imageUrl = `${(_a = req.file) === null || _a === void 0 ? void 0 : _a.destination.toString()}/${(_b = req.file) === null || _b === void 0 ? void 0 : _b.filename}`;
+        }
         // Parse the time and extract date
         const markedAtTime = new Date(time);
+        console.log(time);
+        console.log(new Date(time).toLocaleString());
         const attendanceDate = new Date(markedAtTime.toDateString()); // Get date without time
         // Validate that the date is not in the future
         const today = new Date();
@@ -267,7 +277,8 @@ export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fu
             status: status,
             markedAt: markedAtTime,
             markedBy: markedBy || null,
-            absentReason: status === 'absent' ? absentReason : null
+            absentReason: status === 'absent' ? absentReason : null,
+            attendancePhoto: imageUrl
         };
         const attendance = yield prisma.attendance.upsert({
             where: {

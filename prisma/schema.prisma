@@ -139,16 +139,17 @@ model admin {
 }
 
 model Attendance {
-  attendance_id String    @id @default(cuid())
-  userId        String
-  date          DateTime  @db.Date
-  status        String    @default("not_marked")
-  markedAt      DateTime?
-  markedBy      String?
-  absentReason  String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  user          User      @relation(fields: [userId], references: [username])
+  attendance_id   String    @id @default(cuid())
+  userId          String
+  date            DateTime  @db.Date
+  status          String    @default("not_marked")
+  markedAt        DateTime?
+  markedBy        String?
+  absentReason    String?
+  attendancePhoto String?   @default("")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [username])
 
   @@unique([userId, date])
   @@index([userId])
@@ -199,4 +200,24 @@ view mstitm {
 view OutstandingAmt {
   ledcd  String   @id @unique @db.VarChar(250)
   outamt Decimal? @db.Decimal(38, 2)
+}
+
+model employeeRouteMap {
+  route_id  String               @id @default(cuid())
+  empId     String
+  empName   String
+  routeArr  latLongitudeValues[]
+  date      String
+  createdAt DateTime             @default(now())
+
+  @@unique([empId, date])
+}
+
+model latLongitudeValues {
+  latlong_id String           @id @default(cuid())
+  route_id   String
+  route      employeeRouteMap @relation(fields: [route_id], references: [route_id])
+  lat_value  String
+  long_value String
+  createdAt  DateTime         @default(now())
 }

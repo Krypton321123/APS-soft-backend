@@ -79,6 +79,16 @@ export type Attendance = $Result.DefaultSelection<Prisma.$AttendancePayload>
  */
 export type DailyRateList = $Result.DefaultSelection<Prisma.$DailyRateListPayload>
 /**
+ * Model employeeRouteMap
+ * 
+ */
+export type employeeRouteMap = $Result.DefaultSelection<Prisma.$employeeRouteMapPayload>
+/**
+ * Model latLongitudeValues
+ * 
+ */
+export type latLongitudeValues = $Result.DefaultSelection<Prisma.$latLongitudeValuesPayload>
+/**
  * Model mstemp
  * The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
  */
@@ -353,6 +363,26 @@ export class PrismaClient<
     * ```
     */
   get dailyRateList(): Prisma.DailyRateListDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeRouteMap`: Exposes CRUD operations for the **employeeRouteMap** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeRouteMaps
+    * const employeeRouteMaps = await prisma.employeeRouteMap.findMany()
+    * ```
+    */
+  get employeeRouteMap(): Prisma.employeeRouteMapDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.latLongitudeValues`: Exposes CRUD operations for the **latLongitudeValues** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LatLongitudeValues
+    * const latLongitudeValues = await prisma.latLongitudeValues.findMany()
+    * ```
+    */
+  get latLongitudeValues(): Prisma.latLongitudeValuesDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.mstemp`: Exposes CRUD operations for the **mstemp** model.
@@ -846,6 +876,8 @@ export namespace Prisma {
     admin: 'admin',
     Attendance: 'Attendance',
     DailyRateList: 'DailyRateList',
+    employeeRouteMap: 'employeeRouteMap',
+    latLongitudeValues: 'latLongitudeValues',
     mstemp: 'mstemp',
     mstparty: 'mstparty',
     mstitm: 'mstitm',
@@ -868,7 +900,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "partyImages" | "order" | "acceptedOrders" | "rejectedOrders" | "orderItem" | "collection" | "partyEditRequest" | "stock" | "stockItem" | "admin" | "attendance" | "dailyRateList" | "mstemp" | "mstparty" | "mstitm" | "outstandingAmt"
+      modelProps: "user" | "partyImages" | "order" | "acceptedOrders" | "rejectedOrders" | "orderItem" | "collection" | "partyEditRequest" | "stock" | "stockItem" | "admin" | "attendance" | "dailyRateList" | "employeeRouteMap" | "latLongitudeValues" | "mstemp" | "mstparty" | "mstitm" | "outstandingAmt"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1730,6 +1762,138 @@ export namespace Prisma {
           }
         }
       }
+      employeeRouteMap: {
+        payload: Prisma.$employeeRouteMapPayload<ExtArgs>
+        fields: Prisma.employeeRouteMapFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.employeeRouteMapFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.employeeRouteMapFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          findFirst: {
+            args: Prisma.employeeRouteMapFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.employeeRouteMapFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          findMany: {
+            args: Prisma.employeeRouteMapFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>[]
+          }
+          create: {
+            args: Prisma.employeeRouteMapCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          createMany: {
+            args: Prisma.employeeRouteMapCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.employeeRouteMapDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          update: {
+            args: Prisma.employeeRouteMapUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          deleteMany: {
+            args: Prisma.employeeRouteMapDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.employeeRouteMapUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.employeeRouteMapUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$employeeRouteMapPayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeRouteMapAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeRouteMap>
+          }
+          groupBy: {
+            args: Prisma.employeeRouteMapGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeRouteMapGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.employeeRouteMapCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeRouteMapCountAggregateOutputType> | number
+          }
+        }
+      }
+      latLongitudeValues: {
+        payload: Prisma.$latLongitudeValuesPayload<ExtArgs>
+        fields: Prisma.latLongitudeValuesFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.latLongitudeValuesFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.latLongitudeValuesFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          findFirst: {
+            args: Prisma.latLongitudeValuesFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.latLongitudeValuesFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          findMany: {
+            args: Prisma.latLongitudeValuesFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>[]
+          }
+          create: {
+            args: Prisma.latLongitudeValuesCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          createMany: {
+            args: Prisma.latLongitudeValuesCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.latLongitudeValuesDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          update: {
+            args: Prisma.latLongitudeValuesUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          deleteMany: {
+            args: Prisma.latLongitudeValuesDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.latLongitudeValuesUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.latLongitudeValuesUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$latLongitudeValuesPayload>
+          }
+          aggregate: {
+            args: Prisma.LatLongitudeValuesAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLatLongitudeValues>
+          }
+          groupBy: {
+            args: Prisma.latLongitudeValuesGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LatLongitudeValuesGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.latLongitudeValuesCountArgs<ExtArgs>
+            result: $Utils.Optional<LatLongitudeValuesCountAggregateOutputType> | number
+          }
+        }
+      }
       mstemp: {
         payload: Prisma.$mstempPayload<ExtArgs>
         fields: Prisma.mstempFieldRefs
@@ -2091,6 +2255,8 @@ export namespace Prisma {
     admin?: adminOmit
     attendance?: AttendanceOmit
     dailyRateList?: DailyRateListOmit
+    employeeRouteMap?: employeeRouteMapOmit
+    latLongitudeValues?: latLongitudeValuesOmit
     mstemp?: mstempOmit
     mstparty?: mstpartyOmit
     mstitm?: mstitmOmit
@@ -2283,6 +2449,37 @@ export namespace Prisma {
    */
   export type StockCountOutputTypeCountStockItemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StockItemWhereInput
+  }
+
+
+  /**
+   * Count Type EmployeeRouteMapCountOutputType
+   */
+
+  export type EmployeeRouteMapCountOutputType = {
+    routeArr: number
+  }
+
+  export type EmployeeRouteMapCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    routeArr?: boolean | EmployeeRouteMapCountOutputTypeCountRouteArrArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * EmployeeRouteMapCountOutputType without action
+   */
+  export type EmployeeRouteMapCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeRouteMapCountOutputType
+     */
+    select?: EmployeeRouteMapCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * EmployeeRouteMapCountOutputType without action
+   */
+  export type EmployeeRouteMapCountOutputTypeCountRouteArrArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: latLongitudeValuesWhereInput
   }
 
 
@@ -13059,6 +13256,7 @@ export namespace Prisma {
     markedAt: Date | null
     markedBy: string | null
     absentReason: string | null
+    attendancePhoto: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13071,6 +13269,7 @@ export namespace Prisma {
     markedAt: Date | null
     markedBy: string | null
     absentReason: string | null
+    attendancePhoto: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -13083,6 +13282,7 @@ export namespace Prisma {
     markedAt: number
     markedBy: number
     absentReason: number
+    attendancePhoto: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -13097,6 +13297,7 @@ export namespace Prisma {
     markedAt?: true
     markedBy?: true
     absentReason?: true
+    attendancePhoto?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13109,6 +13310,7 @@ export namespace Prisma {
     markedAt?: true
     markedBy?: true
     absentReason?: true
+    attendancePhoto?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -13121,6 +13323,7 @@ export namespace Prisma {
     markedAt?: true
     markedBy?: true
     absentReason?: true
+    attendancePhoto?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -13206,6 +13409,7 @@ export namespace Prisma {
     markedAt: Date | null
     markedBy: string | null
     absentReason: string | null
+    attendancePhoto: string | null
     createdAt: Date
     updatedAt: Date
     _count: AttendanceCountAggregateOutputType | null
@@ -13235,6 +13439,7 @@ export namespace Prisma {
     markedAt?: boolean
     markedBy?: boolean
     absentReason?: boolean
+    attendancePhoto?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -13250,11 +13455,12 @@ export namespace Prisma {
     markedAt?: boolean
     markedBy?: boolean
     absentReason?: boolean
+    attendancePhoto?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"attendance_id" | "userId" | "date" | "status" | "markedAt" | "markedBy" | "absentReason" | "createdAt" | "updatedAt", ExtArgs["result"]["attendance"]>
+  export type AttendanceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"attendance_id" | "userId" | "date" | "status" | "markedAt" | "markedBy" | "absentReason" | "attendancePhoto" | "createdAt" | "updatedAt", ExtArgs["result"]["attendance"]>
   export type AttendanceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -13272,6 +13478,7 @@ export namespace Prisma {
       markedAt: Date | null
       markedBy: string | null
       absentReason: string | null
+      attendancePhoto: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["attendance"]>
@@ -13651,6 +13858,7 @@ export namespace Prisma {
     readonly markedAt: FieldRef<"Attendance", 'DateTime'>
     readonly markedBy: FieldRef<"Attendance", 'String'>
     readonly absentReason: FieldRef<"Attendance", 'String'>
+    readonly attendancePhoto: FieldRef<"Attendance", 'String'>
     readonly createdAt: FieldRef<"Attendance", 'DateTime'>
     readonly updatedAt: FieldRef<"Attendance", 'DateTime'>
   }
@@ -14940,6 +15148,1888 @@ export namespace Prisma {
      * Omit specific fields from the DailyRateList
      */
     omit?: DailyRateListOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model employeeRouteMap
+   */
+
+  export type AggregateEmployeeRouteMap = {
+    _count: EmployeeRouteMapCountAggregateOutputType | null
+    _min: EmployeeRouteMapMinAggregateOutputType | null
+    _max: EmployeeRouteMapMaxAggregateOutputType | null
+  }
+
+  export type EmployeeRouteMapMinAggregateOutputType = {
+    route_id: string | null
+    empId: string | null
+    empName: string | null
+    date: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeRouteMapMaxAggregateOutputType = {
+    route_id: string | null
+    empId: string | null
+    empName: string | null
+    date: string | null
+    createdAt: Date | null
+  }
+
+  export type EmployeeRouteMapCountAggregateOutputType = {
+    route_id: number
+    empId: number
+    empName: number
+    date: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type EmployeeRouteMapMinAggregateInputType = {
+    route_id?: true
+    empId?: true
+    empName?: true
+    date?: true
+    createdAt?: true
+  }
+
+  export type EmployeeRouteMapMaxAggregateInputType = {
+    route_id?: true
+    empId?: true
+    empName?: true
+    date?: true
+    createdAt?: true
+  }
+
+  export type EmployeeRouteMapCountAggregateInputType = {
+    route_id?: true
+    empId?: true
+    empName?: true
+    date?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type EmployeeRouteMapAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which employeeRouteMap to aggregate.
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employeeRouteMaps to fetch.
+     */
+    orderBy?: employeeRouteMapOrderByWithRelationInput | employeeRouteMapOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: employeeRouteMapWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employeeRouteMaps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employeeRouteMaps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned employeeRouteMaps
+    **/
+    _count?: true | EmployeeRouteMapCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeRouteMapMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeRouteMapMaxAggregateInputType
+  }
+
+  export type GetEmployeeRouteMapAggregateType<T extends EmployeeRouteMapAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeRouteMap]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeRouteMap[P]>
+      : GetScalarType<T[P], AggregateEmployeeRouteMap[P]>
+  }
+
+
+
+
+  export type employeeRouteMapGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: employeeRouteMapWhereInput
+    orderBy?: employeeRouteMapOrderByWithAggregationInput | employeeRouteMapOrderByWithAggregationInput[]
+    by: EmployeeRouteMapScalarFieldEnum[] | EmployeeRouteMapScalarFieldEnum
+    having?: employeeRouteMapScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeRouteMapCountAggregateInputType | true
+    _min?: EmployeeRouteMapMinAggregateInputType
+    _max?: EmployeeRouteMapMaxAggregateInputType
+  }
+
+  export type EmployeeRouteMapGroupByOutputType = {
+    route_id: string
+    empId: string
+    empName: string
+    date: string
+    createdAt: Date
+    _count: EmployeeRouteMapCountAggregateOutputType | null
+    _min: EmployeeRouteMapMinAggregateOutputType | null
+    _max: EmployeeRouteMapMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeRouteMapGroupByPayload<T extends employeeRouteMapGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeRouteMapGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeRouteMapGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeRouteMapGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeRouteMapGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type employeeRouteMapSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    route_id?: boolean
+    empId?: boolean
+    empName?: boolean
+    date?: boolean
+    createdAt?: boolean
+    routeArr?: boolean | employeeRouteMap$routeArrArgs<ExtArgs>
+    _count?: boolean | EmployeeRouteMapCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeRouteMap"]>
+
+
+
+  export type employeeRouteMapSelectScalar = {
+    route_id?: boolean
+    empId?: boolean
+    empName?: boolean
+    date?: boolean
+    createdAt?: boolean
+  }
+
+  export type employeeRouteMapOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"route_id" | "empId" | "empName" | "date" | "createdAt", ExtArgs["result"]["employeeRouteMap"]>
+  export type employeeRouteMapInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    routeArr?: boolean | employeeRouteMap$routeArrArgs<ExtArgs>
+    _count?: boolean | EmployeeRouteMapCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $employeeRouteMapPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "employeeRouteMap"
+    objects: {
+      routeArr: Prisma.$latLongitudeValuesPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      route_id: string
+      empId: string
+      empName: string
+      date: string
+      createdAt: Date
+    }, ExtArgs["result"]["employeeRouteMap"]>
+    composites: {}
+  }
+
+  type employeeRouteMapGetPayload<S extends boolean | null | undefined | employeeRouteMapDefaultArgs> = $Result.GetResult<Prisma.$employeeRouteMapPayload, S>
+
+  type employeeRouteMapCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<employeeRouteMapFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeRouteMapCountAggregateInputType | true
+    }
+
+  export interface employeeRouteMapDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['employeeRouteMap'], meta: { name: 'employeeRouteMap' } }
+    /**
+     * Find zero or one EmployeeRouteMap that matches the filter.
+     * @param {employeeRouteMapFindUniqueArgs} args - Arguments to find a EmployeeRouteMap
+     * @example
+     * // Get one EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends employeeRouteMapFindUniqueArgs>(args: SelectSubset<T, employeeRouteMapFindUniqueArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeRouteMap that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {employeeRouteMapFindUniqueOrThrowArgs} args - Arguments to find a EmployeeRouteMap
+     * @example
+     * // Get one EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends employeeRouteMapFindUniqueOrThrowArgs>(args: SelectSubset<T, employeeRouteMapFindUniqueOrThrowArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeRouteMap that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapFindFirstArgs} args - Arguments to find a EmployeeRouteMap
+     * @example
+     * // Get one EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends employeeRouteMapFindFirstArgs>(args?: SelectSubset<T, employeeRouteMapFindFirstArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeRouteMap that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapFindFirstOrThrowArgs} args - Arguments to find a EmployeeRouteMap
+     * @example
+     * // Get one EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends employeeRouteMapFindFirstOrThrowArgs>(args?: SelectSubset<T, employeeRouteMapFindFirstOrThrowArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeRouteMaps that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeRouteMaps
+     * const employeeRouteMaps = await prisma.employeeRouteMap.findMany()
+     * 
+     * // Get first 10 EmployeeRouteMaps
+     * const employeeRouteMaps = await prisma.employeeRouteMap.findMany({ take: 10 })
+     * 
+     * // Only select the `route_id`
+     * const employeeRouteMapWithRoute_idOnly = await prisma.employeeRouteMap.findMany({ select: { route_id: true } })
+     * 
+     */
+    findMany<T extends employeeRouteMapFindManyArgs>(args?: SelectSubset<T, employeeRouteMapFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeRouteMap.
+     * @param {employeeRouteMapCreateArgs} args - Arguments to create a EmployeeRouteMap.
+     * @example
+     * // Create one EmployeeRouteMap
+     * const EmployeeRouteMap = await prisma.employeeRouteMap.create({
+     *   data: {
+     *     // ... data to create a EmployeeRouteMap
+     *   }
+     * })
+     * 
+     */
+    create<T extends employeeRouteMapCreateArgs>(args: SelectSubset<T, employeeRouteMapCreateArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeRouteMaps.
+     * @param {employeeRouteMapCreateManyArgs} args - Arguments to create many EmployeeRouteMaps.
+     * @example
+     * // Create many EmployeeRouteMaps
+     * const employeeRouteMap = await prisma.employeeRouteMap.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends employeeRouteMapCreateManyArgs>(args?: SelectSubset<T, employeeRouteMapCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a EmployeeRouteMap.
+     * @param {employeeRouteMapDeleteArgs} args - Arguments to delete one EmployeeRouteMap.
+     * @example
+     * // Delete one EmployeeRouteMap
+     * const EmployeeRouteMap = await prisma.employeeRouteMap.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeRouteMap
+     *   }
+     * })
+     * 
+     */
+    delete<T extends employeeRouteMapDeleteArgs>(args: SelectSubset<T, employeeRouteMapDeleteArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeRouteMap.
+     * @param {employeeRouteMapUpdateArgs} args - Arguments to update one EmployeeRouteMap.
+     * @example
+     * // Update one EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends employeeRouteMapUpdateArgs>(args: SelectSubset<T, employeeRouteMapUpdateArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeRouteMaps.
+     * @param {employeeRouteMapDeleteManyArgs} args - Arguments to filter EmployeeRouteMaps to delete.
+     * @example
+     * // Delete a few EmployeeRouteMaps
+     * const { count } = await prisma.employeeRouteMap.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends employeeRouteMapDeleteManyArgs>(args?: SelectSubset<T, employeeRouteMapDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeRouteMaps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeRouteMaps
+     * const employeeRouteMap = await prisma.employeeRouteMap.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends employeeRouteMapUpdateManyArgs>(args: SelectSubset<T, employeeRouteMapUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one EmployeeRouteMap.
+     * @param {employeeRouteMapUpsertArgs} args - Arguments to update or create a EmployeeRouteMap.
+     * @example
+     * // Update or create a EmployeeRouteMap
+     * const employeeRouteMap = await prisma.employeeRouteMap.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeRouteMap
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeRouteMap we want to update
+     *   }
+     * })
+     */
+    upsert<T extends employeeRouteMapUpsertArgs>(args: SelectSubset<T, employeeRouteMapUpsertArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of EmployeeRouteMaps.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapCountArgs} args - Arguments to filter EmployeeRouteMaps to count.
+     * @example
+     * // Count the number of EmployeeRouteMaps
+     * const count = await prisma.employeeRouteMap.count({
+     *   where: {
+     *     // ... the filter for the EmployeeRouteMaps we want to count
+     *   }
+     * })
+    **/
+    count<T extends employeeRouteMapCountArgs>(
+      args?: Subset<T, employeeRouteMapCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeRouteMapCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeRouteMap.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeRouteMapAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeRouteMapAggregateArgs>(args: Subset<T, EmployeeRouteMapAggregateArgs>): Prisma.PrismaPromise<GetEmployeeRouteMapAggregateType<T>>
+
+    /**
+     * Group by EmployeeRouteMap.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {employeeRouteMapGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends employeeRouteMapGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: employeeRouteMapGroupByArgs['orderBy'] }
+        : { orderBy?: employeeRouteMapGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, employeeRouteMapGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeRouteMapGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the employeeRouteMap model
+   */
+  readonly fields: employeeRouteMapFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for employeeRouteMap.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__employeeRouteMapClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    routeArr<T extends employeeRouteMap$routeArrArgs<ExtArgs> = {}>(args?: Subset<T, employeeRouteMap$routeArrArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the employeeRouteMap model
+   */
+  interface employeeRouteMapFieldRefs {
+    readonly route_id: FieldRef<"employeeRouteMap", 'String'>
+    readonly empId: FieldRef<"employeeRouteMap", 'String'>
+    readonly empName: FieldRef<"employeeRouteMap", 'String'>
+    readonly date: FieldRef<"employeeRouteMap", 'String'>
+    readonly createdAt: FieldRef<"employeeRouteMap", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * employeeRouteMap findUnique
+   */
+  export type employeeRouteMapFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter, which employeeRouteMap to fetch.
+     */
+    where: employeeRouteMapWhereUniqueInput
+  }
+
+  /**
+   * employeeRouteMap findUniqueOrThrow
+   */
+  export type employeeRouteMapFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter, which employeeRouteMap to fetch.
+     */
+    where: employeeRouteMapWhereUniqueInput
+  }
+
+  /**
+   * employeeRouteMap findFirst
+   */
+  export type employeeRouteMapFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter, which employeeRouteMap to fetch.
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employeeRouteMaps to fetch.
+     */
+    orderBy?: employeeRouteMapOrderByWithRelationInput | employeeRouteMapOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for employeeRouteMaps.
+     */
+    cursor?: employeeRouteMapWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employeeRouteMaps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employeeRouteMaps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of employeeRouteMaps.
+     */
+    distinct?: EmployeeRouteMapScalarFieldEnum | EmployeeRouteMapScalarFieldEnum[]
+  }
+
+  /**
+   * employeeRouteMap findFirstOrThrow
+   */
+  export type employeeRouteMapFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter, which employeeRouteMap to fetch.
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employeeRouteMaps to fetch.
+     */
+    orderBy?: employeeRouteMapOrderByWithRelationInput | employeeRouteMapOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for employeeRouteMaps.
+     */
+    cursor?: employeeRouteMapWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employeeRouteMaps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employeeRouteMaps.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of employeeRouteMaps.
+     */
+    distinct?: EmployeeRouteMapScalarFieldEnum | EmployeeRouteMapScalarFieldEnum[]
+  }
+
+  /**
+   * employeeRouteMap findMany
+   */
+  export type employeeRouteMapFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter, which employeeRouteMaps to fetch.
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of employeeRouteMaps to fetch.
+     */
+    orderBy?: employeeRouteMapOrderByWithRelationInput | employeeRouteMapOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing employeeRouteMaps.
+     */
+    cursor?: employeeRouteMapWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` employeeRouteMaps from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` employeeRouteMaps.
+     */
+    skip?: number
+    distinct?: EmployeeRouteMapScalarFieldEnum | EmployeeRouteMapScalarFieldEnum[]
+  }
+
+  /**
+   * employeeRouteMap create
+   */
+  export type employeeRouteMapCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * The data needed to create a employeeRouteMap.
+     */
+    data: XOR<employeeRouteMapCreateInput, employeeRouteMapUncheckedCreateInput>
+  }
+
+  /**
+   * employeeRouteMap createMany
+   */
+  export type employeeRouteMapCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many employeeRouteMaps.
+     */
+    data: employeeRouteMapCreateManyInput | employeeRouteMapCreateManyInput[]
+  }
+
+  /**
+   * employeeRouteMap update
+   */
+  export type employeeRouteMapUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * The data needed to update a employeeRouteMap.
+     */
+    data: XOR<employeeRouteMapUpdateInput, employeeRouteMapUncheckedUpdateInput>
+    /**
+     * Choose, which employeeRouteMap to update.
+     */
+    where: employeeRouteMapWhereUniqueInput
+  }
+
+  /**
+   * employeeRouteMap updateMany
+   */
+  export type employeeRouteMapUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update employeeRouteMaps.
+     */
+    data: XOR<employeeRouteMapUpdateManyMutationInput, employeeRouteMapUncheckedUpdateManyInput>
+    /**
+     * Filter which employeeRouteMaps to update
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * Limit how many employeeRouteMaps to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * employeeRouteMap upsert
+   */
+  export type employeeRouteMapUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * The filter to search for the employeeRouteMap to update in case it exists.
+     */
+    where: employeeRouteMapWhereUniqueInput
+    /**
+     * In case the employeeRouteMap found by the `where` argument doesn't exist, create a new employeeRouteMap with this data.
+     */
+    create: XOR<employeeRouteMapCreateInput, employeeRouteMapUncheckedCreateInput>
+    /**
+     * In case the employeeRouteMap was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<employeeRouteMapUpdateInput, employeeRouteMapUncheckedUpdateInput>
+  }
+
+  /**
+   * employeeRouteMap delete
+   */
+  export type employeeRouteMapDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+    /**
+     * Filter which employeeRouteMap to delete.
+     */
+    where: employeeRouteMapWhereUniqueInput
+  }
+
+  /**
+   * employeeRouteMap deleteMany
+   */
+  export type employeeRouteMapDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which employeeRouteMaps to delete
+     */
+    where?: employeeRouteMapWhereInput
+    /**
+     * Limit how many employeeRouteMaps to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * employeeRouteMap.routeArr
+   */
+  export type employeeRouteMap$routeArrArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    where?: latLongitudeValuesWhereInput
+    orderBy?: latLongitudeValuesOrderByWithRelationInput | latLongitudeValuesOrderByWithRelationInput[]
+    cursor?: latLongitudeValuesWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LatLongitudeValuesScalarFieldEnum | LatLongitudeValuesScalarFieldEnum[]
+  }
+
+  /**
+   * employeeRouteMap without action
+   */
+  export type employeeRouteMapDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the employeeRouteMap
+     */
+    select?: employeeRouteMapSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the employeeRouteMap
+     */
+    omit?: employeeRouteMapOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: employeeRouteMapInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model latLongitudeValues
+   */
+
+  export type AggregateLatLongitudeValues = {
+    _count: LatLongitudeValuesCountAggregateOutputType | null
+    _min: LatLongitudeValuesMinAggregateOutputType | null
+    _max: LatLongitudeValuesMaxAggregateOutputType | null
+  }
+
+  export type LatLongitudeValuesMinAggregateOutputType = {
+    latlong_id: string | null
+    route_id: string | null
+    lat_value: string | null
+    long_value: string | null
+    createdAt: Date | null
+  }
+
+  export type LatLongitudeValuesMaxAggregateOutputType = {
+    latlong_id: string | null
+    route_id: string | null
+    lat_value: string | null
+    long_value: string | null
+    createdAt: Date | null
+  }
+
+  export type LatLongitudeValuesCountAggregateOutputType = {
+    latlong_id: number
+    route_id: number
+    lat_value: number
+    long_value: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type LatLongitudeValuesMinAggregateInputType = {
+    latlong_id?: true
+    route_id?: true
+    lat_value?: true
+    long_value?: true
+    createdAt?: true
+  }
+
+  export type LatLongitudeValuesMaxAggregateInputType = {
+    latlong_id?: true
+    route_id?: true
+    lat_value?: true
+    long_value?: true
+    createdAt?: true
+  }
+
+  export type LatLongitudeValuesCountAggregateInputType = {
+    latlong_id?: true
+    route_id?: true
+    lat_value?: true
+    long_value?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type LatLongitudeValuesAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which latLongitudeValues to aggregate.
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of latLongitudeValues to fetch.
+     */
+    orderBy?: latLongitudeValuesOrderByWithRelationInput | latLongitudeValuesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: latLongitudeValuesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` latLongitudeValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` latLongitudeValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned latLongitudeValues
+    **/
+    _count?: true | LatLongitudeValuesCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LatLongitudeValuesMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LatLongitudeValuesMaxAggregateInputType
+  }
+
+  export type GetLatLongitudeValuesAggregateType<T extends LatLongitudeValuesAggregateArgs> = {
+        [P in keyof T & keyof AggregateLatLongitudeValues]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLatLongitudeValues[P]>
+      : GetScalarType<T[P], AggregateLatLongitudeValues[P]>
+  }
+
+
+
+
+  export type latLongitudeValuesGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: latLongitudeValuesWhereInput
+    orderBy?: latLongitudeValuesOrderByWithAggregationInput | latLongitudeValuesOrderByWithAggregationInput[]
+    by: LatLongitudeValuesScalarFieldEnum[] | LatLongitudeValuesScalarFieldEnum
+    having?: latLongitudeValuesScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LatLongitudeValuesCountAggregateInputType | true
+    _min?: LatLongitudeValuesMinAggregateInputType
+    _max?: LatLongitudeValuesMaxAggregateInputType
+  }
+
+  export type LatLongitudeValuesGroupByOutputType = {
+    latlong_id: string
+    route_id: string
+    lat_value: string
+    long_value: string
+    createdAt: Date
+    _count: LatLongitudeValuesCountAggregateOutputType | null
+    _min: LatLongitudeValuesMinAggregateOutputType | null
+    _max: LatLongitudeValuesMaxAggregateOutputType | null
+  }
+
+  type GetLatLongitudeValuesGroupByPayload<T extends latLongitudeValuesGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LatLongitudeValuesGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LatLongitudeValuesGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LatLongitudeValuesGroupByOutputType[P]>
+            : GetScalarType<T[P], LatLongitudeValuesGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type latLongitudeValuesSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    latlong_id?: boolean
+    route_id?: boolean
+    lat_value?: boolean
+    long_value?: boolean
+    createdAt?: boolean
+    route?: boolean | employeeRouteMapDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["latLongitudeValues"]>
+
+
+
+  export type latLongitudeValuesSelectScalar = {
+    latlong_id?: boolean
+    route_id?: boolean
+    lat_value?: boolean
+    long_value?: boolean
+    createdAt?: boolean
+  }
+
+  export type latLongitudeValuesOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"latlong_id" | "route_id" | "lat_value" | "long_value" | "createdAt", ExtArgs["result"]["latLongitudeValues"]>
+  export type latLongitudeValuesInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    route?: boolean | employeeRouteMapDefaultArgs<ExtArgs>
+  }
+
+  export type $latLongitudeValuesPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "latLongitudeValues"
+    objects: {
+      route: Prisma.$employeeRouteMapPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      latlong_id: string
+      route_id: string
+      lat_value: string
+      long_value: string
+      createdAt: Date
+    }, ExtArgs["result"]["latLongitudeValues"]>
+    composites: {}
+  }
+
+  type latLongitudeValuesGetPayload<S extends boolean | null | undefined | latLongitudeValuesDefaultArgs> = $Result.GetResult<Prisma.$latLongitudeValuesPayload, S>
+
+  type latLongitudeValuesCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<latLongitudeValuesFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LatLongitudeValuesCountAggregateInputType | true
+    }
+
+  export interface latLongitudeValuesDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['latLongitudeValues'], meta: { name: 'latLongitudeValues' } }
+    /**
+     * Find zero or one LatLongitudeValues that matches the filter.
+     * @param {latLongitudeValuesFindUniqueArgs} args - Arguments to find a LatLongitudeValues
+     * @example
+     * // Get one LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends latLongitudeValuesFindUniqueArgs>(args: SelectSubset<T, latLongitudeValuesFindUniqueArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LatLongitudeValues that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {latLongitudeValuesFindUniqueOrThrowArgs} args - Arguments to find a LatLongitudeValues
+     * @example
+     * // Get one LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends latLongitudeValuesFindUniqueOrThrowArgs>(args: SelectSubset<T, latLongitudeValuesFindUniqueOrThrowArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LatLongitudeValues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesFindFirstArgs} args - Arguments to find a LatLongitudeValues
+     * @example
+     * // Get one LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends latLongitudeValuesFindFirstArgs>(args?: SelectSubset<T, latLongitudeValuesFindFirstArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LatLongitudeValues that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesFindFirstOrThrowArgs} args - Arguments to find a LatLongitudeValues
+     * @example
+     * // Get one LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends latLongitudeValuesFindFirstOrThrowArgs>(args?: SelectSubset<T, latLongitudeValuesFindFirstOrThrowArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LatLongitudeValues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findMany()
+     * 
+     * // Get first 10 LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.findMany({ take: 10 })
+     * 
+     * // Only select the `latlong_id`
+     * const latLongitudeValuesWithLatlong_idOnly = await prisma.latLongitudeValues.findMany({ select: { latlong_id: true } })
+     * 
+     */
+    findMany<T extends latLongitudeValuesFindManyArgs>(args?: SelectSubset<T, latLongitudeValuesFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LatLongitudeValues.
+     * @param {latLongitudeValuesCreateArgs} args - Arguments to create a LatLongitudeValues.
+     * @example
+     * // Create one LatLongitudeValues
+     * const LatLongitudeValues = await prisma.latLongitudeValues.create({
+     *   data: {
+     *     // ... data to create a LatLongitudeValues
+     *   }
+     * })
+     * 
+     */
+    create<T extends latLongitudeValuesCreateArgs>(args: SelectSubset<T, latLongitudeValuesCreateArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LatLongitudeValues.
+     * @param {latLongitudeValuesCreateManyArgs} args - Arguments to create many LatLongitudeValues.
+     * @example
+     * // Create many LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends latLongitudeValuesCreateManyArgs>(args?: SelectSubset<T, latLongitudeValuesCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a LatLongitudeValues.
+     * @param {latLongitudeValuesDeleteArgs} args - Arguments to delete one LatLongitudeValues.
+     * @example
+     * // Delete one LatLongitudeValues
+     * const LatLongitudeValues = await prisma.latLongitudeValues.delete({
+     *   where: {
+     *     // ... filter to delete one LatLongitudeValues
+     *   }
+     * })
+     * 
+     */
+    delete<T extends latLongitudeValuesDeleteArgs>(args: SelectSubset<T, latLongitudeValuesDeleteArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LatLongitudeValues.
+     * @param {latLongitudeValuesUpdateArgs} args - Arguments to update one LatLongitudeValues.
+     * @example
+     * // Update one LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends latLongitudeValuesUpdateArgs>(args: SelectSubset<T, latLongitudeValuesUpdateArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LatLongitudeValues.
+     * @param {latLongitudeValuesDeleteManyArgs} args - Arguments to filter LatLongitudeValues to delete.
+     * @example
+     * // Delete a few LatLongitudeValues
+     * const { count } = await prisma.latLongitudeValues.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends latLongitudeValuesDeleteManyArgs>(args?: SelectSubset<T, latLongitudeValuesDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LatLongitudeValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends latLongitudeValuesUpdateManyArgs>(args: SelectSubset<T, latLongitudeValuesUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one LatLongitudeValues.
+     * @param {latLongitudeValuesUpsertArgs} args - Arguments to update or create a LatLongitudeValues.
+     * @example
+     * // Update or create a LatLongitudeValues
+     * const latLongitudeValues = await prisma.latLongitudeValues.upsert({
+     *   create: {
+     *     // ... data to create a LatLongitudeValues
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LatLongitudeValues we want to update
+     *   }
+     * })
+     */
+    upsert<T extends latLongitudeValuesUpsertArgs>(args: SelectSubset<T, latLongitudeValuesUpsertArgs<ExtArgs>>): Prisma__latLongitudeValuesClient<$Result.GetResult<Prisma.$latLongitudeValuesPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LatLongitudeValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesCountArgs} args - Arguments to filter LatLongitudeValues to count.
+     * @example
+     * // Count the number of LatLongitudeValues
+     * const count = await prisma.latLongitudeValues.count({
+     *   where: {
+     *     // ... the filter for the LatLongitudeValues we want to count
+     *   }
+     * })
+    **/
+    count<T extends latLongitudeValuesCountArgs>(
+      args?: Subset<T, latLongitudeValuesCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LatLongitudeValuesCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LatLongitudeValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LatLongitudeValuesAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LatLongitudeValuesAggregateArgs>(args: Subset<T, LatLongitudeValuesAggregateArgs>): Prisma.PrismaPromise<GetLatLongitudeValuesAggregateType<T>>
+
+    /**
+     * Group by LatLongitudeValues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {latLongitudeValuesGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends latLongitudeValuesGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: latLongitudeValuesGroupByArgs['orderBy'] }
+        : { orderBy?: latLongitudeValuesGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, latLongitudeValuesGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLatLongitudeValuesGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the latLongitudeValues model
+   */
+  readonly fields: latLongitudeValuesFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for latLongitudeValues.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__latLongitudeValuesClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    route<T extends employeeRouteMapDefaultArgs<ExtArgs> = {}>(args?: Subset<T, employeeRouteMapDefaultArgs<ExtArgs>>): Prisma__employeeRouteMapClient<$Result.GetResult<Prisma.$employeeRouteMapPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the latLongitudeValues model
+   */
+  interface latLongitudeValuesFieldRefs {
+    readonly latlong_id: FieldRef<"latLongitudeValues", 'String'>
+    readonly route_id: FieldRef<"latLongitudeValues", 'String'>
+    readonly lat_value: FieldRef<"latLongitudeValues", 'String'>
+    readonly long_value: FieldRef<"latLongitudeValues", 'String'>
+    readonly createdAt: FieldRef<"latLongitudeValues", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * latLongitudeValues findUnique
+   */
+  export type latLongitudeValuesFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter, which latLongitudeValues to fetch.
+     */
+    where: latLongitudeValuesWhereUniqueInput
+  }
+
+  /**
+   * latLongitudeValues findUniqueOrThrow
+   */
+  export type latLongitudeValuesFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter, which latLongitudeValues to fetch.
+     */
+    where: latLongitudeValuesWhereUniqueInput
+  }
+
+  /**
+   * latLongitudeValues findFirst
+   */
+  export type latLongitudeValuesFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter, which latLongitudeValues to fetch.
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of latLongitudeValues to fetch.
+     */
+    orderBy?: latLongitudeValuesOrderByWithRelationInput | latLongitudeValuesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for latLongitudeValues.
+     */
+    cursor?: latLongitudeValuesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` latLongitudeValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` latLongitudeValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of latLongitudeValues.
+     */
+    distinct?: LatLongitudeValuesScalarFieldEnum | LatLongitudeValuesScalarFieldEnum[]
+  }
+
+  /**
+   * latLongitudeValues findFirstOrThrow
+   */
+  export type latLongitudeValuesFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter, which latLongitudeValues to fetch.
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of latLongitudeValues to fetch.
+     */
+    orderBy?: latLongitudeValuesOrderByWithRelationInput | latLongitudeValuesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for latLongitudeValues.
+     */
+    cursor?: latLongitudeValuesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` latLongitudeValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` latLongitudeValues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of latLongitudeValues.
+     */
+    distinct?: LatLongitudeValuesScalarFieldEnum | LatLongitudeValuesScalarFieldEnum[]
+  }
+
+  /**
+   * latLongitudeValues findMany
+   */
+  export type latLongitudeValuesFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter, which latLongitudeValues to fetch.
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of latLongitudeValues to fetch.
+     */
+    orderBy?: latLongitudeValuesOrderByWithRelationInput | latLongitudeValuesOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing latLongitudeValues.
+     */
+    cursor?: latLongitudeValuesWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` latLongitudeValues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` latLongitudeValues.
+     */
+    skip?: number
+    distinct?: LatLongitudeValuesScalarFieldEnum | LatLongitudeValuesScalarFieldEnum[]
+  }
+
+  /**
+   * latLongitudeValues create
+   */
+  export type latLongitudeValuesCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * The data needed to create a latLongitudeValues.
+     */
+    data: XOR<latLongitudeValuesCreateInput, latLongitudeValuesUncheckedCreateInput>
+  }
+
+  /**
+   * latLongitudeValues createMany
+   */
+  export type latLongitudeValuesCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many latLongitudeValues.
+     */
+    data: latLongitudeValuesCreateManyInput | latLongitudeValuesCreateManyInput[]
+  }
+
+  /**
+   * latLongitudeValues update
+   */
+  export type latLongitudeValuesUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * The data needed to update a latLongitudeValues.
+     */
+    data: XOR<latLongitudeValuesUpdateInput, latLongitudeValuesUncheckedUpdateInput>
+    /**
+     * Choose, which latLongitudeValues to update.
+     */
+    where: latLongitudeValuesWhereUniqueInput
+  }
+
+  /**
+   * latLongitudeValues updateMany
+   */
+  export type latLongitudeValuesUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update latLongitudeValues.
+     */
+    data: XOR<latLongitudeValuesUpdateManyMutationInput, latLongitudeValuesUncheckedUpdateManyInput>
+    /**
+     * Filter which latLongitudeValues to update
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * Limit how many latLongitudeValues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * latLongitudeValues upsert
+   */
+  export type latLongitudeValuesUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * The filter to search for the latLongitudeValues to update in case it exists.
+     */
+    where: latLongitudeValuesWhereUniqueInput
+    /**
+     * In case the latLongitudeValues found by the `where` argument doesn't exist, create a new latLongitudeValues with this data.
+     */
+    create: XOR<latLongitudeValuesCreateInput, latLongitudeValuesUncheckedCreateInput>
+    /**
+     * In case the latLongitudeValues was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<latLongitudeValuesUpdateInput, latLongitudeValuesUncheckedUpdateInput>
+  }
+
+  /**
+   * latLongitudeValues delete
+   */
+  export type latLongitudeValuesDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
+    /**
+     * Filter which latLongitudeValues to delete.
+     */
+    where: latLongitudeValuesWhereUniqueInput
+  }
+
+  /**
+   * latLongitudeValues deleteMany
+   */
+  export type latLongitudeValuesDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which latLongitudeValues to delete
+     */
+    where?: latLongitudeValuesWhereInput
+    /**
+     * Limit how many latLongitudeValues to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * latLongitudeValues without action
+   */
+  export type latLongitudeValuesDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the latLongitudeValues
+     */
+    select?: latLongitudeValuesSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the latLongitudeValues
+     */
+    omit?: latLongitudeValuesOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: latLongitudeValuesInclude<ExtArgs> | null
   }
 
 
@@ -18720,6 +20810,7 @@ export namespace Prisma {
     markedAt: 'markedAt',
     markedBy: 'markedBy',
     absentReason: 'absentReason',
+    attendancePhoto: 'attendancePhoto',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -18737,6 +20828,28 @@ export namespace Prisma {
   };
 
   export type DailyRateListScalarFieldEnum = (typeof DailyRateListScalarFieldEnum)[keyof typeof DailyRateListScalarFieldEnum]
+
+
+  export const EmployeeRouteMapScalarFieldEnum: {
+    route_id: 'route_id',
+    empId: 'empId',
+    empName: 'empName',
+    date: 'date',
+    createdAt: 'createdAt'
+  };
+
+  export type EmployeeRouteMapScalarFieldEnum = (typeof EmployeeRouteMapScalarFieldEnum)[keyof typeof EmployeeRouteMapScalarFieldEnum]
+
+
+  export const LatLongitudeValuesScalarFieldEnum: {
+    latlong_id: 'latlong_id',
+    route_id: 'route_id',
+    lat_value: 'lat_value',
+    long_value: 'long_value',
+    createdAt: 'createdAt'
+  };
+
+  export type LatLongitudeValuesScalarFieldEnum = (typeof LatLongitudeValuesScalarFieldEnum)[keyof typeof LatLongitudeValuesScalarFieldEnum]
 
 
   export const MstempScalarFieldEnum: {
@@ -19627,6 +21740,7 @@ export namespace Prisma {
     markedAt?: DateTimeNullableFilter<"Attendance"> | Date | string | null
     markedBy?: StringNullableFilter<"Attendance"> | string | null
     absentReason?: StringNullableFilter<"Attendance"> | string | null
+    attendancePhoto?: StringNullableFilter<"Attendance"> | string | null
     createdAt?: DateTimeFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeFilter<"Attendance"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -19640,6 +21754,7 @@ export namespace Prisma {
     markedAt?: SortOrderInput | SortOrder
     markedBy?: SortOrderInput | SortOrder
     absentReason?: SortOrderInput | SortOrder
+    attendancePhoto?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -19657,6 +21772,7 @@ export namespace Prisma {
     markedAt?: DateTimeNullableFilter<"Attendance"> | Date | string | null
     markedBy?: StringNullableFilter<"Attendance"> | string | null
     absentReason?: StringNullableFilter<"Attendance"> | string | null
+    attendancePhoto?: StringNullableFilter<"Attendance"> | string | null
     createdAt?: DateTimeFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeFilter<"Attendance"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -19670,6 +21786,7 @@ export namespace Prisma {
     markedAt?: SortOrderInput | SortOrder
     markedBy?: SortOrderInput | SortOrder
     absentReason?: SortOrderInput | SortOrder
+    attendancePhoto?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AttendanceCountOrderByAggregateInput
@@ -19688,6 +21805,7 @@ export namespace Prisma {
     markedAt?: DateTimeNullableWithAggregatesFilter<"Attendance"> | Date | string | null
     markedBy?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
     absentReason?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
+    attendancePhoto?: StringNullableWithAggregatesFilter<"Attendance"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Attendance"> | Date | string
   }
@@ -19750,6 +21868,117 @@ export namespace Prisma {
     bulkRate?: IntWithAggregatesFilter<"DailyRateList"> | number
     consumerRate?: IntWithAggregatesFilter<"DailyRateList"> | number
     createdAt?: DateTimeWithAggregatesFilter<"DailyRateList"> | Date | string
+  }
+
+  export type employeeRouteMapWhereInput = {
+    AND?: employeeRouteMapWhereInput | employeeRouteMapWhereInput[]
+    OR?: employeeRouteMapWhereInput[]
+    NOT?: employeeRouteMapWhereInput | employeeRouteMapWhereInput[]
+    route_id?: StringFilter<"employeeRouteMap"> | string
+    empId?: StringFilter<"employeeRouteMap"> | string
+    empName?: StringFilter<"employeeRouteMap"> | string
+    date?: StringFilter<"employeeRouteMap"> | string
+    createdAt?: DateTimeFilter<"employeeRouteMap"> | Date | string
+    routeArr?: LatLongitudeValuesListRelationFilter
+  }
+
+  export type employeeRouteMapOrderByWithRelationInput = {
+    route_id?: SortOrder
+    empId?: SortOrder
+    empName?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+    routeArr?: latLongitudeValuesOrderByRelationAggregateInput
+  }
+
+  export type employeeRouteMapWhereUniqueInput = Prisma.AtLeast<{
+    route_id?: string
+    empId_date?: employeeRouteMapEmpIdDateCompoundUniqueInput
+    AND?: employeeRouteMapWhereInput | employeeRouteMapWhereInput[]
+    OR?: employeeRouteMapWhereInput[]
+    NOT?: employeeRouteMapWhereInput | employeeRouteMapWhereInput[]
+    empId?: StringFilter<"employeeRouteMap"> | string
+    empName?: StringFilter<"employeeRouteMap"> | string
+    date?: StringFilter<"employeeRouteMap"> | string
+    createdAt?: DateTimeFilter<"employeeRouteMap"> | Date | string
+    routeArr?: LatLongitudeValuesListRelationFilter
+  }, "route_id" | "empId_date">
+
+  export type employeeRouteMapOrderByWithAggregationInput = {
+    route_id?: SortOrder
+    empId?: SortOrder
+    empName?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+    _count?: employeeRouteMapCountOrderByAggregateInput
+    _max?: employeeRouteMapMaxOrderByAggregateInput
+    _min?: employeeRouteMapMinOrderByAggregateInput
+  }
+
+  export type employeeRouteMapScalarWhereWithAggregatesInput = {
+    AND?: employeeRouteMapScalarWhereWithAggregatesInput | employeeRouteMapScalarWhereWithAggregatesInput[]
+    OR?: employeeRouteMapScalarWhereWithAggregatesInput[]
+    NOT?: employeeRouteMapScalarWhereWithAggregatesInput | employeeRouteMapScalarWhereWithAggregatesInput[]
+    route_id?: StringWithAggregatesFilter<"employeeRouteMap"> | string
+    empId?: StringWithAggregatesFilter<"employeeRouteMap"> | string
+    empName?: StringWithAggregatesFilter<"employeeRouteMap"> | string
+    date?: StringWithAggregatesFilter<"employeeRouteMap"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"employeeRouteMap"> | Date | string
+  }
+
+  export type latLongitudeValuesWhereInput = {
+    AND?: latLongitudeValuesWhereInput | latLongitudeValuesWhereInput[]
+    OR?: latLongitudeValuesWhereInput[]
+    NOT?: latLongitudeValuesWhereInput | latLongitudeValuesWhereInput[]
+    latlong_id?: StringFilter<"latLongitudeValues"> | string
+    route_id?: StringFilter<"latLongitudeValues"> | string
+    lat_value?: StringFilter<"latLongitudeValues"> | string
+    long_value?: StringFilter<"latLongitudeValues"> | string
+    createdAt?: DateTimeFilter<"latLongitudeValues"> | Date | string
+    route?: XOR<EmployeeRouteMapScalarRelationFilter, employeeRouteMapWhereInput>
+  }
+
+  export type latLongitudeValuesOrderByWithRelationInput = {
+    latlong_id?: SortOrder
+    route_id?: SortOrder
+    lat_value?: SortOrder
+    long_value?: SortOrder
+    createdAt?: SortOrder
+    route?: employeeRouteMapOrderByWithRelationInput
+  }
+
+  export type latLongitudeValuesWhereUniqueInput = Prisma.AtLeast<{
+    latlong_id?: string
+    AND?: latLongitudeValuesWhereInput | latLongitudeValuesWhereInput[]
+    OR?: latLongitudeValuesWhereInput[]
+    NOT?: latLongitudeValuesWhereInput | latLongitudeValuesWhereInput[]
+    route_id?: StringFilter<"latLongitudeValues"> | string
+    lat_value?: StringFilter<"latLongitudeValues"> | string
+    long_value?: StringFilter<"latLongitudeValues"> | string
+    createdAt?: DateTimeFilter<"latLongitudeValues"> | Date | string
+    route?: XOR<EmployeeRouteMapScalarRelationFilter, employeeRouteMapWhereInput>
+  }, "latlong_id">
+
+  export type latLongitudeValuesOrderByWithAggregationInput = {
+    latlong_id?: SortOrder
+    route_id?: SortOrder
+    lat_value?: SortOrder
+    long_value?: SortOrder
+    createdAt?: SortOrder
+    _count?: latLongitudeValuesCountOrderByAggregateInput
+    _max?: latLongitudeValuesMaxOrderByAggregateInput
+    _min?: latLongitudeValuesMinOrderByAggregateInput
+  }
+
+  export type latLongitudeValuesScalarWhereWithAggregatesInput = {
+    AND?: latLongitudeValuesScalarWhereWithAggregatesInput | latLongitudeValuesScalarWhereWithAggregatesInput[]
+    OR?: latLongitudeValuesScalarWhereWithAggregatesInput[]
+    NOT?: latLongitudeValuesScalarWhereWithAggregatesInput | latLongitudeValuesScalarWhereWithAggregatesInput[]
+    latlong_id?: StringWithAggregatesFilter<"latLongitudeValues"> | string
+    route_id?: StringWithAggregatesFilter<"latLongitudeValues"> | string
+    lat_value?: StringWithAggregatesFilter<"latLongitudeValues"> | string
+    long_value?: StringWithAggregatesFilter<"latLongitudeValues"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"latLongitudeValues"> | Date | string
   }
 
   export type mstempWhereInput = {
@@ -20805,6 +23034,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutAttendanceInput
@@ -20818,6 +23048,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20829,6 +23060,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutAttendanceNestedInput
@@ -20842,6 +23074,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20854,6 +23087,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20865,6 +23099,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20877,6 +23112,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -20941,6 +23177,121 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     bulkRate?: IntFieldUpdateOperationsInput | number
     consumerRate?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employeeRouteMapCreateInput = {
+    route_id?: string
+    empId: string
+    empName: string
+    date: string
+    createdAt?: Date | string
+    routeArr?: latLongitudeValuesCreateNestedManyWithoutRouteInput
+  }
+
+  export type employeeRouteMapUncheckedCreateInput = {
+    route_id?: string
+    empId: string
+    empName: string
+    date: string
+    createdAt?: Date | string
+    routeArr?: latLongitudeValuesUncheckedCreateNestedManyWithoutRouteInput
+  }
+
+  export type employeeRouteMapUpdateInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    routeArr?: latLongitudeValuesUpdateManyWithoutRouteNestedInput
+  }
+
+  export type employeeRouteMapUncheckedUpdateInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    routeArr?: latLongitudeValuesUncheckedUpdateManyWithoutRouteNestedInput
+  }
+
+  export type employeeRouteMapCreateManyInput = {
+    route_id?: string
+    empId: string
+    empName: string
+    date: string
+    createdAt?: Date | string
+  }
+
+  export type employeeRouteMapUpdateManyMutationInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employeeRouteMapUncheckedUpdateManyInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type latLongitudeValuesCreateInput = {
+    latlong_id?: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+    route: employeeRouteMapCreateNestedOneWithoutRouteArrInput
+  }
+
+  export type latLongitudeValuesUncheckedCreateInput = {
+    latlong_id?: string
+    route_id: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+  }
+
+  export type latLongitudeValuesUpdateInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    route?: employeeRouteMapUpdateOneRequiredWithoutRouteArrNestedInput
+  }
+
+  export type latLongitudeValuesUncheckedUpdateInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    route_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type latLongitudeValuesCreateManyInput = {
+    latlong_id?: string
+    route_id: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+  }
+
+  export type latLongitudeValuesUpdateManyMutationInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type latLongitudeValuesUncheckedUpdateManyInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    route_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -21892,6 +24243,7 @@ export namespace Prisma {
     markedAt?: SortOrder
     markedBy?: SortOrder
     absentReason?: SortOrder
+    attendancePhoto?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21904,6 +24256,7 @@ export namespace Prisma {
     markedAt?: SortOrder
     markedBy?: SortOrder
     absentReason?: SortOrder
+    attendancePhoto?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21916,6 +24269,7 @@ export namespace Prisma {
     markedAt?: SortOrder
     markedBy?: SortOrder
     absentReason?: SortOrder
+    attendancePhoto?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -21960,6 +24314,74 @@ export namespace Prisma {
   export type DailyRateListSumOrderByAggregateInput = {
     bulkRate?: SortOrder
     consumerRate?: SortOrder
+  }
+
+  export type LatLongitudeValuesListRelationFilter = {
+    every?: latLongitudeValuesWhereInput
+    some?: latLongitudeValuesWhereInput
+    none?: latLongitudeValuesWhereInput
+  }
+
+  export type latLongitudeValuesOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type employeeRouteMapEmpIdDateCompoundUniqueInput = {
+    empId: string
+    date: string
+  }
+
+  export type employeeRouteMapCountOrderByAggregateInput = {
+    route_id?: SortOrder
+    empId?: SortOrder
+    empName?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type employeeRouteMapMaxOrderByAggregateInput = {
+    route_id?: SortOrder
+    empId?: SortOrder
+    empName?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type employeeRouteMapMinOrderByAggregateInput = {
+    route_id?: SortOrder
+    empId?: SortOrder
+    empName?: SortOrder
+    date?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EmployeeRouteMapScalarRelationFilter = {
+    is?: employeeRouteMapWhereInput
+    isNot?: employeeRouteMapWhereInput
+  }
+
+  export type latLongitudeValuesCountOrderByAggregateInput = {
+    latlong_id?: SortOrder
+    route_id?: SortOrder
+    lat_value?: SortOrder
+    long_value?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type latLongitudeValuesMaxOrderByAggregateInput = {
+    latlong_id?: SortOrder
+    route_id?: SortOrder
+    lat_value?: SortOrder
+    long_value?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type latLongitudeValuesMinOrderByAggregateInput = {
+    latlong_id?: SortOrder
+    route_id?: SortOrder
+    lat_value?: SortOrder
+    long_value?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type mstempCountOrderByAggregateInput = {
@@ -22477,6 +24899,62 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAttendanceInput, UserUpdateWithoutAttendanceInput>, UserUncheckedUpdateWithoutAttendanceInput>
   }
 
+  export type latLongitudeValuesCreateNestedManyWithoutRouteInput = {
+    create?: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput> | latLongitudeValuesCreateWithoutRouteInput[] | latLongitudeValuesUncheckedCreateWithoutRouteInput[]
+    connectOrCreate?: latLongitudeValuesCreateOrConnectWithoutRouteInput | latLongitudeValuesCreateOrConnectWithoutRouteInput[]
+    createMany?: latLongitudeValuesCreateManyRouteInputEnvelope
+    connect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+  }
+
+  export type latLongitudeValuesUncheckedCreateNestedManyWithoutRouteInput = {
+    create?: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput> | latLongitudeValuesCreateWithoutRouteInput[] | latLongitudeValuesUncheckedCreateWithoutRouteInput[]
+    connectOrCreate?: latLongitudeValuesCreateOrConnectWithoutRouteInput | latLongitudeValuesCreateOrConnectWithoutRouteInput[]
+    createMany?: latLongitudeValuesCreateManyRouteInputEnvelope
+    connect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+  }
+
+  export type latLongitudeValuesUpdateManyWithoutRouteNestedInput = {
+    create?: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput> | latLongitudeValuesCreateWithoutRouteInput[] | latLongitudeValuesUncheckedCreateWithoutRouteInput[]
+    connectOrCreate?: latLongitudeValuesCreateOrConnectWithoutRouteInput | latLongitudeValuesCreateOrConnectWithoutRouteInput[]
+    upsert?: latLongitudeValuesUpsertWithWhereUniqueWithoutRouteInput | latLongitudeValuesUpsertWithWhereUniqueWithoutRouteInput[]
+    createMany?: latLongitudeValuesCreateManyRouteInputEnvelope
+    set?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    disconnect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    delete?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    connect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    update?: latLongitudeValuesUpdateWithWhereUniqueWithoutRouteInput | latLongitudeValuesUpdateWithWhereUniqueWithoutRouteInput[]
+    updateMany?: latLongitudeValuesUpdateManyWithWhereWithoutRouteInput | latLongitudeValuesUpdateManyWithWhereWithoutRouteInput[]
+    deleteMany?: latLongitudeValuesScalarWhereInput | latLongitudeValuesScalarWhereInput[]
+  }
+
+  export type latLongitudeValuesUncheckedUpdateManyWithoutRouteNestedInput = {
+    create?: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput> | latLongitudeValuesCreateWithoutRouteInput[] | latLongitudeValuesUncheckedCreateWithoutRouteInput[]
+    connectOrCreate?: latLongitudeValuesCreateOrConnectWithoutRouteInput | latLongitudeValuesCreateOrConnectWithoutRouteInput[]
+    upsert?: latLongitudeValuesUpsertWithWhereUniqueWithoutRouteInput | latLongitudeValuesUpsertWithWhereUniqueWithoutRouteInput[]
+    createMany?: latLongitudeValuesCreateManyRouteInputEnvelope
+    set?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    disconnect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    delete?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    connect?: latLongitudeValuesWhereUniqueInput | latLongitudeValuesWhereUniqueInput[]
+    update?: latLongitudeValuesUpdateWithWhereUniqueWithoutRouteInput | latLongitudeValuesUpdateWithWhereUniqueWithoutRouteInput[]
+    updateMany?: latLongitudeValuesUpdateManyWithWhereWithoutRouteInput | latLongitudeValuesUpdateManyWithWhereWithoutRouteInput[]
+    deleteMany?: latLongitudeValuesScalarWhereInput | latLongitudeValuesScalarWhereInput[]
+  }
+
+  export type employeeRouteMapCreateNestedOneWithoutRouteArrInput = {
+    create?: XOR<employeeRouteMapCreateWithoutRouteArrInput, employeeRouteMapUncheckedCreateWithoutRouteArrInput>
+    connectOrCreate?: employeeRouteMapCreateOrConnectWithoutRouteArrInput
+    connect?: employeeRouteMapWhereUniqueInput
+  }
+
+  export type employeeRouteMapUpdateOneRequiredWithoutRouteArrNestedInput = {
+    create?: XOR<employeeRouteMapCreateWithoutRouteArrInput, employeeRouteMapUncheckedCreateWithoutRouteArrInput>
+    connectOrCreate?: employeeRouteMapCreateOrConnectWithoutRouteArrInput
+    upsert?: employeeRouteMapUpsertWithoutRouteArrInput
+    connect?: employeeRouteMapWhereUniqueInput
+    update?: XOR<XOR<employeeRouteMapUpdateToOneWithWhereWithoutRouteArrInput, employeeRouteMapUpdateWithoutRouteArrInput>, employeeRouteMapUncheckedUpdateWithoutRouteArrInput>
+  }
+
   export type BigIntFieldUpdateOperationsInput = {
     set?: bigint | number
     increment?: bigint | number
@@ -22774,6 +25252,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22785,6 +25264,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -22852,6 +25332,7 @@ export namespace Prisma {
     markedAt?: DateTimeNullableFilter<"Attendance"> | Date | string | null
     markedBy?: StringNullableFilter<"Attendance"> | string | null
     absentReason?: StringNullableFilter<"Attendance"> | string | null
+    attendancePhoto?: StringNullableFilter<"Attendance"> | string | null
     createdAt?: DateTimeFilter<"Attendance"> | Date | string
     updatedAt?: DateTimeFilter<"Attendance"> | Date | string
   }
@@ -23490,6 +25971,104 @@ export namespace Prisma {
     partyImages?: partyImagesUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type latLongitudeValuesCreateWithoutRouteInput = {
+    latlong_id?: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+  }
+
+  export type latLongitudeValuesUncheckedCreateWithoutRouteInput = {
+    latlong_id?: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+  }
+
+  export type latLongitudeValuesCreateOrConnectWithoutRouteInput = {
+    where: latLongitudeValuesWhereUniqueInput
+    create: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput>
+  }
+
+  export type latLongitudeValuesCreateManyRouteInputEnvelope = {
+    data: latLongitudeValuesCreateManyRouteInput | latLongitudeValuesCreateManyRouteInput[]
+  }
+
+  export type latLongitudeValuesUpsertWithWhereUniqueWithoutRouteInput = {
+    where: latLongitudeValuesWhereUniqueInput
+    update: XOR<latLongitudeValuesUpdateWithoutRouteInput, latLongitudeValuesUncheckedUpdateWithoutRouteInput>
+    create: XOR<latLongitudeValuesCreateWithoutRouteInput, latLongitudeValuesUncheckedCreateWithoutRouteInput>
+  }
+
+  export type latLongitudeValuesUpdateWithWhereUniqueWithoutRouteInput = {
+    where: latLongitudeValuesWhereUniqueInput
+    data: XOR<latLongitudeValuesUpdateWithoutRouteInput, latLongitudeValuesUncheckedUpdateWithoutRouteInput>
+  }
+
+  export type latLongitudeValuesUpdateManyWithWhereWithoutRouteInput = {
+    where: latLongitudeValuesScalarWhereInput
+    data: XOR<latLongitudeValuesUpdateManyMutationInput, latLongitudeValuesUncheckedUpdateManyWithoutRouteInput>
+  }
+
+  export type latLongitudeValuesScalarWhereInput = {
+    AND?: latLongitudeValuesScalarWhereInput | latLongitudeValuesScalarWhereInput[]
+    OR?: latLongitudeValuesScalarWhereInput[]
+    NOT?: latLongitudeValuesScalarWhereInput | latLongitudeValuesScalarWhereInput[]
+    latlong_id?: StringFilter<"latLongitudeValues"> | string
+    route_id?: StringFilter<"latLongitudeValues"> | string
+    lat_value?: StringFilter<"latLongitudeValues"> | string
+    long_value?: StringFilter<"latLongitudeValues"> | string
+    createdAt?: DateTimeFilter<"latLongitudeValues"> | Date | string
+  }
+
+  export type employeeRouteMapCreateWithoutRouteArrInput = {
+    route_id?: string
+    empId: string
+    empName: string
+    date: string
+    createdAt?: Date | string
+  }
+
+  export type employeeRouteMapUncheckedCreateWithoutRouteArrInput = {
+    route_id?: string
+    empId: string
+    empName: string
+    date: string
+    createdAt?: Date | string
+  }
+
+  export type employeeRouteMapCreateOrConnectWithoutRouteArrInput = {
+    where: employeeRouteMapWhereUniqueInput
+    create: XOR<employeeRouteMapCreateWithoutRouteArrInput, employeeRouteMapUncheckedCreateWithoutRouteArrInput>
+  }
+
+  export type employeeRouteMapUpsertWithoutRouteArrInput = {
+    update: XOR<employeeRouteMapUpdateWithoutRouteArrInput, employeeRouteMapUncheckedUpdateWithoutRouteArrInput>
+    create: XOR<employeeRouteMapCreateWithoutRouteArrInput, employeeRouteMapUncheckedCreateWithoutRouteArrInput>
+    where?: employeeRouteMapWhereInput
+  }
+
+  export type employeeRouteMapUpdateToOneWithWhereWithoutRouteArrInput = {
+    where?: employeeRouteMapWhereInput
+    data: XOR<employeeRouteMapUpdateWithoutRouteArrInput, employeeRouteMapUncheckedUpdateWithoutRouteArrInput>
+  }
+
+  export type employeeRouteMapUpdateWithoutRouteArrInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type employeeRouteMapUncheckedUpdateWithoutRouteArrInput = {
+    route_id?: StringFieldUpdateOperationsInput | string
+    empId?: StringFieldUpdateOperationsInput | string
+    empName?: StringFieldUpdateOperationsInput | string
+    date?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AttendanceCreateManyUserInput = {
     attendance_id?: string
     date: Date | string
@@ -23497,6 +26076,7 @@ export namespace Prisma {
     markedAt?: Date | string | null
     markedBy?: string | null
     absentReason?: string | null
+    attendancePhoto?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23517,6 +26097,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23528,6 +26109,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23539,6 +26121,7 @@ export namespace Prisma {
     markedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     markedBy?: NullableStringFieldUpdateOperationsInput | string | null
     absentReason?: NullableStringFieldUpdateOperationsInput | string | null
+    attendancePhoto?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23636,6 +26219,34 @@ export namespace Prisma {
     itemCode?: StringFieldUpdateOperationsInput | string
     itemName?: StringFieldUpdateOperationsInput | string
     quantity?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type latLongitudeValuesCreateManyRouteInput = {
+    latlong_id?: string
+    lat_value: string
+    long_value: string
+    createdAt?: Date | string
+  }
+
+  export type latLongitudeValuesUpdateWithoutRouteInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type latLongitudeValuesUncheckedUpdateWithoutRouteInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type latLongitudeValuesUncheckedUpdateManyWithoutRouteInput = {
+    latlong_id?: StringFieldUpdateOperationsInput | string
+    lat_value?: StringFieldUpdateOperationsInput | string
+    long_value?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

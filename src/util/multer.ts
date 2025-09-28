@@ -60,5 +60,30 @@ const collectionImagesDest = multer.diskStorage({
     }
 })
 
+const attendanceImageDest = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const empId = req.body.userId; 
+
+        const folderPath = path.join('..', 'uploads', 'attendance', `${empId}`);
+
+        if (!fs.existsSync(folderPath)) {
+            fs.mkdirSync(folderPath, {recursive: true})
+        }
+
+        cb(null, folderPath); 
+    }, 
+    
+    filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname); 
+        const dateString = new Date().toLocaleDateString("en-CA", {
+            timeZone: "Asia/Kolkata"
+        }); 
+        const randomId = Math.random().toString(36).substring(2, 15);
+        const filename = randomId.toString(); 
+        cb(null, `${filename}-${dateString}${ext}`); 
+    }
+})
+
 export const collectionImageUpload = multer({ storage: collectionImagesDest })
 export const partyImageUpload = multer({storage: partyImagesDest})
+export const attendanceUpload = multer({storage: attendanceImageDest})

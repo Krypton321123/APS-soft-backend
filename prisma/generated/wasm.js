@@ -243,6 +243,7 @@ exports.Prisma.AttendanceScalarFieldEnum = {
   markedAt: 'markedAt',
   markedBy: 'markedBy',
   absentReason: 'absentReason',
+  attendancePhoto: 'attendancePhoto',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -253,6 +254,22 @@ exports.Prisma.DailyRateListScalarFieldEnum = {
   date: 'date',
   bulkRate: 'bulkRate',
   consumerRate: 'consumerRate',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EmployeeRouteMapScalarFieldEnum = {
+  route_id: 'route_id',
+  empId: 'empId',
+  empName: 'empName',
+  date: 'date',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LatLongitudeValuesScalarFieldEnum = {
+  latlong_id: 'latlong_id',
+  route_id: 'route_id',
+  lat_value: 'lat_value',
+  long_value: 'long_value',
   createdAt: 'createdAt'
 };
 
@@ -313,6 +330,8 @@ exports.Prisma.ModelName = {
   admin: 'admin',
   Attendance: 'Attendance',
   DailyRateList: 'DailyRateList',
+  employeeRouteMap: 'employeeRouteMap',
+  latLongitudeValues: 'latLongitudeValues',
   mstemp: 'mstemp',
   mstparty: 'mstparty',
   mstitm: 'mstitm',

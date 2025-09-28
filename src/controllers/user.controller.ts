@@ -249,7 +249,12 @@ export const markAttendance = async (req: Request, res: Response) => {
   console.log(req.body)
 
   try {
-    const { userId, status, time, absentReason, markedBy } = req.body;
+    const { userId, status, absentReason, markedBy } = req.body;
+    let { time } = req.body; 
+
+    // time = time.split(',')[0]; 
+
+    console.log("this is time:", time)
 
     // Validate required fields
     if (!userId || !status || !time) {
@@ -267,8 +272,16 @@ export const markAttendance = async (req: Request, res: Response) => {
       });
     }
 
+    let imageUrl = ''; 
+
+    if (req.file) {
+      imageUrl = `${req.file?.destination.toString()}/${req.file?.filename}`
+    }
+
     // Parse the time and extract date
     const markedAtTime = new Date(time);
+    console.log(time)
+    console.log(new Date(time).toLocaleString())
     const attendanceDate = new Date(markedAtTime.toDateString()); // Get date without time
 
     // Validate that the date is not in the future
@@ -308,7 +321,8 @@ export const markAttendance = async (req: Request, res: Response) => {
       status: status,
       markedAt: markedAtTime,
       markedBy: markedBy || null,
-      absentReason: status === 'absent' ? absentReason : null
+      absentReason: status === 'absent' ? absentReason : null, 
+      attendancePhoto: imageUrl
     };
 
     const attendance = await prisma.attendance.upsert({

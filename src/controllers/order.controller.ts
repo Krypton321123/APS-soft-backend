@@ -191,15 +191,15 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
 
     // Create date filters
     let createdAtFilter: any = {};
+
     if (from) {
-        const fromDate = new Date(from as string);
-        fromDate.setHours(0, 0, 0, 0);
-        createdAtFilter.gte = fromDate;
+    const [y, m, d] = (from as string).split("-").map(Number);
+    createdAtFilter.gte = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
     }
+
     if (to) {
-        const toDate = new Date(to as string);
-        toDate.setHours(23, 59, 59, 999);
-        createdAtFilter.lte = toDate;
+    const [y, m, d] = (to as string).split("-").map(Number);
+    createdAtFilter.lte = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
     }
 
     // Get orders for these users with date filtering
