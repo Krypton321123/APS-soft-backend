@@ -38,7 +38,7 @@ const partyImagesDest = multer.diskStorage({
 const collectionImagesDest = multer.diskStorage({
     destination: (req, file, cb) => {
         const empId = req.body.empId
-        const paymentType = req.body.paymentType;
+        const paymentType = req.body.paymentMethod;
         const partyId = req.body.partyId
 
         const dateString = new Date().toISOString().split('T')[0]
