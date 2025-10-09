@@ -228,14 +228,47 @@ export const uploadPartyImagesWithMulter = asyncHandler(async (req: Request, res
 })
 
 export const getItems = asyncHandler(async (req: Request, res: Response) => {
+
+  const {userId} = req.body; 
+
   try {
-    const items = await prisma.mstitm.findMany({
+    let items = await prisma.mstitm.findMany({
         select: {
-            itmcd: true, itmrate: true, itmnm: true
+            itmcd: true, itmrate: true, itmnm: true, itmsubcat: true, wgtconv: true, curcstamt: true,
         }
     }); 
 
-    return res.status(200).json(new ApiResponse(200, "Items fetched", items))
+    const user = await prisma.user.findFirst({
+      where: {
+        username: userId 
+      }, 
+      select: {
+        untcd: true
+      }
+    })
+
+    const latestRate = await prisma.dailyRateList.findMany({
+      where: {
+        untcd: user?.untcd
+      }, 
+      orderBy: {
+        createdAt: 'desc'
+      }, 
+      select: {
+        consumerRate: true, bulkRate: true
+      }, 
+      take: 1
+    })
+
+    items = items.map((item, idx) => {
+      const rateFromList = (item.itmsubcat === "Consumer Pack" ? latestRate[0].consumerRate : latestRate[0].bulkRate)
+      console.log(item.itmnm, "-->", rateFromList)
+
+      const finalRate = item.itmsubcat === "Consumer Pack" ?  (Math.floor(((rateFromList / 0.91) * Number(item.wgtconv)) + Number(item.curcstamt))) : Math.floor(rateFromList - Number(item.curcstamt))
+      return {...item, itmrate: finalRate}
+    })
+
+    return res.status(200).json(new ApiResponse(200, "Items fetched", {items, consumerRate: latestRate[0].consumerRate, bulkRate: latestRate[0].bulkRate}))
   } catch (err) {
     return res.status(500).json(new ApiError('Internal server error', 500, {}))
   } finally {

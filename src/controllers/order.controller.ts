@@ -173,12 +173,10 @@ export const getOrders = asyncHandler(async (req: Request, res: Response) => {
 export const getOrdersByLocation = asyncHandler(async (req: Request, res: Response) => {
     const { states, depots, employees, from, to } = req.query;
 
-    // Parse the query parameters
     const stateList = states ? (states as string).split(',') : [];
     const depotList = depots ? (depots as string).split(',') : [];
     const employeeList = employees ? (employees as string).split(',') : [];
 
-    // Get all users that match the criteria
     const users = await prisma.user.findMany({
         where: {
             OR: [
@@ -233,7 +231,29 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
             updatedPartyName = fixedParty?.lednm || "Unknown";
             }
 
-  
+            
+            const fixedOrderItems = await Promise.all(
+                item.orderItems.map(async (item) => {
+
+                    if (item.packType === "" || !item.packType){
+                        const item1 = await prisma.mstitm.findFirst({
+                            where: {
+                                itmcd: item.itemCode
+                            }, 
+                            select: {
+                                itmsubcat: true
+                            }
+                        })
+
+                        return {...item, packType: item1?.itmsubcat}
+                    } 
+
+                    return {...item}; 
+                })
+            )
+
+            console.log("fixed ORder items --->", fixedOrderItems)
+
             const employee = await prisma.user.findFirst({
             where: { username: item.empId },
             select: { usrnm: true }
@@ -244,10 +264,12 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
             return {
             ...item,
             partyName: updatedPartyName,
-            empName
+            empName, 
+            orderItems: fixedOrderItems
             };
         })
     );
+
 
 
 

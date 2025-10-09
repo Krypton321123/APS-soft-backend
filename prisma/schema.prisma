@@ -146,9 +146,9 @@ model Attendance {
   markedAt        DateTime?
   markedBy        String?
   absentReason    String?
-  attendancePhoto String?   @default("")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  attendancePhoto String?   @default("")
   user            User      @relation(fields: [userId], references: [username])
 
   @@unique([userId, date])
@@ -165,6 +165,26 @@ model DailyRateList {
   createdAt    DateTime @default(now())
 
   @@unique([untcd, date])
+}
+
+model employeeRouteMap {
+  route_id  String               @id @default(cuid())
+  empId     String
+  empName   String
+  createdAt DateTime             @default(now())
+  date      String
+  routeArr  latLongitudeValues[]
+
+  @@unique([empId, date])
+}
+
+model latLongitudeValues {
+  latlong_id String           @id @default(cuid())
+  route_id   String
+  lat_value  String
+  long_value String
+  createdAt  DateTime         @default(now())
+  route      employeeRouteMap @relation(fields: [route_id], references: [route_id])
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -195,29 +215,10 @@ view mstitm {
   itmcatgrp String?  @db.VarChar(50)
   lsitmnm   String?  @db.VarChar(250)
   itmrate   Int
+  curcstamt Decimal? @db.Decimal(18, 2)
 }
 
 view OutstandingAmt {
   ledcd  String   @id @unique @db.VarChar(250)
   outamt Decimal? @db.Decimal(38, 2)
-}
-
-model employeeRouteMap {
-  route_id  String               @id @default(cuid())
-  empId     String
-  empName   String
-  routeArr  latLongitudeValues[]
-  date      String
-  createdAt DateTime             @default(now())
-
-  @@unique([empId, date])
-}
-
-model latLongitudeValues {
-  latlong_id String           @id @default(cuid())
-  route_id   String
-  route      employeeRouteMap @relation(fields: [route_id], references: [route_id])
-  lat_value  String
-  long_value String
-  createdAt  DateTime         @default(now())
 }
