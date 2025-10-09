@@ -61,7 +61,7 @@ export const getAttendance = async (req: Request, res: Response) => {
         const attendanceRecords = await prisma.attendance.findMany({
             where: {
                 userId: { in: userIds },
-                date: { gte: startDate, lte: endDate }
+                createdAt: { gte: startDate, lte: endDate }
             }
         });
         
