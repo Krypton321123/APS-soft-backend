@@ -141,7 +141,7 @@ model admin {
 model Attendance {
   attendance_id   String    @id @default(cuid())
   userId          String
-  date            DateTime  @db.Date
+  date            String
   status          String    @default("not_marked")
   markedAt        DateTime?
   markedBy        String?
