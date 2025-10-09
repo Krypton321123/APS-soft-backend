@@ -282,19 +282,10 @@ export const markAttendance = async (req: Request, res: Response) => {
     const markedAtTime = new Date(time);
     console.log(time)
     console.log(new Date(time).toLocaleString())
-    const attendanceDate = new Date(markedAtTime.toDateString()); // Get date without time
+    const attendanceDate = time; 
 
-    // Validate that the date is not in the future
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (attendanceDate > today) {
-      return res.status(400).json({
-        success: false,
-        message: "Cannot mark attendance for future dates"
-      });
-    }
+    
 
-    // Check if attendance already exists for this user on this date
     const existingAttendance = await prisma.attendance.findUnique({
       where: {
         userId_date: {
@@ -316,7 +307,6 @@ export const markAttendance = async (req: Request, res: Response) => {
       });
     }
 
-    // Create or update attendance record
     const attendanceData = {
       status: status,
       markedAt: markedAtTime,
