@@ -42,7 +42,7 @@ export const fetchParties = asyncHandler(async (req: Request, res: Response) => 
         return res.status(400).json(new ApiError("Username is required", 400, {}))
     }
 
-    const parties = await prisma.mstparty.findMany({
+    let parties = await prisma.mstparty.findMany({
         where: {
             empcd: username,
             areanm: day
@@ -51,6 +51,7 @@ export const fetchParties = asyncHandler(async (req: Request, res: Response) => 
             lednm: 'asc' // Sort alphabetically by name
         }
     })
+
 
     if (!parties || parties.length === 0) {
         return res.status(400).json(new ApiError("No parties found for this day", 400, {}))

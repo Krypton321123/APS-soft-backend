@@ -104,3 +104,25 @@ export const getAttendance = async (req: Request, res: Response) => {
     }
 };
 
+export const getAttendanceStatus = asyncHandler(async (req: Request, res: Response) => {
+    console.log("came here")
+    const { userId, date } = req.body; 
+
+    console.log(userId, date)
+
+    const checkAttendance = await prisma.attendance.findFirst({
+        where: {
+            date, userId
+        }
+    })
+
+    console.log(checkAttendance)
+
+    if (checkAttendance?.status === "absent") {
+        return res.status(200).json(new ApiResponse(200, "You already logged out", {status: false}))
+    } else if (checkAttendance?.status === "present") {
+        return res.status(201).json(new ApiResponse(201, "Go to BEAT", {status: true}))
+    } else {
+        return res.status(202).json(new ApiResponse(202, "No attendance found", {}))
+    }
+})

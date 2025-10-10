@@ -114,7 +114,6 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
             chequeNumber,
             chequeDate,
             bankName,
-            upiId,
             transactionId,
         } = req.body;   
 
@@ -132,7 +131,7 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
         );
     }
 
-    if (paymentMethod === 'online' && (!upiId || !transactionId)) {
+    if (paymentMethod === 'online' && (!transactionId)) {
         return res.status(400).json(
             new ApiError("Missing online payment details or image", 400, {})
         );
@@ -157,7 +156,6 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
                     imageUrl
                 }),
                 ...(paymentMethod === 'online' && {
-                    upiId,
                     transactionId,
                     imageUrl
                 }),
