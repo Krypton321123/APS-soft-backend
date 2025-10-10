@@ -88,7 +88,7 @@ model Collection {
   chequeNumber  String?
   chequeDate    String?
   bankName      String?
-  upiId         String?
+  upiId         String?   @default("")
   transactionId String?
   createdAt     DateTime  @default(now())
   verified      Boolean   @default(false)
@@ -196,12 +196,13 @@ view mstemp {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view mstparty {
-  ledcd   String  @unique @db.VarChar(250)
-  lednm   String? @db.VarChar(250)
-  empcd   String? @db.VarChar(50)
-  areacd  String  @db.VarChar(50)
-  areanm  String? @db.VarChar(250)
-  ledadr1 String? @db.VarChar(500)
+  ledcd   String   @unique @db.VarChar(250)
+  lednm   String?  @db.VarChar(250)
+  empcd   String?  @db.VarChar(50)
+  areacd  String   @db.VarChar(50)
+  areanm  String?  @db.VarChar(250)
+  ledadr1 String?  @db.VarChar(500)
+  outs    Decimal? @db.Decimal(38, 2)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
