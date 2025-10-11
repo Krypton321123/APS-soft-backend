@@ -56,32 +56,41 @@ export const getAttendance = async (req: Request, res: Response) => {
         }
         
         const userIds = users.map((u: { username: string }) => u.username);
-        
+
         // Get attendance records
         const attendanceRecords = await prisma.attendance.findMany({
             where: {
                 userId: { in: userIds },
-                createdAt: { gte: startDate, lte: endDate }
+                date: {
+                    gte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-01`,
+                    lte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
+                }
             }
         });
+
+
         
         // Group records by user and date
         const userAttendance: Record<string, Record<string, string>> = {};
         attendanceRecords.forEach((record: any) => {
-            const dateStr = record.date.toISOString().split('T')[0];
+            console.log(record)
+            const dateStr = record.date;
+            const formattedUserId = record.userId.toUpperCase().trim()
             if (!userAttendance[record.userId]) {
-                userAttendance[record.userId] = {};
+                userAttendance[formattedUserId] = {};
             }
-            userAttendance[record.userId][dateStr] = record.status;
+            userAttendance[formattedUserId][dateStr] = record.status;
         });
+
         
         // Prepare response
         const daysInMonth = endDate.getDate();
         const response = users.map((user: { username: string; usrnm: string }) => {
             const statuses = [];
+            user.username = user.username.toUpperCase()
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(yearNum, monthIndex, day);
-                const dateKey = date.toISOString().split('T')[0];
+                const dateKey = date.toLocaleDateString('en-CA');
                 statuses.push(userAttendance[user.username]?.[dateKey] || 'A');
             }
             
@@ -96,6 +105,7 @@ export const getAttendance = async (req: Request, res: Response) => {
                 netAbsent: absentCount
             };
         });
+
         
         return res.status(200).json(new ApiResponse(200, "Success", response));
     } catch (error: any) {

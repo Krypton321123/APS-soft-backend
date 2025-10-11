@@ -120,7 +120,11 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
       }
     });
 
-    const sendData = await Promise.all(
+    let totalOutstanding = 0; 
+    let totalCollectionAmt = 0; 
+    let totalOrderQuantity = 0; 
+
+    let sendData = await Promise.all(
       images.map(async (item, index) => {
         const startDate = new Date(item.createdAt)
         startDate.setUTCHours(0, 0, 0, 0); 
@@ -161,7 +165,7 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
             ledcd: item.partyId
           }, 
           select: {
-            lednm: true
+            lednm: true, outs: true 
           }
         })
 
@@ -169,14 +173,18 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
         const orderQuantity = order?.orderItems.map((item) => item.quantity).reduce((acc, curr) => acc + curr, 0); 
 
         const imageString = `http://${ipAdd}:${process.env.PORT}${item.profileImageUrl.split('uploads')[1]}`
- 
+        
+        totalOutstanding += Number(party?.outs)|| 0; 
+        totalCollectionAmt += Number(collection?.amount) || 0; 
+        totalOrderQuantity += Number(orderQuantity) || 0; 
 
         return {
-          ...item, partyName: party?.lednm, profileImageUrl: imageString, orderQuantity: orderQuantity || 0, collectionAmount: collection?.amount || 0 
+          ...item, outstanding: party?.outs || 0, partyName: party?.lednm, profileImageUrl: imageString, orderQuantity: orderQuantity || 0, collectionAmount: collection?.amount || 0 
         }
       })
     )
 
-    return res.status(200).json(new ApiResponse(200, "fetched", sendData))
+
+    return res.status(200).json(new ApiResponse(200, "fetched", {sendData, total: {totalOutstanding, totalOrderQuantity, totalCollectionAmt}}))
 
 })
