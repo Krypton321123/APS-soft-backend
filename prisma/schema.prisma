@@ -19,6 +19,8 @@ model User {
   stnm        String        @default("")
   untnm       String        @default("")
   usrnm       String        @default("")
+  untshnm     String?
+  usrtyp      String?
   attendance  Attendance[]
   partyImages partyImages[]
 }
@@ -79,21 +81,22 @@ model OrderItem {
 }
 
 model Collection {
-  collection_id String    @id @default(cuid())
+  collection_id String              @id @default(cuid())
   partyId       String
   partyName     String
   empId         String
-  amount        Decimal   @db.Decimal(18, 2)
+  amount        Decimal             @db.Decimal(18, 2)
   paymentMethod String
   chequeNumber  String?
   chequeDate    String?
   bankName      String?
-  upiId         String?   @default("")
+  upiId         String?             @default("")
   transactionId String?
-  createdAt     DateTime  @default(now())
-  verified      Boolean   @default(false)
+  createdAt     DateTime            @default(now())
+  verified      Boolean             @default(false)
   verifiedAt    DateTime?
-  imageUrl      String?   @default("")
+  imageUrl      String?             @default("")
+  delivery      DeliveryBillStatus?
 }
 
 model PartyEditRequest {
@@ -187,6 +190,17 @@ model latLongitudeValues {
   route      employeeRouteMap @relation(fields: [route_id], references: [route_id])
 }
 
+model DeliveryBillStatus {
+  bill_id       String     @id @default(cuid())
+  userId        String
+  billNo        String
+  otp           String
+  collectionAmount Decimal  @db.Decimal(18, 2)
+  collection_id String     @unique
+  createdAt     DateTime   @default(now())
+  collection    Collection @relation(fields: [collection_id], references: [collection_id])
+}
+
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view mstemp {
   empcd String  @unique @db.VarChar(50)
@@ -222,4 +236,15 @@ view mstitm {
 view OutstandingAmt {
   ledcd  String   @id @unique @db.VarChar(250)
   outamt Decimal? @db.Decimal(38, 2)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view partybills {
+  billno String   @unique @db.VarChar(50)
+  billdt String?  @db.VarChar(11)
+  ptynm  String?  @db.VarChar(250)
+  addr   String?  @db.VarChar(500)
+  totqty Decimal? @db.Decimal(38, 0)
+  amt    Decimal? @db.Decimal(38, 2)
+
 }
