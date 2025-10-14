@@ -4,6 +4,7 @@ import ApiError from "../util/ApiError.js";
 import ApiResponse from "../util/ApiResponse.js";
 import prisma from "../util/prisma.js";
 
+
 interface OrderItemInput {
     itmcd: string;    
     itmnm: string;    
@@ -231,6 +232,11 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
             updatedPartyName = fixedParty?.lednm || "Unknown";
             }
 
+            const outStanding = await prisma.outstandingAmt.findUnique({
+                where: {
+                    ledcd: item.partyId
+                }
+            })
             
             const fixedOrderItems = await Promise.all(
                 item.orderItems.map(async (item) => {
@@ -259,13 +265,33 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
             select: { usrnm: true }
             });
 
+            const startDate = new Date(item.createdAt)
+            startDate.setUTCHours(0,0 ,0,0)
+            const endDate = new Date(startDate); 
+            endDate.setUTCHours(23, 59, 59, 999); 
+
+            const collection = await prisma.collection.findFirst({
+                where: {
+                    partyId: item.partyId, 
+                    AND: [
+                        {createdAt: {gte: startDate}}, 
+                        {createdAt: {lte: endDate}}
+                    ]
+                }, 
+                select: {
+                    paymentMethod: true, amount: true
+                }
+            })
+
             empName = employee?.usrnm || "Unknown";
 
             return {
             ...item,
             partyName: updatedPartyName,
             empName, 
-            orderItems: fixedOrderItems
+            orderItems: fixedOrderItems, 
+            outstanding: outStanding?.outamt, 
+            collection: {...collection, amount: collection?.amount || 0}
             };
         })
     );

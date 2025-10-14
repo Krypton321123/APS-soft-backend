@@ -21,6 +21,8 @@ export const loginHandler = asyncHandler(async (req: Request, res: Response) => 
         }
     })
 
+    console.log(user)
+
     if (!user) {
         return res.status(403).json(new ApiError("User not found", 403, {}))
     }
@@ -401,7 +403,9 @@ export const fetchRates = asyncHandler(async (req: Request, res: Response) => {
     }
   }); 
 
-  console.log(depots); 
+  console.log(depots);
+  
+  const uniqueDepots = Array.from(new Map(depots.map(item => [item.untcd, item])).values());
 
   const targetDate = new Date(date)
   const nextDate = new Date(targetDate); 
@@ -416,7 +420,7 @@ export const fetchRates = asyncHandler(async (req: Request, res: Response) => {
     }
   })
 
-  return res.status(200).json(new ApiResponse(200, "Rates fetched successfully", {depots, rates}))
+  return res.status(200).json(new ApiResponse(200, "Rates fetched successfully", {depots: uniqueDepots, rates}))
 })
 
 export const submitRates = asyncHandler(async (req: Request, res: Response) => {
