@@ -40,22 +40,6 @@ app.get("/debug", async (req, res) => {
   }
 });
 
-app.get('/location/test', async (req: Request, res: Response) => {
-  const locationData = await prisma.employeeRouteMap.findMany({
-    where: {
-      empId: "ACCA23843" , date: '11/10/25'
-    },
-    include: {
-      routeArr: true
-    }
-  });
-
-  const latlongValues = locationData[0].routeArr.map((item) => {
-    return [Number(item.lat_value), Number(item.long_value)]
-  })
-
-  return res.status(200).json(new ApiResponse(200,"pulled successfully", latlongValues))
-})
 
 
 app.use('/api/v1/user', userRouter); 

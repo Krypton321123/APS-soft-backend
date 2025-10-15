@@ -47,7 +47,6 @@ export const createLocation = asyncHandler(async (req: Request, res: Response ) 
 
         }
 
-        // if route map already exists then: 
         await prisma.latLongitudeValues.create({
             data: {
                 lat_value: location.latitude.toString(), long_value: location.longitude.toString(), route_id: alreadyExists.route_id
@@ -59,4 +58,51 @@ export const createLocation = asyncHandler(async (req: Request, res: Response ) 
     } catch (err: any) {
         return res.status(500).json(new ApiError("Create Location error", 500, {}))
     }
+})
+
+export const getLocationData = asyncHandler(async (req: Request, res: Response) => {
+
+    const { depot, employee } = req.query;
+    let { date } = req.query; 
+
+    date = new Date(date as string).toLocaleDateString('en-IN', {
+        day: '2-digit', 
+        month: '2-digit', 
+        year: '2-digit'
+    })
+
+    console.log(date, employee); 
+    
+    try {
+
+        const empId = await prisma.mstemp.findFirst({
+            where: {
+                lednm: employee as string 
+            }, 
+            select: {
+                ledcd: true
+            }
+        })
+
+        const locationData = await prisma.employeeRouteMap.findFirst({
+            where: {
+                empId: empId?.ledcd, date: date as string 
+            }, 
+            include: {
+                routeArr: true
+            }
+        })
+
+        const coordinates = locationData?.routeArr.map((item) => {
+            return [Number(item.lat_value), Number(item.long_value)]; 
+        })
+
+        return res.status(200).json(new ApiResponse(200, "Fetched successfully", {coordinates}))
+
+
+    } catch (err: any) {
+        console.log("fetching location error: ", err); 
+        return res.status(500).json(new ApiError("Failed to fetch locations", 500))
+    }
+
 })

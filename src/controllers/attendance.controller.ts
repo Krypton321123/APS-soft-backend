@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../util/prisma.js';
 import ApiResponse from '../util/ApiResponse.js';
 import asyncHandler from '../util/asyncHandler.js';
+import { format } from 'path';
 
 // Get distinct depot names
 export const getDepots = async (req: Request, res: Response) => {
@@ -69,18 +70,19 @@ export const getAttendance = async (req: Request, res: Response) => {
         });
 
 
-        
-        // Group records by user and date
         const userAttendance: Record<string, Record<string, string>> = {};
         attendanceRecords.forEach((record: any) => {
-            console.log(record)
             const dateStr = record.date;
             const formattedUserId = record.userId.toUpperCase().trim()
-            if (!userAttendance[record.userId]) {
+            if (!userAttendance[formattedUserId]) {
                 userAttendance[formattedUserId] = {};
             }
+            
             userAttendance[formattedUserId][dateStr] = record.status;
+            console.log(userAttendance[formattedUserId], formattedUserId); 
         });
+
+        console.log(userAttendance)
 
         
         // Prepare response
@@ -90,7 +92,9 @@ export const getAttendance = async (req: Request, res: Response) => {
             user.username = user.username.toUpperCase()
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(yearNum, monthIndex, day);
+               
                 const dateKey = date.toLocaleDateString('en-CA');
+           
                 statuses.push(userAttendance[user.username]?.[dateKey] || 'A');
             }
             
