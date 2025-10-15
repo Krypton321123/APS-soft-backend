@@ -45,7 +45,6 @@ export const createLocation = asyncHandler((req, res) => __awaiter(void 0, void 
             });
             return res.status(200).json(new ApiResponse(200, "Created new route map", { newRouteMap }));
         }
-        // if route map already exists then: 
         yield prisma.latLongitudeValues.create({
             data: {
                 lat_value: location.latitude.toString(), long_value: location.longitude.toString(), route_id: alreadyExists.route_id
@@ -55,5 +54,41 @@ export const createLocation = asyncHandler((req, res) => __awaiter(void 0, void 
     }
     catch (err) {
         return res.status(500).json(new ApiError("Create Location error", 500, {}));
+    }
+}));
+export const getLocationData = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { depot, employee } = req.query;
+    let { date } = req.query;
+    date = new Date(date).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit'
+    });
+    console.log(date, employee);
+    try {
+        const empId = yield prisma.mstemp.findFirst({
+            where: {
+                lednm: employee
+            },
+            select: {
+                ledcd: true
+            }
+        });
+        const locationData = yield prisma.employeeRouteMap.findFirst({
+            where: {
+                empId: empId === null || empId === void 0 ? void 0 : empId.ledcd, date: date
+            },
+            include: {
+                routeArr: true
+            }
+        });
+        const coordinates = locationData === null || locationData === void 0 ? void 0 : locationData.routeArr.map((item) => {
+            return [Number(item.lat_value), Number(item.long_value)];
+        });
+        return res.status(200).json(new ApiResponse(200, "Fetched successfully", { coordinates }));
+    }
+    catch (err) {
+        console.log("fetching location error: ", err);
+        return res.status(500).json(new ApiError("Failed to fetch locations", 500));
     }
 }));

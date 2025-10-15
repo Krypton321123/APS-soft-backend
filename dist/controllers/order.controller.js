@@ -142,11 +142,9 @@ export const getOrders = asyncHandler((req, res) => __awaiter(void 0, void 0, vo
 }));
 export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { states, depots, employees, from, to } = req.query;
-    // Parse the query parameters
     const stateList = states ? states.split(',') : [];
     const depotList = depots ? depots.split(',') : [];
     const employeeList = employees ? employees.split(',') : [];
-    // Get all users that match the criteria
     const users = yield prisma.user.findMany({
         where: {
             OR: [
@@ -191,12 +189,48 @@ export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, 
             });
             updatedPartyName = (fixedParty === null || fixedParty === void 0 ? void 0 : fixedParty.lednm) || "Unknown";
         }
+        const outStanding = yield prisma.outstandingAmt.findUnique({
+            where: {
+                ledcd: item.partyId
+            }
+        });
+        const fixedOrderItems = yield Promise.all(item.orderItems.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+            if (item.packType === "" || !item.packType) {
+                const item1 = yield prisma.mstitm.findFirst({
+                    where: {
+                        itmcd: item.itemCode
+                    },
+                    select: {
+                        itmsubcat: true
+                    }
+                });
+                return Object.assign(Object.assign({}, item), { packType: item1 === null || item1 === void 0 ? void 0 : item1.itmsubcat });
+            }
+            return Object.assign({}, item);
+        })));
+        console.log("fixed ORder items --->", fixedOrderItems);
         const employee = yield prisma.user.findFirst({
             where: { username: item.empId },
             select: { usrnm: true }
         });
+        const startDate = new Date(item.createdAt);
+        startDate.setUTCHours(0, 0, 0, 0);
+        const endDate = new Date(startDate);
+        endDate.setUTCHours(23, 59, 59, 999);
+        const collection = yield prisma.collection.findFirst({
+            where: {
+                partyId: item.partyId,
+                AND: [
+                    { createdAt: { gte: startDate } },
+                    { createdAt: { lte: endDate } }
+                ]
+            },
+            select: {
+                paymentMethod: true, amount: true
+            }
+        });
         empName = (employee === null || employee === void 0 ? void 0 : employee.usrnm) || "Unknown";
-        return Object.assign(Object.assign({}, item), { partyName: updatedPartyName, empName });
+        return Object.assign(Object.assign({}, item), { partyName: updatedPartyName, empName, orderItems: fixedOrderItems, outstanding: outStanding === null || outStanding === void 0 ? void 0 : outStanding.outamt, collection: Object.assign(Object.assign({}, collection), { amount: (collection === null || collection === void 0 ? void 0 : collection.amount) || 0 }) });
     })));
     return res.status(200).json(new ApiResponse(200, "Orders fetched successfully", updatedOrders));
 }));

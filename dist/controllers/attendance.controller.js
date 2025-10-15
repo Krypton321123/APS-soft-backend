@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import prisma from '../util/prisma.js';
 import ApiResponse from '../util/ApiResponse.js';
+import asyncHandler from '../util/asyncHandler.js';
 // Get distinct depot names
 export const getDepots = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -59,27 +60,33 @@ export const getAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fun
         const attendanceRecords = yield prisma.attendance.findMany({
             where: {
                 userId: { in: userIds },
-                date: { gte: startDate, lte: endDate }
+                date: {
+                    gte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-01`,
+                    lte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
+                }
             }
         });
-        // Group records by user and date
         const userAttendance = {};
         attendanceRecords.forEach((record) => {
-            const dateStr = record.date.toISOString().split('T')[0];
-            if (!userAttendance[record.userId]) {
-                userAttendance[record.userId] = {};
+            const dateStr = record.date;
+            const formattedUserId = record.userId.toUpperCase().trim();
+            if (!userAttendance[formattedUserId]) {
+                userAttendance[formattedUserId] = {};
             }
-            userAttendance[record.userId][dateStr] = record.status;
+            userAttendance[formattedUserId][dateStr] = record.status;
+            console.log(userAttendance[formattedUserId], formattedUserId);
         });
+        console.log(userAttendance);
         // Prepare response
         const daysInMonth = endDate.getDate();
         const response = users.map((user) => {
             var _a;
             const statuses = [];
+            user.username = user.username.toUpperCase();
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(yearNum, monthIndex, day);
-                const dateKey = date.toISOString().split('T')[0];
-                statuses.push(((_a = userAttendance[user.username]) === null || _a === void 0 ? void 0 : _a[dateKey]) || 'A');
+                const dateKey = date.toLocaleDateString('en-CA');
+                statuses.push(((_a = userAttendance[user.username]) === null || _a === void 0 ? void 0 : _a[dateKey]) || '-');
             }
             const presentCount = statuses.filter(s => s === 'present' || s === 'H').length;
             const absentCount = daysInMonth - presentCount;
@@ -98,3 +105,23 @@ export const getAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fun
         return res.status(500).json(new ApiResponse(500, message, null));
     }
 });
+export const getAttendanceStatus = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("came here");
+    const { userId, date } = req.body;
+    console.log(userId, date);
+    const checkAttendance = yield prisma.attendance.findFirst({
+        where: {
+            date, userId
+        }
+    });
+    console.log(checkAttendance);
+    if ((checkAttendance === null || checkAttendance === void 0 ? void 0 : checkAttendance.status) === "absent") {
+        return res.status(200).json(new ApiResponse(200, "You already logged out", { status: false }));
+    }
+    else if ((checkAttendance === null || checkAttendance === void 0 ? void 0 : checkAttendance.status) === "present") {
+        return res.status(201).json(new ApiResponse(201, "Go to BEAT", { status: true }));
+    }
+    else {
+        return res.status(202).json(new ApiResponse(202, "No attendance found", {}));
+    }
+}));

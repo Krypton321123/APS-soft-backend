@@ -6,7 +6,7 @@ const userRouter = Router();
 userRouter.route('/login').post(loginHandler);
 userRouter.route('/fetchParty').post(fetchParties);
 userRouter.route('/fetchPartyWithId').post(fetchParty);
-userRouter.route('/getItems').get(getItems);
+userRouter.route('/getItems').post(getItems);
 userRouter.post("/upload-party-image", uploadPartyImage);
 userRouter.get('/fetchUsers', fetchUsersByLocation);
 userRouter.post('/markAttendance', attendanceUpload.single('photo'), markAttendance);

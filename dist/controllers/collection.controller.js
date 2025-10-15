@@ -75,7 +75,7 @@ export const createCollection = asyncHandler((req, res) => __awaiter(void 0, voi
     }
 }));
 export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, upiId, transactionId, } = req.body;
+    const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, transactionId, } = req.body;
     console.log(req.body);
     const file = req.file;
     if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
@@ -84,7 +84,7 @@ export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(voi
     if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName)) {
         return res.status(400).json(new ApiError("Missing cheque details or image", 400, {}));
     }
-    if (paymentMethod === 'online' && (!upiId || !transactionId)) {
+    if (paymentMethod === 'online' && (!transactionId)) {
         return res.status(400).json(new ApiError("Missing online payment details or image", 400, {}));
     }
     const imageUrl = `${file === null || file === void 0 ? void 0 : file.destination.toString()}/${file === null || file === void 0 ? void 0 : file.filename}`;
@@ -98,7 +98,6 @@ export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(voi
                 bankName,
                 imageUrl
             })), (paymentMethod === 'online' && {
-                upiId,
                 transactionId,
                 imageUrl
             }))

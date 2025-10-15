@@ -4,6 +4,22 @@ import path from 'path'
 
 const prisma = new PrismaClient();
 
+const pull = async () => {
+  const locationData = await prisma.employeeRouteMap.findMany({
+    where: {
+      route_id: 'cmgooylwk015rorxoech3e4hb'
+    },
+    include: {
+      routeArr: true
+    }
+  });
+
+
+  console.log(locationData[0].routeArr.map((item) => {
+    console.log(item); 
+  }))
+}
+
 const create = async () => {
   const today = new Date(Date.now());
   const start = new Date(today.setHours(0,0,0,0))
@@ -83,4 +99,4 @@ const fixImage = async () => {
 }
 
 
-fixImage().catch((err) => console.error("error: ", err)); 
+pull().catch((err) => console.error("error: ", err)); 

@@ -92,10 +92,10 @@ export const getAttendance = async (req: Request, res: Response) => {
             user.username = user.username.toUpperCase()
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(yearNum, monthIndex, day);
-               
+                
                 const dateKey = date.toLocaleDateString('en-CA');
            
-                statuses.push(userAttendance[user.username]?.[dateKey] || 'A');
+                statuses.push(userAttendance[user.username]?.[dateKey] || '-');
             }
             
             const presentCount = statuses.filter(s => s === 'present' || s === 'H').length;

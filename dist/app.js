@@ -21,6 +21,7 @@ import attendanceRouter from './routes/attendance.router.js';
 import imageRouter from './routes/image.router.js';
 import path from 'path';
 import locationRouter from './routes/location.router.js';
+import deliveryRouter from './routes/delivery.router.js';
 const app = express();
 const pathForStatic = path.join('');
 app.use(cors({
@@ -50,5 +51,6 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/attendance', attendanceRouter);
 app.use('/api/v1/images', imageRouter);
 app.use('/api/v1/location', locationRouter);
+app.use('/api/v1/delivery', deliveryRouter);
 app.use(globalCatch);
 export default app;

@@ -25,6 +25,7 @@ export const loginHandler = asyncHandler((req, res) => __awaiter(void 0, void 0,
             username
         }
     });
+    console.log(user);
     if (!user) {
         return res.status(403).json(new ApiError("User not found", 403, {}));
     }
@@ -39,7 +40,7 @@ export const fetchParties = asyncHandler((req, res) => __awaiter(void 0, void 0,
     if (!username) {
         return res.status(400).json(new ApiError("Username is required", 400, {}));
     }
-    const parties = yield prisma.mstparty.findMany({
+    let parties = yield prisma.mstparty.findMany({
         where: {
             empcd: username,
             areanm: day
@@ -197,13 +198,40 @@ export const uploadPartyImagesWithMulter = asyncHandler((req, res) => __awaiter(
     return res.status(200).json(new ApiResponse(200, "Photo uploaded successfully", {}));
 }));
 export const getItems = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.body;
     try {
-        const items = yield prisma.mstitm.findMany({
+        let items = yield prisma.mstitm.findMany({
             select: {
-                itmcd: true, itmrate: true, itmnm: true
+                itmcd: true, itmrate: true, itmnm: true, itmsubcat: true, wgtconv: true, curcstamt: true,
             }
         });
-        return res.status(200).json(new ApiResponse(200, "Items fetched", items));
+        const user = yield prisma.user.findFirst({
+            where: {
+                username: userId
+            },
+            select: {
+                untcd: true
+            }
+        });
+        const latestRate = yield prisma.dailyRateList.findMany({
+            where: {
+                untcd: user === null || user === void 0 ? void 0 : user.untcd
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            select: {
+                consumerRate: true, bulkRate: true
+            },
+            take: 1
+        });
+        items = items.map((item, idx) => {
+            const rateFromList = (item.itmsubcat === "Consumer Pack" ? latestRate[0].consumerRate : latestRate[0].bulkRate);
+            console.log(item.itmnm, "-->", rateFromList);
+            const finalRate = item.itmsubcat === "Consumer Pack" ? (Math.floor(((rateFromList / 0.91) * Number(item.wgtconv)) + Number(item.curcstamt))) : Math.floor(rateFromList - Number(item.curcstamt));
+            return Object.assign(Object.assign({}, item), { itmrate: finalRate });
+        });
+        return res.status(200).json(new ApiResponse(200, "Items fetched", { items, consumerRate: latestRate[0].consumerRate, bulkRate: latestRate[0].bulkRate }));
     }
     catch (err) {
         return res.status(500).json(new ApiError('Internal server error', 500, {}));
@@ -242,17 +270,7 @@ export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fu
         const markedAtTime = new Date(time);
         console.log(time);
         console.log(new Date(time).toLocaleString());
-        const attendanceDate = new Date(markedAtTime.toDateString()); // Get date without time
-        // Validate that the date is not in the future
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (attendanceDate > today) {
-            return res.status(400).json({
-                success: false,
-                message: "Cannot mark attendance for future dates"
-            });
-        }
-        // Check if attendance already exists for this user on this date
+        const attendanceDate = time;
         const existingAttendance = yield prisma.attendance.findUnique({
             where: {
                 userId_date: {
@@ -272,7 +290,6 @@ export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fu
                 }
             });
         }
-        // Create or update attendance record
         const attendanceData = {
             status: status,
             markedAt: markedAtTime,
@@ -325,6 +342,7 @@ export const fetchRates = asyncHandler((req, res) => __awaiter(void 0, void 0, v
         }
     });
     console.log(depots);
+    const uniqueDepots = Array.from(new Map(depots.map(item => [item.untcd, item])).values());
     const targetDate = new Date(date);
     const nextDate = new Date(targetDate);
     nextDate.setDate(targetDate.getDate() + 1);
@@ -336,7 +354,7 @@ export const fetchRates = asyncHandler((req, res) => __awaiter(void 0, void 0, v
             }
         }
     });
-    return res.status(200).json(new ApiResponse(200, "Rates fetched successfully", { depots, rates }));
+    return res.status(200).json(new ApiResponse(200, "Rates fetched successfully", { depots: uniqueDepots, rates }));
 }));
 export const submitRates = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { submittedValues, date } = req.body;

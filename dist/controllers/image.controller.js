@@ -118,7 +118,10 @@ export const getImages = asyncHandler((req, res) => __awaiter(void 0, void 0, vo
             partyId: true
         }
     });
-    const sendData = yield Promise.all(images.map((item, index) => __awaiter(void 0, void 0, void 0, function* () {
+    let totalOutstanding = 0;
+    let totalCollectionAmt = 0;
+    let totalOrderQuantity = 0;
+    let sendData = yield Promise.all(images.map((item, index) => __awaiter(void 0, void 0, void 0, function* () {
         const startDate = new Date(item.createdAt);
         startDate.setUTCHours(0, 0, 0, 0);
         const endDate = new Date(startDate);
@@ -154,12 +157,15 @@ export const getImages = asyncHandler((req, res) => __awaiter(void 0, void 0, vo
                 ledcd: item.partyId
             },
             select: {
-                lednm: true
+                lednm: true, outs: true
             }
         });
         const orderQuantity = order === null || order === void 0 ? void 0 : order.orderItems.map((item) => item.quantity).reduce((acc, curr) => acc + curr, 0);
         const imageString = `http://${ipAdd}:${process.env.PORT}${item.profileImageUrl.split('uploads')[1]}`;
-        return Object.assign(Object.assign({}, item), { partyName: party === null || party === void 0 ? void 0 : party.lednm, profileImageUrl: imageString, orderQuantity: orderQuantity || 0, collectionAmount: (collection === null || collection === void 0 ? void 0 : collection.amount) || 0 });
+        totalOutstanding += Number(party === null || party === void 0 ? void 0 : party.outs) || 0;
+        totalCollectionAmt += Number(collection === null || collection === void 0 ? void 0 : collection.amount) || 0;
+        totalOrderQuantity += Number(orderQuantity) || 0;
+        return Object.assign(Object.assign({}, item), { outstanding: (party === null || party === void 0 ? void 0 : party.outs) || 0, partyName: party === null || party === void 0 ? void 0 : party.lednm, profileImageUrl: imageString, orderQuantity: orderQuantity || 0, collectionAmount: (collection === null || collection === void 0 ? void 0 : collection.amount) || 0 });
     })));
-    return res.status(200).json(new ApiResponse(200, "fetched", sendData));
+    return res.status(200).json(new ApiResponse(200, "fetched", { sendData, total: { totalOutstanding, totalOrderQuantity, totalCollectionAmt } }));
 }));
