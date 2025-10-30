@@ -4,7 +4,8 @@ SELECT
   led.lednm AS ptynm,
   led.ledadr1 AS addr,
   sum(sidet.pckqty) AS totqty,
-  (sum(sidet.amt) + (sum(sidet.amt) * 5 / 100)) AS amt
+  (sum(sidet.amt) + (sum(sidet.amt) * 5 / 100)) AS amt,
+  led.mobile
 FROM
   APSPLUS_AOI_2021.dbo.trnsinfo_vw AS si
   JOIN APSPLUS_AOI_2021.dbo.trnsidetnfo_vw AS sidet ON si.sicd = sidet.sicd
@@ -15,4 +16,5 @@ GROUP BY
   si.sicd,
   sidt,
   led.lednm,
-  led.ledadr1;
+  led.ledadr1,
+  led.mobile;

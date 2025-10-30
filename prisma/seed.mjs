@@ -1,23 +1,20 @@
 import { PrismaClient } from "./generated/index.js";
 import fs from 'fs'; 
 import path from 'path'
+import crypto from 'crypto'
+import axios from 'axios'
 
 const prisma = new PrismaClient();
 
 const pull = async () => {
-  const locationData = await prisma.employeeRouteMap.findMany({
-    where: {
-      route_id: 'cmgooylwk015rorxoech3e4hb'
-    },
-    include: {
-      routeArr: true
+  const mobileNumbers = await prisma.mstparty.findMany({
+    select: {
+      mobile: true 
     }
-  });
+  })
 
 
-  console.log(locationData[0].routeArr.map((item) => {
-    console.log(item); 
-  }))
+  console.log(mobileNumbers)
 }
 
 const create = async () => {
@@ -98,5 +95,27 @@ const fixImage = async () => {
   )
 }
 
+const generateRandomOTP = (start, end) => {
+    const otp = crypto.randomInt(start, end); 
+    return otp; 
+}
 
-pull().catch((err) => console.error("error: ", err)); 
+const sendOTP = async ( mobileNumber, amount, customer, caller ) => {
+
+    console.log(mobileNumber, amount, customer)
+    const otp = generateRandomOTP(10000, 999999); 
+
+    const finalMessage = `Dear%20${customer},%0A${otp}%20:%20Use%20this%20OTP%20to%20confirm%20your%20delivery%20with%20bill%20number%20${amount}%20%0A%0ARegards%20SAAVLI%20FAMILY%0AMahesh%20Edible%20Oil%20Products%20PVT%20LTD`
+
+    try {
+        const response = await axios.get(`https://cloud.smsindiahub.in/api/mt/SendSMS?APIKey=${process.env.SMS_API_KEY}&senderid=MEOPPL&channel=Trans&DCS=0&flashsms=0&number=${mobileNumber}&text=${finalMessage}&DLTTemplateId=1007190227086237640&route=0&PEId=1001305053689820308`)
+
+        console.log(response)
+    } catch (err) {
+        console.log("error generating otp", err); 
+        return null
+    }
+}
+
+
+sendOTP('8445591780', "2000", "Raj Sharma"); 

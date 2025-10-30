@@ -12,19 +12,19 @@ import ApiError from "../util/ApiError.js";
 import ApiResponse from "../util/ApiResponse.js";
 import prisma from "../util/prisma.js";
 export const createOrder = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const orderData = req.body;
+    console.log(orderData);
     try {
-        // Get consumer and bulk rates from mstitm
-        const rateItems = yield prisma.mstitm.findMany({
-            where: {
-                itmcd: {
-                    in: ['Itma01562', 'Itma01754']
-                }
-            }
-        });
-        const consumerRate = ((_a = rateItems.find(item => item.itmcd === 'ITMA01562')) === null || _a === void 0 ? void 0 : _a.itmrate) || 0;
-        const bulkRate = ((_b = rateItems.find(item => item.itmcd === 'ITMA01754')) === null || _b === void 0 ? void 0 : _b.itmrate) || 0;
+        // // Get consumer and bulk rates from mstitm
+        // const rateItems = await prisma.mstitm.findMany({
+        //     where: {
+        //         itmcd: {
+        //             in: ['Itma01562', 'Itma01754']
+        //         }
+        //     }
+        // });
+        // const consumerRate = rateItems.find(item => item.itmcd === 'ITMA01562')?.itmrate || 0;
+        // const bulkRate = rateItems.find(item => item.itmcd === 'ITMA01754')?.itmrate || 0;
         // Get today's date at midnight for comparison
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -92,8 +92,8 @@ export const createOrder = asyncHandler((req, res) => __awaiter(void 0, void 0, 
                         discountAmount: orderData.discountAmount,
                         paymentMode: orderData.paymentMode,
                         creditDays: orderData.creditDays,
-                        consumerRate,
-                        bulkRate,
+                        consumerRate: orderData.consumerRate,
+                        bulkRate: orderData.bulkRate,
                         orderItems: {
                             create: itemsWithPackType.map((item) => ({
                                 itemCode: item.itmcd,

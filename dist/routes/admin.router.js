@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { adminLogin } from "../controllers/admin.controller.js";
+import { adminLogin, createUser, deleteUser, getAllUsers, getAvailableLocations, getAvailableScreens, getUserById, searchUsers, updateUser } from "../controllers/admin.controller.js";
 const adminRouter = Router();
 adminRouter.post('/login', adminLogin);
+adminRouter.get('/users', getAllUsers);
+adminRouter.get('/users/search', searchUsers);
+adminRouter.get('/users/:admin_id', getUserById);
+adminRouter.get('/locations', getAvailableLocations);
+adminRouter.get('/screens', getAvailableScreens);
+adminRouter.post('/users', createUser);
+adminRouter.patch('/users/:admin_id', updateUser);
+adminRouter.delete('/users/:admin_id', deleteUser);
 export default adminRouter;

@@ -5,6 +5,10 @@ import ApiResponse from "../util/ApiResponse.js";
 import { Request, Response } from "express";
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto'
+import { generateOtp } from "./delivery.controller.js";
+import { sendOTP } from "./otp.controller.js";
+import redisClient from "../util/redis.js";
 
 export const createCollection = asyncHandler(async (req: Request, res: Response) => {
     const { 
@@ -103,6 +107,45 @@ export const createCollection = asyncHandler(async (req: Request, res: Response)
     }
 });
 
+export const generateOtpForColl = asyncHandler(async (req: Request, res: Response) => {
+
+    const { userId, partyId, amount } = req.body; 
+
+    try {
+
+        const otp = crypto.randomInt(100000, 999999).toString(); 
+
+        const party = await prisma.mstparty.findFirst({
+            where: {
+                ledcd: partyId
+            }, 
+            select: {
+                mobile: true, lednm: true
+            }
+        }); 
+
+        console.log(party)
+
+        const finalMessage = `Dear ${party?.lednm?.slice(0,30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`
+
+        console.log(finalMessage, party?.mobile, otp, userId)
+
+        const sendOtp = await sendOTP({mobileNumber: party?.mobile!, message: finalMessage, otp, userId, templateId: '1007234171777516053'})
+
+        if (sendOtp?.status === 'success'){ 
+            return res.status(200).json(new ApiResponse(200, "OTP generated successfully", {}))
+        } else {
+            return res.status(400).json(new ApiError("unable to generate otp", 400)); 
+        }
+
+    } catch (err: any) {
+        console.log(err); 
+        return res.status(500).json(new ApiError("Internal server error", 500)); 
+    }
+
+
+})
+
 export const createCollectionWithMult = asyncHandler(async (req: Request, res: Response) => {
 
         const { 
@@ -115,12 +158,14 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
             chequeDate,
             bankName,
             transactionId,
+            otp
         } = req.body;   
 
         console.log(req.body); 
 
         const file = req.file; 
-    if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
+
+    if (!partyId || !partyName || !empId || !amount || !paymentMethod || !otp) {
         return res.status(400).json(
             new ApiError("Missing required fields", 400, {})
         );
@@ -137,6 +182,18 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
         );
     }
 
+    const cachedOtp = await redisClient.get(`${empId}`); 
+
+    if (!cachedOtp) {
+        return res.status(400).json(new ApiError("otp expired", 400))
+    }
+
+    if (otp !== cachedOtp) {
+        return res.status(409).json(new ApiError(
+            'Otps not matched', 409
+        )); 
+    }
+
     const imageUrl = `${file?.destination.toString()}/${file?.filename}`
 
     try {
@@ -149,6 +206,7 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
                 empId,
                 amount: parseFloat(amount.toString()),
                 paymentMethod,
+                otp, 
                 ...(paymentMethod === 'cheque' && {
                     chequeNumber,
                     chequeDate,
@@ -161,6 +219,18 @@ export const createCollectionWithMult = asyncHandler(async (req: Request, res: R
                 }),
             }
         });
+
+        const party = await prisma.mstparty.findFirst({
+            where: {
+                ledcd: partyId
+            }, select: {
+                mobile: true, lednm: true
+            }
+        })
+
+        const finalMessage = `Dear ${party?.lednm?.slice(0, 30)},%0AThis message confirms that your payment of INR ${amount} has been successfully received.%0A%0ABest Regards%0AMAHESH OIL%0A%0ASAAVLI BRAND`
+
+        const status = await sendOTP({mobileNumber: party?.mobile!, message: finalMessage, otp: '', userId: empId, templateId: '1007966747127410178'})
 
         return res.status(201).json(
             new ApiResponse(201, "Collection created successfully", collection)

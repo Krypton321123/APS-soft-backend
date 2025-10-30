@@ -56,16 +56,16 @@ export const fetchParties = asyncHandler((req, res) => __awaiter(void 0, void 0,
 }));
 export const fetchParty = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("we reached here");
         const { partyId } = req.body;
+        console.log(partyId);
         const partyDetails = yield prisma.mstparty.findFirst({
             where: {
-                ledcd: partyId[0]
+                ledcd: partyId
             }
         });
         const outstanding = yield prisma.outstandingAmt.findUnique({
             where: {
-                ledcd: partyId[0]
+                ledcd: partyId
             }
         });
         let party;
@@ -267,8 +267,10 @@ export const markAttendance = (req, res) => __awaiter(void 0, void 0, void 0, fu
             imageUrl = `${(_a = req.file) === null || _a === void 0 ? void 0 : _a.destination.toString()}/${(_b = req.file) === null || _b === void 0 ? void 0 : _b.filename}`;
         }
         // Parse the time and extract date
-        const markedAtTime = new Date(time);
-        console.log(time);
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const date1 = new Date();
+        const markedAtTime = new Date(date1.getTime() + istOffset);
+        console.log(markedAtTime);
         console.log(new Date(time).toLocaleString());
         const attendanceDate = time;
         const existingAttendance = yield prisma.attendance.findUnique({
@@ -397,10 +399,27 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
         }
         console.log(date, username);
         let startDate = new Date(date);
+        const day = startDate.getDay();
         startDate.setHours(0, 0, 0, 0);
         let endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
         console.log(startDate.toLocaleString(), endDate);
+        const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+        const currentDay = days[day];
+        let total = {
+            outstanding: 0,
+            totalQty: 0,
+            totalAmount: 0,
+        };
+        const parties = yield prisma.mstparty.findMany({
+            where: {
+                areanm: currentDay, empcd: username
+            },
+            select: {
+                lednm: true, outs: true, ledcd: true
+            }
+        });
+        parties.map((item) => total.outstanding += Number(item.outs));
         const order = yield prisma.order.findMany({
             where: {
                 empId: username, AND: [
@@ -423,6 +442,7 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
             });
             return Object.assign(Object.assign({}, item), { partyName: partyName === null || partyName === void 0 ? void 0 : partyName.lednm, totalAmount: quan });
         })));
+        sendOrder.map((item) => total.totalQty += item.totalAmount);
         const collection = yield prisma.collection.findMany({
             where: {
                 empId: username, AND: [
@@ -433,6 +453,7 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
                 amount: true, partyId: true
             }
         });
+        collection.map((item) => total.totalAmount += Number(item.amount));
         const stock = yield prisma.stock.findMany({
             where: {
                 empId: username, AND: [
@@ -458,7 +479,7 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
             return Object.assign(Object.assign({}, item), { partyName: partyName === null || partyName === void 0 ? void 0 : partyName.lednm });
         })));
         console.log(sendCollection);
-        return res.status(200).json(new ApiResponse(200, "Fetched successfully", { order: sendOrder, collection: sendCollection, stock }));
+        return res.status(200).json(new ApiResponse(200, "Fetched successfully", { order: sendOrder, collection: sendCollection, stock, parties, total }));
     }
     catch (err) {
         console.log("Summary error: ", err);
@@ -474,8 +495,11 @@ export const getPreSummary = asyncHandler((req, res) => __awaiter(void 0, void 0
     try {
         const startDate = new Date(date);
         startDate.setHours(0, 0, 0, 0);
+        const day = startDate.getDay();
         const endDate = new Date(date);
         endDate.setHours(23, 59, 59, 999);
+        const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+        const currentDay = days[day];
         const attendance = yield prisma.attendance.findFirst({
             where: {
                 userId: username, markedAt: { gte: startDate, lte: endDate }
@@ -500,25 +524,45 @@ export const getPreSummary = asyncHandler((req, res) => __awaiter(void 0, void 0
                 }
             }
         });
+        const totalParties = yield prisma.mstparty.findMany({
+            where: {
+                empcd: username, areanm: currentDay
+            },
+        });
+        const beatsVisited = yield prisma.partyImages.findMany({
+            where: {
+                userId: username,
+                AND: [
+                    { createdAt: { gte: startDate } },
+                    { createdAt: { lte: endDate } }
+                ]
+            },
+        });
         console.log("Order: ", orders);
         console.log("Attendance: ", attendance);
         console.log("Collection: ", collection);
+        console.log("Total Beats: ", totalParties.length);
+        console.log("Beats Visited: ", beatsVisited.length);
         let totalQuantity = 0;
         let attendanceTime;
         if (attendance && attendance.markedAt !== null && attendance.markedAt !== undefined) {
             attendanceTime = new Date(attendance.markedAt).toLocaleTimeString('en-IN', {
+                timeZone: 'Asia/Kolkata',
                 hour: 'numeric',
                 minute: '2-digit',
                 hour12: true
             });
         }
+        console.log(attendance === null || attendance === void 0 ? void 0 : attendance.markedAt, attendanceTime);
         const dataToSend = {
             collectionCash: collection.filter((item) => { return item.paymentMethod === "cash"; }).map((item) => item.amount).reduce((acc, curr) => { return Number(acc) + Number(curr); }, 0),
             collectionOnline: collection.filter((item) => item.paymentMethod === "online").map((item) => item.amount).reduce((acc, curr) => { return Number(acc) + Number(curr); }, 0),
             collectionCheque: collection.filter((item) => item.paymentMethod === "cheque").map((item) => item.amount).reduce((acc, curr) => { return Number(acc) + Number(curr); }, 0),
             beatsOrdered: orders.length,
             totalQuantity: orders.map((item) => item.orderItems.map(item2 => { return totalQuantity += item2.quantity; })) && totalQuantity,
-            attendanceTime: attendance === null ? 'absent' : attendanceTime
+            attendanceTime: attendance === null ? 'absent' : attendanceTime,
+            totalBeats: totalParties.length.toString(),
+            beatsVisited: beatsVisited.length.toString()
         };
         console.log(dataToSend);
         return res.status(200).json(new ApiResponse(200, "Summary fetched successfully", dataToSend));

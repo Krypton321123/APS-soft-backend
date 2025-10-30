@@ -95,8 +95,8 @@ model Collection {
   createdAt     DateTime            @default(now())
   verified      Boolean             @default(false)
   verifiedAt    DateTime?
+  otp           String?             @default("") 
   imageUrl      String?             @default("")
-  delivery      DeliveryBillStatus?
 }
 
 model PartyEditRequest {
@@ -136,9 +136,15 @@ model StockItem {
 }
 
 model admin {
-  admin_id String @id @default(cuid())
-  username String @unique
-  password String
+  admin_id         String   @id @default(cuid())
+  username         String   @unique
+  password         String   
+  userType         String   @default("")
+  allowedScreens   String   @default("")
+  allowedLocations String   @default("")
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt @default(now())
 }
 
 model Attendance {
@@ -195,10 +201,16 @@ model DeliveryBillStatus {
   userId        String
   billNo        String
   otp           String
-  collectionAmount Decimal  @db.Decimal(18, 2)
-  collection_id String     @unique
+  cash          String   
   createdAt     DateTime   @default(now())
-  collection    Collection @relation(fields: [collection_id], references: [collection_id])
+}
+
+model LocationNames {
+  location_id   String    @id @default(cuid())
+  locationName  String  
+  locationCode  String 
+  cityName      String 
+  stateName     String   
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -217,6 +229,7 @@ view mstparty {
   areanm  String?  @db.VarChar(250)
   ledadr1 String?  @db.VarChar(500)
   outs    Decimal? @db.Decimal(38, 2)
+  mobile  String?  @db.VarChar(100)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -246,5 +259,5 @@ view partybills {
   addr   String?  @db.VarChar(500)
   totqty Decimal? @db.Decimal(38, 0)
   amt    Decimal? @db.Decimal(38, 2)
-
+  mobile String?  @db.VarChar(100)
 }

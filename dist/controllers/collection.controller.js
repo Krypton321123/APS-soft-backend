@@ -13,6 +13,9 @@ import prisma from "../util/prisma.js";
 import ApiResponse from "../util/ApiResponse.js";
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
+import { sendOTP } from "./otp.controller.js";
+import redisClient from "../util/redis.js";
 export const createCollection = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, upiId, transactionId, chequeImage, onlinePaymentImage } = req.body;
     // Validate required fields
@@ -74,11 +77,41 @@ export const createCollection = asyncHandler((req, res) => __awaiter(void 0, voi
         return res.status(500).json(new ApiError("Failed to create collection", 500, error));
     }
 }));
+export const generateOtpForColl = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { userId, partyId, amount } = req.body;
+    try {
+        const otp = crypto.randomInt(100000, 999999).toString();
+        const party = yield prisma.mstparty.findFirst({
+            where: {
+                ledcd: partyId
+            },
+            select: {
+                mobile: true, lednm: true
+            }
+        });
+        console.log(party);
+        const finalMessage = `Dear ${(_a = party === null || party === void 0 ? void 0 : party.lednm) === null || _a === void 0 ? void 0 : _a.slice(0, 30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`;
+        console.log(finalMessage, party === null || party === void 0 ? void 0 : party.mobile, otp, userId);
+        const sendOtp = yield sendOTP({ mobileNumber: party === null || party === void 0 ? void 0 : party.mobile, message: finalMessage, otp, userId, templateId: '1007234171777516053' });
+        if ((sendOtp === null || sendOtp === void 0 ? void 0 : sendOtp.status) === 'success') {
+            return res.status(200).json(new ApiResponse(200, "OTP generated successfully", {}));
+        }
+        else {
+            return res.status(400).json(new ApiError("unable to generate otp", 400));
+        }
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(500).json(new ApiError("Internal server error", 500));
+    }
+}));
 export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, transactionId, } = req.body;
+    var _a;
+    const { partyId, partyName, empId, amount, paymentMethod, chequeNumber, chequeDate, bankName, transactionId, otp } = req.body;
     console.log(req.body);
     const file = req.file;
-    if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
+    if (!partyId || !partyName || !empId || !amount || !paymentMethod || !otp) {
         return res.status(400).json(new ApiError("Missing required fields", 400, {}));
     }
     if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName)) {
@@ -87,12 +120,20 @@ export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(voi
     if (paymentMethod === 'online' && (!transactionId)) {
         return res.status(400).json(new ApiError("Missing online payment details or image", 400, {}));
     }
+    const cachedOtp = yield redisClient.get(`${empId}`);
+    if (!cachedOtp) {
+        return res.status(400).json(new ApiError("otp expired", 400));
+    }
+    if (otp !== cachedOtp) {
+        return res.status(409).json(new ApiError('Otps not matched', 409));
+    }
     const imageUrl = `${file === null || file === void 0 ? void 0 : file.destination.toString()}/${file === null || file === void 0 ? void 0 : file.filename}`;
     try {
         const collection = yield prisma.collection.create({
             data: Object.assign(Object.assign({ partyId,
                 partyName,
-                empId, amount: parseFloat(amount.toString()), paymentMethod }, (paymentMethod === 'cheque' && {
+                empId, amount: parseFloat(amount.toString()), paymentMethod,
+                otp }, (paymentMethod === 'cheque' && {
                 chequeNumber,
                 chequeDate,
                 bankName,
@@ -102,6 +143,15 @@ export const createCollectionWithMult = asyncHandler((req, res) => __awaiter(voi
                 imageUrl
             }))
         });
+        const party = yield prisma.mstparty.findFirst({
+            where: {
+                ledcd: partyId
+            }, select: {
+                mobile: true, lednm: true
+            }
+        });
+        const finalMessage = `Dear ${(_a = party === null || party === void 0 ? void 0 : party.lednm) === null || _a === void 0 ? void 0 : _a.slice(0, 30)},%0AThis message confirms that your payment of INR ${amount} has been successfully received.%0A%0ABest Regards%0AMAHESH OIL%0A%0ASAAVLI BRAND`;
+        const status = yield sendOTP({ mobileNumber: party === null || party === void 0 ? void 0 : party.mobile, message: finalMessage, otp: '', userId: empId, templateId: '1007966747127410178' });
         return res.status(201).json(new ApiResponse(201, "Collection created successfully", collection));
     }
     catch (err) {

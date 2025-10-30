@@ -65,19 +65,19 @@ export const fetchParties = asyncHandler(async (req: Request, res: Response) => 
 export const fetchParty = asyncHandler(async (req: Request, res: Response) => {
 
   try {
-    console.log("we reached here")
+    
     const { partyId } = req.body; 
-
+    console.log(partyId)
 
     const partyDetails = await prisma.mstparty.findFirst({
         where: {
-            ledcd: partyId[0]
+            ledcd: partyId
         }
     })
 
     const outstanding = await prisma.outstandingAmt.findUnique({
       where: {
-        ledcd: partyId[0]
+        ledcd: partyId
       }
     })
     let party;
@@ -315,8 +315,10 @@ export const markAttendance = async (req: Request, res: Response) => {
     }
 
     // Parse the time and extract date
-    const markedAtTime = new Date(time);
-    console.log(time)
+    const istOffset = 5.5 * 60 * 60 * 1000
+    const date1 = new Date()
+    const markedAtTime = new Date(date1.getTime() + istOffset);
+    console.log(markedAtTime)
     console.log(new Date(time).toLocaleString())
     const attendanceDate = time; 
 
@@ -476,10 +478,31 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
     console.log(date, username); 
     let startDate = new Date(date); 
+    const day = startDate.getDay()
     startDate.setHours(0, 0, 0, 0); 
     let endDate = new Date(date); 
     endDate.setHours(23, 59, 59, 999); 
     console.log(startDate.toLocaleString(), endDate)
+
+    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']
+    const currentDay = days[day]; 
+
+    let total = {
+      outstanding: 0, 
+      totalQty: 0, 
+      totalAmount: 0 ,
+    }
+
+    const parties = await prisma.mstparty.findMany({
+      where: {
+        areanm: currentDay, empcd: username
+      }, 
+      select: {
+        lednm: true, outs: true, ledcd: true
+      }
+    })
+
+    parties.map((item) => total.outstanding += Number(item.outs)); 
     
 
     const order = await prisma.order.findMany({
@@ -500,7 +523,6 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
         const quan = item.orderItems.map((item) => item.quantity).reduce((acc: number, curr: number) => acc + curr, 0)
 
-
         const partyName = await prisma.mstparty.findUnique({
           where: {
             ledcd: item.partyId
@@ -509,9 +531,11 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           }
         }); 
 
-        return {...item, partyName: partyName?.lednm, totalAmount: quan}
+        return {...item, partyName: partyName?.lednm, totalAmount: quan}; 
       })
     )
+
+    sendOrder.map((item) => total.totalQty += item.totalAmount); 
 
     
 
@@ -525,6 +549,8 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
       amount: true, partyId: true
      }
     })
+
+    collection.map((item) => total.totalAmount += Number(item.amount)); 
 
     const stock = await prisma.stock.findMany({
       where: {
@@ -543,6 +569,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
     const sendCollection = await Promise.all(
       collection.map(async (item) => {
+
           const partyName = await prisma.mstparty.findUnique({
             where: {
               ledcd: item.partyId
@@ -560,7 +587,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
 
 
-    return res.status(200).json(new ApiResponse(200, "Fetched successfully", {order: sendOrder, collection: sendCollection, stock}))
+    return res.status(200).json(new ApiResponse(200, "Fetched successfully", {order: sendOrder, collection: sendCollection, stock, parties, total}))
 
   } catch (err: any) {
     console.log("Summary error: ", err)
@@ -579,10 +606,12 @@ export const getPreSummary = asyncHandler(async (req: Request, res: Response) =>
   try {
     const startDate = new Date(date); 
     startDate.setHours(0, 0, 0, 0); 
+    const day = startDate.getDay()
     const endDate = new Date(date); 
     endDate.setHours(23, 59, 59, 999)
    
-
+    const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY']
+    const currentDay = days[day]; 
     const attendance = await prisma.attendance.findFirst({
       where: {
         userId: username, markedAt: {gte: startDate, lte: endDate}
@@ -610,21 +639,45 @@ export const getPreSummary = asyncHandler(async (req: Request, res: Response) =>
       }
     })
 
+    const totalParties = await prisma.mstparty.findMany({
+      where: {
+        empcd: username, areanm: currentDay
+      }, 
+      
+    })
+
+
+    const beatsVisited = await prisma.partyImages.findMany({
+      where: {
+        userId: username, 
+        AND: [
+          {createdAt: {gte: startDate}}, 
+          {createdAt: {lte: endDate}}
+        ]
+      }, 
+      
+    })
+
+
     console.log("Order: ", orders); 
     console.log("Attendance: ", attendance); 
-    console.log("Collection: ", collection); 
+    console.log("Collection: ", collection);
+    console.log("Total Beats: ", totalParties.length) 
+    console.log("Beats Visited: ", beatsVisited.length) 
 
     let totalQuantity = 0; 
     let attendanceTime; 
 
     if (attendance && attendance.markedAt !== null && attendance.markedAt !== undefined) {
       attendanceTime = new Date(attendance.markedAt).toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata', 
         hour: 'numeric', 
         minute: '2-digit', 
         hour12: true
       });
     }
 
+    console.log(attendance?.markedAt, attendanceTime)
    
 
     const dataToSend = {
@@ -633,7 +686,9 @@ export const getPreSummary = asyncHandler(async (req: Request, res: Response) =>
       collectionCheque: collection.filter((item) => item.paymentMethod === "cheque").map((item) => item.amount).reduce((acc: any, curr: any) => {return Number(acc) + Number(curr)}, 0), 
       beatsOrdered: orders.length, 
       totalQuantity: orders.map((item) => item.orderItems.map(item2 => {return totalQuantity += item2.quantity})) && totalQuantity,
-      attendanceTime: attendance === null ? 'absent' : attendanceTime
+      attendanceTime: attendance === null ? 'absent' : attendanceTime, 
+      totalBeats: totalParties.length.toString(), 
+      beatsVisited: beatsVisited.length.toString()  
     }
     console.log(dataToSend)
 

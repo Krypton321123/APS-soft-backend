@@ -51,7 +51,8 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/api/v1/attendance', attendanceRouter);
 app.use('/api/v1/images', imageRouter);
 app.use('/api/v1/location', locationRouter); 
-app.use('/api/v1/delivery', deliveryRouter)
+app.use('/api/v1/delivery', deliveryRouter); 
+app.use('/api/v1/otp', otpRouter); 
 
 app.use(globalCatch)
 

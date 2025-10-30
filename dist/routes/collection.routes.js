@@ -1,5 +1,5 @@
 import express from "express";
-import { createCollection, createCollectionWithMult, getCollectionsByEmpId, getCollectionsByLocation, verifyCollection } from "../controllers/collection.controller.js";
+import { createCollection, createCollectionWithMult, generateOtpForColl, getCollectionsByEmpId, getCollectionsByLocation, verifyCollection } from "../controllers/collection.controller.js";
 import { collectionImageUpload } from "../util/multer.js";
 const router = express.Router();
 router.post("/", createCollection);
@@ -7,4 +7,5 @@ router.get("/employee/:empId", getCollectionsByEmpId);
 router.get("/by-location", getCollectionsByLocation);
 router.post('/verify', verifyCollection);
 router.post('/createByMult', collectionImageUpload.single('photo'), createCollectionWithMult);
+router.post('/generateOtp', generateOtpForColl);
 export default router;

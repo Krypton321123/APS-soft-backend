@@ -1,0 +1,24 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[admin] ADD [active] BIT NOT NULL CONSTRAINT [admin_active_df] DEFAULT 1,
+[allowedLocations] NVARCHAR(1000) NOT NULL CONSTRAINT [admin_allowedLocations_df] DEFAULT '',
+[allowedScreens] NVARCHAR(1000) NOT NULL CONSTRAINT [admin_allowedScreens_df] DEFAULT '',
+[createdAt] DATETIME2 NOT NULL CONSTRAINT [admin_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+[updatedAt] DATETIME2 NOT NULL CONSTRAINT [admin_updatedAt_df] DEFAULT CURRENT_TIMESTAMP,
+[userType] NVARCHAR(1000) NOT NULL CONSTRAINT [admin_userType_df] DEFAULT '';
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

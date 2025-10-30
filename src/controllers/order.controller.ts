@@ -15,19 +15,21 @@ interface OrderItemInput {
 
 export const createOrder = asyncHandler(async (req: Request, res: Response) => {
     const orderData: any = req.body;
+
+    console.log(orderData)
     
     try {
-        // Get consumer and bulk rates from mstitm
-        const rateItems = await prisma.mstitm.findMany({
-            where: {
-                itmcd: {
-                    in: ['Itma01562', 'Itma01754']
-                }
-            }
-        });
+        // // Get consumer and bulk rates from mstitm
+        // const rateItems = await prisma.mstitm.findMany({
+        //     where: {
+        //         itmcd: {
+        //             in: ['Itma01562', 'Itma01754']
+        //         }
+        //     }
+        // });
 
-        const consumerRate = rateItems.find(item => item.itmcd === 'ITMA01562')?.itmrate || 0;
-        const bulkRate = rateItems.find(item => item.itmcd === 'ITMA01754')?.itmrate || 0;
+        // const consumerRate = rateItems.find(item => item.itmcd === 'ITMA01562')?.itmrate || 0;
+        // const bulkRate = rateItems.find(item => item.itmcd === 'ITMA01754')?.itmrate || 0;
 
 
         // Get today's date at midnight for comparison
@@ -107,8 +109,8 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
                         discountAmount: orderData.discountAmount,
                         paymentMode: orderData.paymentMode,
                         creditDays: orderData.creditDays,
-                        consumerRate,
-                        bulkRate,
+                        consumerRate: orderData.consumerRate,
+                        bulkRate: orderData.bulkRate,
                         orderItems: {
                             create: itemsWithPackType.map((item: any) => ({
                                 itemCode: item.itmcd,

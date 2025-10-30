@@ -2,6 +2,7 @@ import express from "express";
 import { 
     createCollection, 
     createCollectionWithMult, 
+    generateOtpForColl, 
     getCollectionsByEmpId,
     getCollectionsByLocation, 
     verifyCollection
@@ -15,5 +16,6 @@ router.get("/employee/:empId", getCollectionsByEmpId);
 router.get("/by-location", getCollectionsByLocation);
 router.post('/verify', verifyCollection)
 router.post('/createByMult', collectionImageUpload.single('photo'), createCollectionWithMult)
+router.post('/generateOtp', generateOtpForColl); 
 
 export default router;
