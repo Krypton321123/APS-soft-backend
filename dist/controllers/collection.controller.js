@@ -80,6 +80,7 @@ export const createCollection = asyncHandler((req, res) => __awaiter(void 0, voi
 export const generateOtpForColl = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { userId, partyId, amount } = req.body;
+    console.log(partyId);
     try {
         const otp = crypto.randomInt(100000, 999999).toString();
         const party = yield prisma.mstparty.findFirst({
@@ -91,6 +92,9 @@ export const generateOtpForColl = asyncHandler((req, res) => __awaiter(void 0, v
             }
         });
         console.log(party);
+        if (!(party === null || party === void 0 ? void 0 : party.mobile)) {
+            return res.status(409).json(new ApiError("Number not found", 409));
+        }
         const finalMessage = `Dear ${(_a = party === null || party === void 0 ? void 0 : party.lednm) === null || _a === void 0 ? void 0 : _a.slice(0, 30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`;
         console.log(finalMessage, party === null || party === void 0 ? void 0 : party.mobile, otp, userId);
         const sendOtp = yield sendOTP({ mobileNumber: party === null || party === void 0 ? void 0 : party.mobile, message: finalMessage, otp, userId, templateId: '1007234171777516053' });

@@ -111,6 +111,8 @@ export const generateOtpForColl = asyncHandler(async (req: Request, res: Respons
 
     const { userId, partyId, amount } = req.body; 
 
+    console.log(partyId)
+
     try {
 
         const otp = crypto.randomInt(100000, 999999).toString(); 
@@ -125,6 +127,10 @@ export const generateOtpForColl = asyncHandler(async (req: Request, res: Respons
         }); 
 
         console.log(party)
+
+        if (!party?.mobile) {
+            return res.status(409).json(new ApiError("Number not found", 409)); 
+        }
 
         const finalMessage = `Dear ${party?.lednm?.slice(0,30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`
 

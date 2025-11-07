@@ -95,7 +95,8 @@ export const getAvailableScreens = asyncHandler((req, res) => __awaiter(void 0, 
             { id: 'attendance', name: 'Attendance' },
             { id: 'images', name: 'Images' },
             { id: 'ratelist', name: 'Rate List' },
-            { id: 'location', name: 'Location' }
+            { id: 'location', name: 'Location' },
+            { id: 'user-management', name: 'User Management' }
         ];
         return res.status(200).json(new ApiResponse(200, "Screens fetched successfully", screens));
     }
