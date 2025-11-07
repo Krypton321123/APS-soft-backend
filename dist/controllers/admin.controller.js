@@ -76,10 +76,15 @@ export const getAvailableLocations = asyncHandler((req, res) => __awaiter(void 0
                 locationName: true
             }
         });
-        const formattedLocations = locations.map(loc => ({
+        let formattedLocations = locations.map(loc => ({
             id: loc.locationCode,
             name: loc.locationName
         }));
+        formattedLocations = formattedLocations.map((item) => {
+            if (item.id === 'VNS')
+                return Object.assign(Object.assign({}, item), { id: 'VAR' });
+            return Object.assign({}, item);
+        });
         return res.status(200).json(new ApiResponse(200, "Locations fetched successfully", formattedLocations));
     }
     catch (err) {
