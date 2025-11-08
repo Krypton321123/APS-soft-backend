@@ -19,12 +19,10 @@ import prisma from './util/prisma.js';
 import adminRouter from './routes/admin.router.js';
 import attendanceRouter from './routes/attendance.router.js';
 import imageRouter from './routes/image.router.js';
-import path from 'path';
 import locationRouter from './routes/location.router.js';
 import otpRouter from './routes/otp.router.js';
 import deliveryRouter from './routes/delivery.router.js';
 const app = express();
-const pathForStatic = path.join('');
 app.use(cors({
     origin: '*',
 }));
@@ -34,7 +32,7 @@ app.use(express.static('../uploads'));
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
-app.get("/debug", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/debug", (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const result = yield prisma.$queryRaw `SELECT @@SPID AS session_id`;
         res.send(result);

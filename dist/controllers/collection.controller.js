@@ -77,11 +77,39 @@ export const createCollection = asyncHandler((req, res) => __awaiter(void 0, voi
         return res.status(500).json(new ApiError("Failed to create collection", 500, error));
     }
 }));
+const partyRateLimit = (partyId, mode, amount, props) => __awaiter(void 0, void 0, void 0, function* () {
+    const partyCollectionLatest = yield prisma.collection.findFirst({
+        where: {
+            partyId
+        },
+        orderBy: {
+            createdAt: 'desc'
+        },
+    });
+    console.log(amount, mode);
+    if ((partyCollectionLatest === null || partyCollectionLatest === void 0 ? void 0 : partyCollectionLatest.createdAt.getDate()) !== new Date().getDate()) {
+        return false;
+    }
+    if (partyCollectionLatest.paymentMethod !== mode) {
+        return false;
+    }
+    console.log(Number(amount) === Number(partyCollectionLatest.amount));
+    if (mode === "cash")
+        return Number(amount) === Number(partyCollectionLatest.amount) ? false : true;
+    if (mode === "cheque")
+        return props.chequeNumber === partyCollectionLatest.chequeNumber ? false : true;
+    if (mode === "online")
+        return props.transactionId === partyCollectionLatest.transactionId ? false : true;
+});
 export const generateOtpForColl = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const { userId, partyId, amount } = req.body;
-    console.log(partyId);
+    const { userId, partyId, amount, mode, props } = req.body;
+    console.log(mode, amount);
     try {
+        const partyLimit = yield partyRateLimit(partyId, mode, amount, props);
+        if (!partyLimit) {
+            return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {}));
+        }
         const otp = crypto.randomInt(100000, 999999).toString();
         const party = yield prisma.mstparty.findFirst({
             where: {
@@ -93,7 +121,7 @@ export const generateOtpForColl = asyncHandler((req, res) => __awaiter(void 0, v
         });
         console.log(party);
         if (!(party === null || party === void 0 ? void 0 : party.mobile)) {
-            return res.status(409).json(new ApiError("Number not found", 409));
+            return res.status(202).json(new ApiResponse(202, "Number not found", {}));
         }
         const finalMessage = `Dear ${(_a = party === null || party === void 0 ? void 0 : party.lednm) === null || _a === void 0 ? void 0 : _a.slice(0, 30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`;
         console.log(finalMessage, party === null || party === void 0 ? void 0 : party.mobile, otp, userId);

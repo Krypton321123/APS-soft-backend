@@ -107,13 +107,49 @@ export const createCollection = asyncHandler(async (req: Request, res: Response)
     }
 });
 
+const partyRateLimit = async (partyId: string, mode: string, amount: number, props: any) => {
+
+    const partyCollectionLatest = await prisma.collection.findFirst({
+        where: {
+            partyId
+        }, 
+        orderBy: {
+            createdAt: 'desc'
+        },
+    })
+
+    console.log(amount, mode)
+
+    if (partyCollectionLatest?.createdAt.getDate() !== new Date().getDate()) {
+        return false; 
+    }
+
+    if (partyCollectionLatest.paymentMethod !== mode) {
+        return false; 
+    }   
+
+    console.log(Number(amount) === Number(partyCollectionLatest.amount));
+
+    if (mode === "cash") return Number(amount) === Number(partyCollectionLatest.amount) ? false : true; 
+
+    if (mode === "cheque") return props.chequeNumber === partyCollectionLatest.chequeNumber ? false : true 
+
+    if (mode === "online") return props.transactionId === partyCollectionLatest.transactionId ? false : true
+
+}
 export const generateOtpForColl = asyncHandler(async (req: Request, res: Response) => {
 
-    const { userId, partyId, amount } = req.body; 
+    const { userId, partyId, amount, mode, props } = req.body; 
 
-    console.log(partyId)
+    console.log(mode, amount)
 
     try {
+
+        const partyLimit = await partyRateLimit(partyId, mode, amount, props);
+
+        if (!partyLimit) {
+            return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {})); 
+        }
 
         const otp = crypto.randomInt(100000, 999999).toString(); 
 
@@ -129,7 +165,7 @@ export const generateOtpForColl = asyncHandler(async (req: Request, res: Respons
         console.log(party)
 
         if (!party?.mobile) {
-            return res.status(409).json(new ApiError("Number not found", 409)); 
+            return res.status(202).json(new ApiResponse(202, "Number not found", {})); 
         }
 
         const finalMessage = `Dear ${party?.lednm?.slice(0,30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`
@@ -379,3 +415,4 @@ export const verifyCollection = asyncHandler(async (req: Request, res: Response)
         return res.status(500).json(new ApiError('Internal server error', 500, {}));
     }
 })
+

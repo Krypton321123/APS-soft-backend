@@ -55,17 +55,29 @@ model Order {
 }
 
 model AcceptedOrders {
-  accept_id String   @id @default(cuid())
-  order_id  String   @unique
-  createdAt DateTime @default(now())
-  Order     Order    @relation(fields: [order_id], references: [order_id])
+  accept_id    String    @id @default(cuid())
+  order_id     String    @unique
+  bulkRate     Decimal   @db.Decimal(18, 2)
+  consumerRate Decimal   @db.Decimal(18, 2)
+  status       String
+  remarks      String    @default("")
+  AcceptedAt   DateTime?
+  adminName    String
+  admin        admin     @relation(fields: [adminName], references: [username])
+  createdAt    DateTime  @default(now())
+  Order        Order     @relation(fields: [order_id], references: [order_id])
 }
 
 model RejectedOrders {
-  reject_id String   @id @default(cuid())
-  order_id  String   @unique
-  createdAt DateTime @default(now())
-  Order     Order    @relation(fields: [order_id], references: [order_id])
+  reject_id    String   @id @default(cuid())
+  order_id     String   @unique
+  bulkRate     Decimal  @db.Decimal(18, 2)
+  consumerRate Decimal  @db.Decimal(18, 2)
+  remarks      String   @default("")
+  adminName    String
+  admin        admin    @relation(fields: [adminName], references: [username])
+  createdAt    DateTime @default(now())
+  Order        Order    @relation(fields: [order_id], references: [order_id])
 }
 
 model OrderItem {
@@ -81,22 +93,22 @@ model OrderItem {
 }
 
 model Collection {
-  collection_id String              @id @default(cuid())
+  collection_id String    @id @default(cuid())
   partyId       String
   partyName     String
   empId         String
-  amount        Decimal             @db.Decimal(18, 2)
+  amount        Decimal   @db.Decimal(18, 2)
   paymentMethod String
   chequeNumber  String?
   chequeDate    String?
   bankName      String?
-  upiId         String?             @default("")
+  upiId         String?   @default("")
   transactionId String?
-  createdAt     DateTime            @default(now())
-  verified      Boolean             @default(false)
+  createdAt     DateTime  @default(now())
+  verified      Boolean   @default(false)
   verifiedAt    DateTime?
-  otp           String?             @default("") 
-  imageUrl      String?             @default("")
+  otp           String?   @default("")
+  imageUrl      String?   @default("")
 }
 
 model PartyEditRequest {
@@ -136,15 +148,17 @@ model StockItem {
 }
 
 model admin {
-  admin_id         String   @id @default(cuid())
-  username         String   @unique
-  password         String   
-  userType         String   @default("")
-  allowedScreens   String   @default("")
-  allowedLocations String   @default("")
-  active           Boolean  @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt @default(now())
+  admin_id         String           @id @default(cuid())
+  username         String           @unique
+  password         String
+  userType         String           @default("")
+  allowedScreens   String           @default("")
+  allowedLocations String           @default("")
+  active           Boolean          @default(true)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
+  acceptedOrders   AcceptedOrders[]
+  rejectedOrders   RejectedOrders[]
 }
 
 model Attendance {
@@ -197,20 +211,20 @@ model latLongitudeValues {
 }
 
 model DeliveryBillStatus {
-  bill_id       String     @id @default(cuid())
-  userId        String
-  billNo        String
-  otp           String
-  cash          String   
-  createdAt     DateTime   @default(now())
+  bill_id   String   @id @default(cuid())
+  userId    String
+  billNo    String
+  otp       String
+  cash      String
+  createdAt DateTime @default(now())
 }
 
 model LocationNames {
-  location_id   String    @id @default(cuid())
-  locationName  String  
-  locationCode  String 
-  cityName      String 
-  stateName     String   
+  location_id  String @id @default(cuid())
+  locationName String
+  locationCode String
+  cityName     String
+  stateName    String
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

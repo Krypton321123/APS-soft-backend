@@ -174,13 +174,16 @@ export const getOrders = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getOrdersByLocation = asyncHandler(async (req: Request, res: Response) => {
-    const { states, depots, employees, from, to } = req.query;
+    const { states, depots, employees, from, to, user } = req.query;
+    let { filter } = req.query; 
+
+    filter = (filter as string).toUpperCase(); 
 
     const stateList = states ? (states as string).split(',') : [];
     const depotList = depots ? (depots as string).split(',') : [];
     const employeeList = employees ? (employees as string).split(',') : [];
 
-    const users = await prisma.user.findMany({
+    let users = await prisma.user.findMany({
         where: {
             OR: [
                 { stnm: { in: stateList.length > 0 ? stateList : undefined } },
@@ -189,6 +192,21 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
             ]
         }
     });
+
+    const admin = await prisma.admin.findFirst({
+        where: {
+            username: user as string 
+        }
+    })
+    // console.log(admin)
+    if (admin?.userType !== "ADMIN") {
+        users = users.filter((item) => {
+        return JSON.parse(admin?.allowedLocations || "").includes(item.untnm.toUpperCase().slice(0, 3)); 
+    })
+    }
+    
+
+    console.log(users)
 
     // Create date filters
     let createdAtFilter: any = {};
@@ -203,23 +221,51 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
     createdAtFilter.lte = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
     }
 
-    // Get orders for these users with date filtering
+    let acceptRejectFilter: {accept: any, reject: any} = {
+        accept: null, 
+        reject: null
+    }; 
+
+    console.log(admin)
+
+    if (admin?.userType === "DEPOT-INCHARGE") {
+        acceptRejectFilter = {
+            accept: filter === "PARK" ? {status: "PARK"} : null, 
+            reject: filter === "REJECT" ? {isNot: null} : null
+        }
+    } else if (admin?.userType === "HEAD-OFFICE"){
+        acceptRejectFilter = {
+            accept: filter === "ALL" ? {status: "PARK"} : (filter === "ACCEPT" ? {status: "ACCEPT"}: null), 
+            reject: filter === "REJECT" ? {isNot: null} : null
+        }
+    } else if (admin?.userType === "ADMIN") {
+        console.log("came here ->", filter)
+        acceptRejectFilter = {
+            accept: filter === "ALL" ? {isNot: null} : (filter === "ACCEPT" ? {status: "ACCEPT"}: (filter === "PARK" ? {status: 'PARK'} : null)), 
+            reject: filter === "REJECT" ? {isNot: null} : null
+        }
+    }
+
+    console.log(acceptRejectFilter)
+
     const orders = await prisma.order.findMany({
         where: {
             empId: { in: users.map(u => u.username) },
-            accept: null,
-            reject: null,
+            accept: acceptRejectFilter.accept,
+            reject: acceptRejectFilter.reject, 
             createdAt: Object.keys(createdAtFilter).length ? createdAtFilter : undefined
         },
         include: {
-            orderItems: true
+            orderItems: true, 
+            accept: true
         },
         orderBy: {
             createdAt: 'desc'
         }
     });
 
-  const updatedOrders = await Promise.all(
+
+  const updatedOrders = (await Promise.all(
         orders.map(async (item) => {
             let updatedPartyName = item.partyName;
             let empName = "Unknown";
@@ -260,8 +306,6 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
                 })
             )
 
-            console.log("fixed ORder items --->", fixedOrderItems)
-
             const employee = await prisma.user.findFirst({
             where: { username: item.empId },
             select: { usrnm: true }
@@ -287,19 +331,33 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
 
             empName = employee?.usrnm || "Unknown";
 
+            const admin2 = await prisma.admin.findFirst({
+                where: {
+                    username: item.accept?.adminName
+                }, 
+                select: {
+                    userType: true 
+                }
+            })
+
+             const shouldInclude = filter === "ALL" || admin?.userType === "ADMIN" || admin?.userType === admin2?.userType;
+        
+            if (!shouldInclude) {
+                return null;
+            }
+
+
             return {
             ...item,
             partyName: updatedPartyName,
             empName, 
             orderItems: fixedOrderItems, 
             outstanding: outStanding?.outamt, 
-            collection: {...collection, amount: collection?.amount || 0}
+            collection: {...collection, amount: collection?.amount || 0}, 
+            status: item.accept?.status
             };
         })
-    );
-
-
-
+    )).filter((order): order is NonNullable<typeof order> => order !== null);
 
     return res.status(200).json(
         new ApiResponse(200, "Orders fetched successfully", updatedOrders)
@@ -338,65 +396,81 @@ export const getTodayOrdersByPartyId = asyncHandler(async (req: Request, res: Re
     new ApiResponse(200, "Today's orders fetched successfully", orders)
   );
 });
-export const acceptRejectOrders = asyncHandler(async (req: Request, res: Response) => {
-    const { orders, status } = req.body;
 
-    console.log(orders)
+
+export const handleAcceptOrders = asyncHandler(async (req: Request, res: Response) => {
+    const { orders, adminName, status } = req.body; 
 
     try {
-        switch(status) {
-            case 'ACCEPT': {
-                const acceptOrder = await Promise.all(
-                    orders.map(async (order: any) => {
-                        const { orderId, consumerQuantity, bulkQuantity, consumerRate, bulkRate } = order;
 
-                        if (consumerRate || bulkRate) { 
-
-                            const updateData: any = {}
-                            if (bulkRate) updateData.bulkRate = bulkRate
-                            if (consumerRate) updateData.consumerRate = consumerRate
-
-                            await prisma.order.update({
-                            where: { order_id: orderId },
-                            data: updateData
-                        });
-                        }
-                        
-                        
-                        // Create accepted order record with quantities
-                        await prisma.acceptedOrders.create({
-                            data: {
-                                order_id: orderId,
-                              
-                            },
-                        });
-                    })
-                );
-
-                console.log('orders accepted with edits: ', acceptOrder)
-                return res.status(200).json(new ApiResponse(200, "Orders accepted successfully with edits", acceptOrder))
-            }
-            case 'REJECT': {
-                const rejectOrder = await Promise.all(
-                    orders.map(async (order: any) => {
-                        await prisma.rejectedOrders.create({
-                            data: {
-                                order_id: order.orderId
-                            }
-                        })
-                    })
-                )
-
-                console.log(`orders rejected: ${rejectOrder}`)
-                return res.status(200).json(new ApiResponse(200, "Orders rejected successfully", rejectOrder))
-            }
-            default: {
-                return res.status(400).json(new ApiError('Order status not sent', 400))
-            }
+        if (!orders || !adminName || !status) {
+            return res.status(400).json(new ApiError("Bad Data", 400)); 
         }
 
-    } catch (err) {
-        console.log("Accept reject error: ", err)
-        return res.status(500).json(new ApiError('Internal server error', 500, {}))
+        const admin = await prisma.admin.findFirst({
+            where: {
+                username: adminName
+            }
+        }); 
+
+        if (!admin) {
+            return res.status(409).json(new ApiError("No valid admin found", 409)); 
+        }
+
+        const createAccepts = await Promise.all(
+            orders.map(async (item: any) => {
+                const createOrder = await prisma.acceptedOrders.create({
+                    data: {
+                        order_id: item.id, adminName: admin.username, bulkRate: Number(item.bulkRate), consumerRate: Number(item.consumerRate), status, AcceptedAt: status === "ACCEPT" ? new Date().toISOString() : null, remarks: item.remarks 
+                    }
+                }); 
+                return createOrder; 
+            })
+        )
+
+        console.log("CREATED ACCEPTS:", createAccepts)
+
+        return res.status(200).json(new ApiResponse(200, "Orders accepted gracefully", createAccepts))
+
+    } catch (err: any) {
+        console.log("Error in accepting orders =>", err); 
+        return res.status(500).json(new ApiError("Internal Server error", 500)); 
+    }
+})
+
+export const handleRejectOrders = asyncHandler(async (req: Request, res: Response) => {
+    const { orders, adminName, remarks } = req.body; 
+
+    try {
+
+        if (!orders || !adminName) {
+            return res.status(400).json(new ApiError("Invalid request", 400));
+        }
+
+        const admin = await prisma.admin.findFirst({
+            where: {
+                username: adminName
+            }
+        }); 
+
+        if (!admin) {
+            return res.status(409).json(new ApiError("No valid admin found", 409)); 
+        }
+
+        const rejectedOrders = await Promise.all(
+            orders.map(async (item: any) => {
+                await prisma.rejectedOrders.create({
+                    data: {
+                        order_id: item.id, adminName: admin.username, bulkRate: Number(item.bulkRate), consumerRate: Number(item.consumerRate), remarks: item.remarks 
+                    }
+                })
+            })
+        )
+
+        return res.status(200).json(new ApiResponse(200, "Successfully rejected orders", rejectedOrders))
+    
+    } catch (err: any) {
+        console.log("Error rejecting orders: ", err)
+        return res.status(500).json(new ApiError("Error rejecting orders", 500)); 
     }
 })

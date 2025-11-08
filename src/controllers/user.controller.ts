@@ -546,7 +546,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           {createdAt: {lte: endDate}}
         ]     
      }, select: {
-      amount: true, partyId: true
+      amount: true, partyId: true, paymentMethod: true
      }
     })
 

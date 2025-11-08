@@ -141,11 +141,13 @@ export const getOrders = asyncHandler((req, res) => __awaiter(void 0, void 0, vo
     return res.status(200).json(new ApiResponse(200, "Orders fetched successfully", orders));
 }));
 export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { states, depots, employees, from, to } = req.query;
+    const { states, depots, employees, from, to, user } = req.query;
+    let { filter } = req.query;
+    filter = filter.toUpperCase();
     const stateList = states ? states.split(',') : [];
     const depotList = depots ? depots.split(',') : [];
     const employeeList = employees ? employees.split(',') : [];
-    const users = yield prisma.user.findMany({
+    let users = yield prisma.user.findMany({
         where: {
             OR: [
                 { stnm: { in: stateList.length > 0 ? stateList : undefined } },
@@ -154,6 +156,18 @@ export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, 
             ]
         }
     });
+    const admin = yield prisma.admin.findFirst({
+        where: {
+            username: user
+        }
+    });
+    // console.log(admin)
+    if ((admin === null || admin === void 0 ? void 0 : admin.userType) !== "ADMIN") {
+        users = users.filter((item) => {
+            return JSON.parse((admin === null || admin === void 0 ? void 0 : admin.allowedLocations) || "").includes(item.untnm.toUpperCase().slice(0, 3));
+        });
+    }
+    console.log(users);
     // Create date filters
     let createdAtFilter = {};
     if (from) {
@@ -164,22 +178,48 @@ export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, 
         const [y, m, d] = to.split("-").map(Number);
         createdAtFilter.lte = new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
     }
-    // Get orders for these users with date filtering
+    let acceptRejectFilter = {
+        accept: null,
+        reject: null
+    };
+    console.log(admin);
+    if ((admin === null || admin === void 0 ? void 0 : admin.userType) === "DEPOT-INCHARGE") {
+        acceptRejectFilter = {
+            accept: filter === "PARK" ? { status: "PARK" } : null,
+            reject: filter === "REJECT" ? { isNot: null } : null
+        };
+    }
+    else if ((admin === null || admin === void 0 ? void 0 : admin.userType) === "HEAD-OFFICE") {
+        acceptRejectFilter = {
+            accept: filter === "ALL" ? { status: "PARK" } : (filter === "ACCEPT" ? { status: "ACCEPT" } : null),
+            reject: filter === "REJECT" ? { isNot: null } : null
+        };
+    }
+    else if ((admin === null || admin === void 0 ? void 0 : admin.userType) === "ADMIN") {
+        console.log("came here ->", filter);
+        acceptRejectFilter = {
+            accept: filter === "ALL" ? { isNot: null } : (filter === "ACCEPT" ? { status: "ACCEPT" } : (filter === "PARK" ? { status: 'PARK' } : null)),
+            reject: filter === "REJECT" ? { isNot: null } : null
+        };
+    }
+    console.log(acceptRejectFilter);
     const orders = yield prisma.order.findMany({
         where: {
             empId: { in: users.map(u => u.username) },
-            accept: null,
-            reject: null,
+            accept: acceptRejectFilter.accept,
+            reject: acceptRejectFilter.reject,
             createdAt: Object.keys(createdAtFilter).length ? createdAtFilter : undefined
         },
         include: {
-            orderItems: true
+            orderItems: true,
+            accept: true
         },
         orderBy: {
             createdAt: 'desc'
         }
     });
-    const updatedOrders = yield Promise.all(orders.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+    const updatedOrders = (yield Promise.all(orders.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a, _b;
         let updatedPartyName = item.partyName;
         let empName = "Unknown";
         if (item.partyName === "Loading...") {
@@ -208,7 +248,6 @@ export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, 
             }
             return Object.assign({}, item);
         })));
-        console.log("fixed ORder items --->", fixedOrderItems);
         const employee = yield prisma.user.findFirst({
             where: { username: item.empId },
             select: { usrnm: true }
@@ -230,8 +269,20 @@ export const getOrdersByLocation = asyncHandler((req, res) => __awaiter(void 0, 
             }
         });
         empName = (employee === null || employee === void 0 ? void 0 : employee.usrnm) || "Unknown";
-        return Object.assign(Object.assign({}, item), { partyName: updatedPartyName, empName, orderItems: fixedOrderItems, outstanding: outStanding === null || outStanding === void 0 ? void 0 : outStanding.outamt, collection: Object.assign(Object.assign({}, collection), { amount: (collection === null || collection === void 0 ? void 0 : collection.amount) || 0 }) });
-    })));
+        const admin2 = yield prisma.admin.findFirst({
+            where: {
+                username: (_a = item.accept) === null || _a === void 0 ? void 0 : _a.adminName
+            },
+            select: {
+                userType: true
+            }
+        });
+        const shouldInclude = filter === "ALL" || (admin === null || admin === void 0 ? void 0 : admin.userType) === "ADMIN" || (admin === null || admin === void 0 ? void 0 : admin.userType) === (admin2 === null || admin2 === void 0 ? void 0 : admin2.userType);
+        if (!shouldInclude) {
+            return null;
+        }
+        return Object.assign(Object.assign({}, item), { partyName: updatedPartyName, empName, orderItems: fixedOrderItems, outstanding: outStanding === null || outStanding === void 0 ? void 0 : outStanding.outamt, collection: Object.assign(Object.assign({}, collection), { amount: (collection === null || collection === void 0 ? void 0 : collection.amount) || 0 }), status: (_b = item.accept) === null || _b === void 0 ? void 0 : _b.status });
+    })))).filter((order) => order !== null);
     return res.status(200).json(new ApiResponse(200, "Orders fetched successfully", updatedOrders));
 }));
 export const getTodayOrdersByPartyId = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -258,53 +309,61 @@ export const getTodayOrdersByPartyId = asyncHandler((req, res) => __awaiter(void
     });
     return res.status(200).json(new ApiResponse(200, "Today's orders fetched successfully", orders));
 }));
-export const acceptRejectOrders = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { orders, status } = req.body;
-    console.log(orders);
+export const handleAcceptOrders = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orders, adminName, status } = req.body;
     try {
-        switch (status) {
-            case 'ACCEPT': {
-                const acceptOrder = yield Promise.all(orders.map((order) => __awaiter(void 0, void 0, void 0, function* () {
-                    const { orderId, consumerQuantity, bulkQuantity, consumerRate, bulkRate } = order;
-                    if (consumerRate || bulkRate) {
-                        const updateData = {};
-                        if (bulkRate)
-                            updateData.bulkRate = bulkRate;
-                        if (consumerRate)
-                            updateData.consumerRate = consumerRate;
-                        yield prisma.order.update({
-                            where: { order_id: orderId },
-                            data: updateData
-                        });
-                    }
-                    // Create accepted order record with quantities
-                    yield prisma.acceptedOrders.create({
-                        data: {
-                            order_id: orderId,
-                        },
-                    });
-                })));
-                console.log('orders accepted with edits: ', acceptOrder);
-                return res.status(200).json(new ApiResponse(200, "Orders accepted successfully with edits", acceptOrder));
-            }
-            case 'REJECT': {
-                const rejectOrder = yield Promise.all(orders.map((order) => __awaiter(void 0, void 0, void 0, function* () {
-                    yield prisma.rejectedOrders.create({
-                        data: {
-                            order_id: order.orderId
-                        }
-                    });
-                })));
-                console.log(`orders rejected: ${rejectOrder}`);
-                return res.status(200).json(new ApiResponse(200, "Orders rejected successfully", rejectOrder));
-            }
-            default: {
-                return res.status(400).json(new ApiError('Order status not sent', 400));
-            }
+        if (!orders || !adminName || !status) {
+            return res.status(400).json(new ApiError("Bad Data", 400));
         }
+        const admin = yield prisma.admin.findFirst({
+            where: {
+                username: adminName
+            }
+        });
+        if (!admin) {
+            return res.status(409).json(new ApiError("No valid admin found", 409));
+        }
+        const createAccepts = yield Promise.all(orders.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+            const createOrder = yield prisma.acceptedOrders.create({
+                data: {
+                    order_id: item.id, adminName: admin.username, bulkRate: Number(item.bulkRate), consumerRate: Number(item.consumerRate), status, AcceptedAt: status === "ACCEPT" ? new Date().toISOString() : null, remarks: item.remarks
+                }
+            });
+            return createOrder;
+        })));
+        console.log("CREATED ACCEPTS:", createAccepts);
+        return res.status(200).json(new ApiResponse(200, "Orders accepted gracefully", createAccepts));
     }
     catch (err) {
-        console.log("Accept reject error: ", err);
-        return res.status(500).json(new ApiError('Internal server error', 500, {}));
+        console.log("Error in accepting orders =>", err);
+        return res.status(500).json(new ApiError("Internal Server error", 500));
+    }
+}));
+export const handleRejectOrders = asyncHandler((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orders, adminName, remarks } = req.body;
+    try {
+        if (!orders || !adminName) {
+            return res.status(400).json(new ApiError("Invalid request", 400));
+        }
+        const admin = yield prisma.admin.findFirst({
+            where: {
+                username: adminName
+            }
+        });
+        if (!admin) {
+            return res.status(409).json(new ApiError("No valid admin found", 409));
+        }
+        const rejectedOrders = yield Promise.all(orders.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+            yield prisma.rejectedOrders.create({
+                data: {
+                    order_id: item.id, adminName: admin.username, bulkRate: Number(item.bulkRate), consumerRate: Number(item.consumerRate), remarks: item.remarks
+                }
+            });
+        })));
+        return res.status(200).json(new ApiResponse(200, "Successfully rejected orders", rejectedOrders));
+    }
+    catch (err) {
+        console.log("Error rejecting orders: ", err);
+        return res.status(500).json(new ApiError("Error rejecting orders", 500));
     }
 }));

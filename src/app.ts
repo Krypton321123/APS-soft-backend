@@ -14,10 +14,8 @@ import path from 'path'
 import locationRouter from './routes/location.router.js';
 import otpRouter from './routes/otp.router.js';
 import deliveryRouter from './routes/delivery.router.js';
-import ApiResponse from './util/ApiResponse.js';
 
 const app = express()
-const pathForStatic = path.join('')
 
 app.use(cors({
   origin: '*', 
@@ -31,7 +29,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.get("/debug", async (req, res) => {
+app.get("/debug", async (_, res) => {
   try {
     const result = await prisma.$queryRaw`SELECT @@SPID AS session_id`;
     res.send(result);

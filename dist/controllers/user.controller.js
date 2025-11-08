@@ -450,7 +450,7 @@ export const getSummary = asyncHandler((req, res) => __awaiter(void 0, void 0, v
                     { createdAt: { lte: endDate } }
                 ]
             }, select: {
-                amount: true, partyId: true
+                amount: true, partyId: true, paymentMethod: true
             }
         });
         collection.map((item) => total.totalAmount += Number(item.amount));
