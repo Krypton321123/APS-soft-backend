@@ -120,7 +120,7 @@ const partyRateLimit = async (partyId: string, mode: string, amount: number, pro
 
     console.log(amount, mode)
 
-    if (partyCollectionLatest?.createdAt.getDate() !== new Date().getDate()) {
+    if (partyCollectionLatest?.createdAt.toLocaleDateString() !== new Date().toLocaleDateString()) {
         return false; 
     }
 
