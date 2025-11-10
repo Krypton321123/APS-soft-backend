@@ -118,17 +118,19 @@ const partyRateLimit = async (partyId: string, mode: string, amount: number, pro
         },
     })
 
-    console.log(amount, mode)
+    if (!partyCollectionLatest) {
+        return true; 
+    }
 
     if (partyCollectionLatest?.createdAt.toLocaleDateString() !== new Date().toLocaleDateString()) {
-        return false; 
+        return true; 
     }
 
     if (partyCollectionLatest.paymentMethod !== mode) {
-        return false; 
+        return true; 
     }   
 
-    console.log(Number(amount) === Number(partyCollectionLatest.amount));
+    console.log("validation:", Number(amount) === Number(partyCollectionLatest.amount));
 
     if (mode === "cash") return Number(amount) === Number(partyCollectionLatest.amount) ? false : true; 
 
@@ -137,6 +139,7 @@ const partyRateLimit = async (partyId: string, mode: string, amount: number, pro
     if (mode === "online") return props.transactionId === partyCollectionLatest.transactionId ? false : true
 
 }
+
 export const generateOtpForColl = asyncHandler(async (req: Request, res: Response) => {
 
     const { userId, partyId, amount, mode, props } = req.body; 
