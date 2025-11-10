@@ -241,7 +241,7 @@ export const getOrdersByLocation = asyncHandler(async (req: Request, res: Respon
     } else if (admin?.userType === "ADMIN") {
         console.log("came here ->", filter)
         acceptRejectFilter = {
-            accept: filter === "ALL" ? {isNot: null} : (filter === "ACCEPT" ? {status: "ACCEPT"}: (filter === "PARK" ? {status: 'PARK'} : null)), 
+            accept: filter === "ALL" ? null : (filter === "ACCEPT" ? {status: "ACCEPT"}: (filter === "PARK" ? {status: 'PARK'} : null)), 
             reject: filter === "REJECT" ? {isNot: null} : null
         }
     }
