@@ -148,11 +148,11 @@ export const generateOtpForColl = asyncHandler(async (req: Request, res: Respons
 
     try {
 
-        const partyLimit = await partyRateLimit(partyId, mode, amount, props);
+        // const partyLimit = await partyRateLimit(partyId, mode, amount, props);
 
-        if (!partyLimit) {
-            return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {})); 
-        }
+        // if (!partyLimit) {
+        //     return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {})); 
+        // }
 
         const otp = crypto.randomInt(100000, 999999).toString(); 
 
