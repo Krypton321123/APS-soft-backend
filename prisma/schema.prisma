@@ -32,6 +32,7 @@ model partyImages {
   imageUrl2       String?
   imageUrl3       String?
   profileImageUrl String
+  remarks         String   @default("")
   userId          String?
   user            User?    @relation(fields: [userId], references: [username])
 }
@@ -274,4 +275,10 @@ view partybills {
   totqty Decimal? @db.Decimal(38, 0)
   amt    Decimal? @db.Decimal(38, 2)
   mobile String?  @db.VarChar(100)
+}
+
+model Flags {
+  flag_id String @id @default(cuid())
+  partyId String
+  flag    String
 }

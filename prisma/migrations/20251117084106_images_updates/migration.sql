@@ -1,0 +1,27 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[partyImages] ADD [remarks] NVARCHAR(1000) NOT NULL CONSTRAINT [partyImages_remarks_df] DEFAULT '';
+
+-- CreateTable
+CREATE TABLE [dbo].[Flags] (
+    [flag_id] NVARCHAR(1000) NOT NULL,
+    [partyId] NVARCHAR(1000) NOT NULL,
+    [flag] NVARCHAR(1000) NOT NULL,
+    CONSTRAINT [Flags_pkey] PRIMARY KEY CLUSTERED ([flag_id])
+);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

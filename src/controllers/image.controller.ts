@@ -7,6 +7,7 @@ import { dirname } from 'path';
 import asyncHandler from '../util/asyncHandler.js';
 import ApiResponse from '../util/ApiResponse.js';
 import ip from 'ip'
+import ApiError from '../util/ApiError.js';
 
 const __fileName = fileURLToPath(import.meta.url)
 const __dirname = dirname(__fileName)
@@ -116,7 +117,9 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
       select: {
         profileImageUrl: true,
         createdAt: true,
-        partyId: true
+        partyId: true, 
+        image_id: true, 
+        remarks: true
       }
     });
 
@@ -187,4 +190,62 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
 
     return res.status(200).json(new ApiResponse(200, "fetched", {sendData, total: {totalOutstanding, totalOrderQuantity, totalCollectionAmt}}))
 
+})
+
+export const saveRemarks = asyncHandler(async (req: Request, res: Response) => {
+  const {remark, image_id } = req.body; 
+
+  try {
+
+    if (!remark || !image_id) {
+      return res.status(400).json(new ApiError("Bad request", 400)); 
+    }
+
+
+    const remarks = await prisma.partyImages.update({
+      where: {
+        image_id
+      }, 
+      data: {
+        remarks: remark
+      }
+    }); 
+
+   
+
+    return res.status(200).json(new ApiResponse(200, "Saved successfully", remarks))
+
+  } catch (err: any) {
+    console.log("saving remark error ->", err); 
+    return res.status(500).json(new ApiError("Internal server error", 500, {})); 
+  }
+})
+
+export const saveFlag = asyncHandler(async (req: Request, res: Response) => {
+  const { partyId, flag } = req.body; 
+
+  try {
+
+    if (!partyId || !flag) {
+      return res.status(400).json(new ApiError("Bad request", 400)); 
+    }
+
+    const saveFlag = await prisma.flags.create({
+      data: {
+        flag, partyId
+      }
+    }); 
+
+    return res.status(200).json(new ApiResponse(200, "Saved flag", saveFlag))
+
+  } catch (err: any) {
+    console.log("saving flag error ->", err)
+    return res.status(500).json(new ApiError("Internal server error", 500, {})); 
+  }
+})
+
+export const getFlags = asyncHandler(async (req: Request, res: Response) => {
+    const flags = await prisma.flags.findMany({}); 
+
+    return res.status(200).json(new ApiResponse(200, "Fetched successfully", flags)); 
 })
