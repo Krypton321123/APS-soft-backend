@@ -117,7 +117,8 @@ export const getAvailableScreens = asyncHandler(async (req: Request, res: Respon
             { id: 'images', name: 'Images' },
             { id: 'ratelist', name: 'Rate List' },
             { id: 'location', name: 'Location' }, 
-            { id: 'user-management', name: 'User Management'}
+            { id: 'user-management', name: 'User Management'},
+            { id: 'location-distance', name: 'Location Distance Report'}
         ];
 
         return res.status(200).json(
