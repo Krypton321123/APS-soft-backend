@@ -94,7 +94,7 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
   const { depot, employee, startDate, endDate } = req.query
 
   let ipAdd = ip.address(); 
-  if (process.env.PRODUCTION_MODE === "prod") ipAdd = "157.15.93.224"
+  if (process.env.PRODUCTION_MODE === "prod") ipAdd = "122.160.12.232"
 
    const user = await prisma.user.findFirst({
       where: {
@@ -133,7 +133,6 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
         startDate.setUTCHours(0, 0, 0, 0); 
         const endDate = new Date(startDate); 
         endDate.setUTCHours(23, 59, 59, 999); 
-
 
         const order = await prisma.order.findFirst({
           where: {
@@ -186,7 +185,7 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
         }
       })
     )
-
+    
 
     return res.status(200).json(new ApiResponse(200, "fetched", {sendData, total: {totalOutstanding, totalOrderQuantity, totalCollectionAmt}}))
 
