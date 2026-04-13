@@ -388,13 +388,25 @@ export const getCollectionsByLocation = asyncHandler(async (req: Request, res: R
 });
 
 export const verifyCollection = asyncHandler(async (req: Request, res: Response) => {
-    const { collections } = req.body;
+    const { collections, username } = req.body;
+
+    console.log(username)
 
     try {
 
         const dateTime = new Date(Date.now())
         console.log(dateTime)
         console.log(collections)
+
+        const admin = await prisma.admin.findUnique({
+            where: {
+                username
+            }
+        })
+
+        if (!admin) {
+            return res.status(400).json(new ApiError("Admin not found", 400)); 
+        }
 
         const verifiedCollections = await Promise.all(
             collections.map(async (item: { collectionId: string, amount: number }) => {
@@ -405,7 +417,8 @@ export const verifyCollection = asyncHandler(async (req: Request, res: Response)
                     data: {
                         amount: item.amount,
                         verified: true,
-                        verifiedAt: dateTime
+                        verifiedAt: dateTime, 
+                        verifiedBy: admin.username
                     }
                 })
             })

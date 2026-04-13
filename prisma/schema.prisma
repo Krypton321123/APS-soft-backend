@@ -108,6 +108,9 @@ model Collection {
   createdAt     DateTime  @default(now())
   verified      Boolean   @default(false)
   verifiedAt    DateTime?
+  verifiedBy    String?    
+  admin         admin?     @relation(fields: [verifiedBy], references: [username])
+  vchno         String?
   otp           String?   @default("")
   imageUrl      String?   @default("")
 }
@@ -160,6 +163,7 @@ model admin {
   updatedAt        DateTime         @default(now()) @updatedAt
   acceptedOrders   AcceptedOrders[]
   rejectedOrders   RejectedOrders[]
+  collections      Collection[]
 }
 
 model Attendance {
