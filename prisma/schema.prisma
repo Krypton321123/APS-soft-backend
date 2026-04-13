@@ -32,8 +32,8 @@ model partyImages {
   imageUrl2       String?
   imageUrl3       String?
   profileImageUrl String
-  remarks         String   @default("")
   userId          String?
+  remarks         String   @default("")
   user            User?    @relation(fields: [userId], references: [username])
 }
 
@@ -58,26 +58,26 @@ model Order {
 model AcceptedOrders {
   accept_id    String    @id @default(cuid())
   order_id     String    @unique
-  bulkRate     Decimal   @db.Decimal(18, 2)
-  consumerRate Decimal   @db.Decimal(18, 2)
-  status       String
-  remarks      String    @default("")
+  createdAt    DateTime  @default(now())
   AcceptedAt   DateTime?
   adminName    String
+  bulkRate     Decimal   @db.Decimal(18, 2)
+  consumerRate Decimal   @db.Decimal(18, 2)
+  remarks      String    @default("")
+  status       String
   admin        admin     @relation(fields: [adminName], references: [username])
-  createdAt    DateTime  @default(now())
   Order        Order     @relation(fields: [order_id], references: [order_id])
 }
 
 model RejectedOrders {
   reject_id    String   @id @default(cuid())
   order_id     String   @unique
+  createdAt    DateTime @default(now())
+  adminName    String
+  remarks      String   @default("")
   bulkRate     Decimal  @db.Decimal(18, 2)
   consumerRate Decimal  @db.Decimal(18, 2)
-  remarks      String   @default("")
-  adminName    String
   admin        admin    @relation(fields: [adminName], references: [username])
-  createdAt    DateTime @default(now())
   Order        Order    @relation(fields: [order_id], references: [order_id])
 }
 
@@ -108,11 +108,12 @@ model Collection {
   createdAt     DateTime  @default(now())
   verified      Boolean   @default(false)
   verifiedAt    DateTime?
-  verifiedBy    String?    
-  admin         admin?     @relation(fields: [verifiedBy], references: [username])
-  vchno         String?
-  otp           String?   @default("")
   imageUrl      String?   @default("")
+  otp           String?   @default("")
+  verifiedBy    String?
+  ledgerId      String?
+  vchno         String?
+  admin         admin?    @relation(fields: [verifiedBy], references: [username])
 }
 
 model PartyEditRequest {
@@ -155,15 +156,15 @@ model admin {
   admin_id         String           @id @default(cuid())
   username         String           @unique
   password         String
-  userType         String           @default("")
-  allowedScreens   String           @default("")
-  allowedLocations String           @default("")
   active           Boolean          @default(true)
+  allowedLocations String           @default("")
+  allowedScreens   String           @default("")
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @default(now()) @updatedAt
+  userType         String           @default("")
   acceptedOrders   AcceptedOrders[]
-  rejectedOrders   RejectedOrders[]
   collections      Collection[]
+  rejectedOrders   RejectedOrders[]
 }
 
 model Attendance {
@@ -220,8 +221,8 @@ model DeliveryBillStatus {
   userId    String
   billNo    String
   otp       String
-  cash      String
   createdAt DateTime @default(now())
+  cash      String
 }
 
 model LocationNames {
@@ -230,6 +231,12 @@ model LocationNames {
   locationCode String
   cityName     String
   stateName    String
+}
+
+model Flags {
+  flag_id String @id @default(cuid())
+  partyId String
+  flag    String
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -281,8 +288,11 @@ view partybills {
   mobile String?  @db.VarChar(100)
 }
 
-model Flags {
-  flag_id String @id @default(cuid())
-  partyId String
-  flag    String
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view mstcashledger {
+  ledcd   String  @unique @db.VarChar(250)
+  lednm   String? @db.VarChar(250)
+  buntcd  String? @db.VarChar(50)
+  untshnm String? @db.VarChar(50)
+
 }

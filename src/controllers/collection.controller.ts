@@ -321,6 +321,17 @@ export const getCollectionsByLocation = asyncHandler(async (req: Request, res: R
     const depotList = depots ? (depots as string).split(',') : [];
     const employeeList = employees ? (employees as string).split(',') : [];
 
+    const locationCodes = await Promise.all(depotList.map(async (d) => {
+        console.log(d); 
+        const data = await prisma.locationNames.findFirst({
+            where: {
+                locationName: d
+            }
+        })
+
+        return data?.locationCode; 
+    }))
+
     // Get all users that match the criteria
     const users = await prisma.user.findMany({
         where: {
@@ -363,6 +374,19 @@ export const getCollectionsByLocation = asyncHandler(async (req: Request, res: R
         }, 
     });
 
+    console.log(locationCodes); 
+    const ledgers = await Promise.all(locationCodes.map(async (c) => {
+        const ledger = await prisma.mstcashledger.findFirst({
+            where: {
+                untshnm: c
+            }
+        })
+
+        return ledger; 
+    }))
+
+    console.log(ledgers); 
+
     const updatedCollections = await Promise.all(
         collections.map(async (item) => {
             let empName = "Unknown"
@@ -383,12 +407,14 @@ export const getCollectionsByLocation = asyncHandler(async (req: Request, res: R
     
 
     return res.status(200).json(
-        new ApiResponse(200, "Collections fetched successfully", updatedCollections)
+        new ApiResponse(200, "Collections fetched successfully", {collections: updatedCollections, ledgers })
     );
 });
 
 export const verifyCollection = asyncHandler(async (req: Request, res: Response) => {
-    const { collections, username } = req.body;
+    const { collections, username, ledger } = req.body;
+
+    console.log("collections", collections)
 
     console.log(username)
 
@@ -418,7 +444,8 @@ export const verifyCollection = asyncHandler(async (req: Request, res: Response)
                         amount: item.amount,
                         verified: true,
                         verifiedAt: dateTime, 
-                        verifiedBy: admin.username
+                        verifiedBy: admin.username, 
+                        ledgerId: ledger
                     }
                 })
             })
