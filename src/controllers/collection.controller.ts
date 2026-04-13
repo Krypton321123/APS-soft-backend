@@ -509,88 +509,82 @@ export const verifyCollection = asyncHandler(
   async (req: Request, res: Response) => {
     const { collections, username, ledger } = req.body;
 
-    console.log("collections", collections);
+    const admin = await prisma.admin.findUnique({ where: { username } });
+    if (!admin) {
+      return res.status(400).json(new ApiError("Admin not found", 400));
+    }
 
-    console.log(username);
+    // 1. Pre-validate ALL collections before touching the DB
+    const resolved = await Promise.all(
+      collections.map(
+        async (item: { collectionId: string; amount: number }) => {
+          const collection = await prisma.collection.findUnique({
+            where: { collection_id: item.collectionId },
+            select: { empId: true },
+          });
 
-    try {
-      const dateTime = new Date(Date.now());
-      console.log(dateTime);
-      console.log(collections);
+          const employee = await prisma.user.findFirst({
+            where: { username: collection?.empId },
+            select: { untshnm: true, untcd: true },
+          });
 
-      const admin = await prisma.admin.findUnique({
-        where: {
-          username,
+          const locationEntry = await prisma.locationNames.findFirst({
+            where: {
+              OR: [
+                { locationCode: employee?.untshnm ?? "" },
+                { locationCode: employee?.untcd ?? "" },
+              ],
+            },
+          });
+
+          return {
+            collectionId: item.collectionId,
+            amount: item.amount,
+            ledgerId: locationEntry?.cashLedgerId ?? null,
+          };
         },
-      });
+      ),
+    );
 
-      if (!admin) {
-        return res.status(400).json(new ApiError("Admin not found", 400));
-      }
-
-      const verifiedCollections = await Promise.all(
-        collections.map(
-          async (item: { collectionId: string; amount: number }) => {
-            // Find the collection to get empId
-            const collection = await prisma.collection.findUnique({
-              where: { collection_id: item.collectionId },
-              select: { empId: true },
-            });
-
-            // Find the employee to get their location code
-            const employee = await prisma.user.findFirst({
-              where: { username: collection?.empId },
-              select: { untshnm: true, untcd: true },
-            });
-
-            // Find the matching LocationNames entry for this employee's depot
-            const locationEntry = await prisma.locationNames.findFirst({
-              where: {
-                OR: [
-                  { locationCode: employee?.untshnm ?? "" },
-                  { locationCode: employee?.untcd ?? "" },
-                ],
-              },
-            });
-
-            const resolvedLedgerId = locationEntry?.cashLedgerId || null;
-
-            console.log("ledgerId", resolvedLedgerId);
-
-            if (!resolvedLedgerId) {
-              return res
-                .status(422)
-                .json(new ApiError("Cash Ledger not found", 422));
-            }
-
-            await prisma.collection.update({
-              where: { collection_id: item.collectionId },
-              data: {
-                amount: item.amount,
-                verified: true,
-                verifiedAt: dateTime,
-                verifiedBy: admin.username,
-                ledgerId: resolvedLedgerId,
-              },
-            });
-          },
-        ),
-      );
-
+    // 2. Fail fast if any ledger is missing — before any updates run
+    const missing = resolved.find((r) => !r.ledgerId);
+    if (missing) {
       return res
-        .status(200)
+        .status(422)
         .json(
-          new ApiResponse(
-            200,
-            "Collections verified successfully",
-            verifiedCollections,
+          new ApiError(
+            `Cash Ledger not found for collection ${missing.collectionId}`,
+            422,
           ),
         );
+    }
+
+    // 3. Run updates sequentially, then call stored procedure once after all succeed
+    const dateTime = new Date();
+    try {
+      for (const item of resolved) {
+        await prisma.collection.update({
+          where: { collection_id: item.collectionId },
+          data: {
+            amount: item.amount,
+            verified: true,
+            verifiedAt: dateTime,
+            verifiedBy: admin.username,
+            ledgerId: item.ledgerId!,
+          },
+        });
+      }
+
+      await prisma.$queryRaw`EXEC SAVECOLLECTIONS`;
     } catch (err) {
-      console.log("verified collections error:", err);
+      console.error("Update failed:", err);
       return res
         .status(500)
-        .json(new ApiError("Internal server error", 500, {}));
+        .json(new ApiError("Failed to verify collections", 500, {}));
     }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Collections verified successfully", {}));
   },
 );

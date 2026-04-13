@@ -117,5 +117,10 @@ const sendOTP = async ( mobileNumber, amount, customer, caller ) => {
     }
 }
 
+const callProcedure = async () => {
+  await prisma.$queryRaw`EXEC SAVECOLLECTIONS`; 
 
-sendOTP('8445591780', "2000", "Raj Sharma"); 
+  return console.log("called")
+}
+
+callProcedure(); 
