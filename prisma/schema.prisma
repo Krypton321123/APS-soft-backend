@@ -231,6 +231,7 @@ model LocationNames {
   locationCode String
   cityName     String
   stateName    String
+  cashLedgerId String @default("")
 }
 
 model Flags {

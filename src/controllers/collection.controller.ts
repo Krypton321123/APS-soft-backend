@@ -3,459 +3,594 @@ import ApiError from "../util/ApiError.js";
 import prisma from "../util/prisma.js";
 import ApiResponse from "../util/ApiResponse.js";
 import { Request, Response } from "express";
-import fs from 'fs';
-import path from 'path';
-import crypto from 'crypto'
+import fs from "fs";
+import path from "path";
+import crypto from "crypto";
 import { generateOtp } from "./delivery.controller.js";
 import { sendOTP } from "./otp.controller.js";
 import redisClient from "../util/redis.js";
 
-export const createCollection = asyncHandler(async (req: Request, res: Response) => {
-    const { 
-        partyId, 
-        partyName, 
-        empId, 
-        amount, 
-        paymentMethod,
-        chequeNumber,
-        chequeDate,
-        bankName,
-        upiId,
-        transactionId,
-        chequeImage,
-        onlinePaymentImage
+export const createCollection = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      partyId,
+      partyName,
+      empId,
+      amount,
+      paymentMethod,
+      chequeNumber,
+      chequeDate,
+      bankName,
+      upiId,
+      transactionId,
+      chequeImage,
+      onlinePaymentImage,
     } = req.body;
 
     // Validate required fields
     if (!partyId || !partyName || !empId || !amount || !paymentMethod) {
-        return res.status(400).json(
-            new ApiError("Missing required fields", 400, {})
-        );
+      return res
+        .status(400)
+        .json(new ApiError("Missing required fields", 400, {}));
     }
 
     // Validate payment method specific fields
-    if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName || !chequeImage)) {
-        return res.status(400).json(
-            new ApiError("Missing cheque details or image", 400, {})
-        );
+    if (
+      paymentMethod === "cheque" &&
+      (!chequeNumber || !chequeDate || !bankName || !chequeImage)
+    ) {
+      return res
+        .status(400)
+        .json(new ApiError("Missing cheque details or image", 400, {}));
     }
 
-    if (paymentMethod === 'online' && (!upiId || !transactionId || !onlinePaymentImage)) {
-        return res.status(400).json(
-            new ApiError("Missing online payment details or image", 400, {})
-        );
+    if (
+      paymentMethod === "online" &&
+      (!upiId || !transactionId || !onlinePaymentImage)
+    ) {
+      return res
+        .status(400)
+        .json(new ApiError("Missing online payment details or image", 400, {}));
     }
 
     try {
-        // Handle image upload
-        let imageUrl = '';
-        if (paymentMethod === 'cheque' || paymentMethod === 'online') {
-            const image = paymentMethod === 'cheque' ? chequeImage : onlinePaymentImage;
-            const folderType = paymentMethod === 'cheque' ? 'cheque' : 'onlinePay';
-            const dateString = new Date().toISOString().split('T')[0];
-            const folderPath = path.join('uploads', 'collections', folderType, empId, `${partyId}_${dateString}`);
-
-            // Create directory if it doesn't exist
-            if (!fs.existsSync(folderPath)) {
-                fs.mkdirSync(folderPath, { recursive: true });
-            } else {
-                // If directory exists, clean it up
-                const files = fs.readdirSync(folderPath);
-                files.forEach(file => {
-                    fs.unlinkSync(path.join(folderPath, file));
-                });
-            }
-
-            // Save the image
-            const base64Data = image.replace(/^data:image\/\w+;base64,/, '');
-            const imageBuffer = Buffer.from(base64Data, 'base64');
-            const imagePath = path.join(folderPath, 'photo.jpg');
-            fs.writeFileSync(imagePath, imageBuffer);
-            imageUrl = imagePath;
-        }
-
-        // Create collection in database
-        const collection = await prisma.collection.create({
-            data: {
-                partyId,
-                partyName,
-                empId,
-                amount: parseFloat(amount.toString()),
-                paymentMethod,
-                ...(paymentMethod === 'cheque' && {
-                    chequeNumber,
-                    chequeDate,
-                    bankName,
-                    imageUrl
-                }),
-                ...(paymentMethod === 'online' && {
-                    upiId,
-                    transactionId,
-                    imageUrl
-                }),
-            }
-        });
-
-        return res.status(201).json(
-            new ApiResponse(201, "Collection created successfully", collection)
+      // Handle image upload
+      let imageUrl = "";
+      if (paymentMethod === "cheque" || paymentMethod === "online") {
+        const image =
+          paymentMethod === "cheque" ? chequeImage : onlinePaymentImage;
+        const folderType = paymentMethod === "cheque" ? "cheque" : "onlinePay";
+        const dateString = new Date().toISOString().split("T")[0];
+        const folderPath = path.join(
+          "uploads",
+          "collections",
+          folderType,
+          empId,
+          `${partyId}_${dateString}`,
         );
-    } catch (error) {
-        console.error("Error creating collection:", error);
-        return res.status(500).json(
-            new ApiError("Failed to create collection", 500, error)
-        );
-    }
-});
 
-const partyRateLimit = async (partyId: string, mode: string, amount: number, props: any) => {
-
-    const partyCollectionLatest = await prisma.collection.findFirst({
-        where: {
-            partyId
-        }, 
-        orderBy: {
-            createdAt: 'desc'
-        },
-    })
-
-    if (!partyCollectionLatest) {
-        return true; 
-    }
-
-    if (partyCollectionLatest?.createdAt.toLocaleDateString() !== new Date().toLocaleDateString()) {
-        return true; 
-    }
-
-    if (partyCollectionLatest.paymentMethod !== mode) {
-        return true; 
-    }   
-
-    console.log("validation:", Number(amount) === Number(partyCollectionLatest.amount));
-
-    if (mode === "cash") return Number(amount) === Number(partyCollectionLatest.amount) ? false : true; 
-
-    if (mode === "cheque") return props.chequeNumber === partyCollectionLatest.chequeNumber ? false : true 
-
-    if (mode === "online") return props.transactionId === partyCollectionLatest.transactionId ? false : true
-
-}
-
-export const generateOtpForColl = asyncHandler(async (req: Request, res: Response) => {
-
-    const { userId, partyId, amount, mode, props } = req.body; 
-
-    console.log(mode, amount)
-
-    try {
-
-        // const partyLimit = await partyRateLimit(partyId, mode, amount, props);
-
-        // if (!partyLimit) {
-        //     return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {})); 
-        // }
-
-        const otp = crypto.randomInt(100000, 999999).toString(); 
-
-        const party = await prisma.mstparty.findFirst({
-            where: {
-                ledcd: partyId
-            }, 
-            select: {
-                mobile: true, lednm: true
-            }
-        }); 
-
-        console.log(party)
-
-        if (!party?.mobile) {
-            return res.status(202).json(new ApiResponse(202, "Number not found", {})); 
-        }
-
-        const finalMessage = `Dear ${party?.lednm?.slice(0,30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`
-
-        console.log(finalMessage, party?.mobile, otp, userId)
-
-        const sendOtp = await sendOTP({mobileNumber: party?.mobile!, message: finalMessage, otp, userId, templateId: '1007234171777516053'})
-
-        if (sendOtp?.status === 'success'){ 
-            return res.status(200).json(new ApiResponse(200, "OTP generated successfully", {}))
+        // Create directory if it doesn't exist
+        if (!fs.existsSync(folderPath)) {
+          fs.mkdirSync(folderPath, { recursive: true });
         } else {
-            return res.status(400).json(new ApiError("unable to generate otp", 400)); 
+          // If directory exists, clean it up
+          const files = fs.readdirSync(folderPath);
+          files.forEach((file) => {
+            fs.unlinkSync(path.join(folderPath, file));
+          });
         }
 
-    } catch (err: any) {
-        console.log(err); 
-        return res.status(500).json(new ApiError("Internal server error", 500)); 
-    }
+        // Save the image
+        const base64Data = image.replace(/^data:image\/\w+;base64,/, "");
+        const imageBuffer = Buffer.from(base64Data, "base64");
+        const imagePath = path.join(folderPath, "photo.jpg");
+        fs.writeFileSync(imagePath, imageBuffer);
+        imageUrl = imagePath;
+      }
 
-
-})
-
-export const createCollectionWithMult = asyncHandler(async (req: Request, res: Response) => {
-
-        const { 
-            partyId, 
-            partyName, 
-            empId, 
-            amount, 
-            paymentMethod,
+      // Create collection in database
+      const collection = await prisma.collection.create({
+        data: {
+          partyId,
+          partyName,
+          empId,
+          amount: parseFloat(amount.toString()),
+          paymentMethod,
+          ...(paymentMethod === "cheque" && {
             chequeNumber,
             chequeDate,
             bankName,
+            imageUrl,
+          }),
+          ...(paymentMethod === "online" && {
+            upiId,
             transactionId,
-            otp
-        } = req.body;   
+            imageUrl,
+          }),
+        },
+      });
 
-        console.log(req.body); 
+      return res
+        .status(201)
+        .json(
+          new ApiResponse(201, "Collection created successfully", collection),
+        );
+    } catch (error) {
+      console.error("Error creating collection:", error);
+      return res
+        .status(500)
+        .json(new ApiError("Failed to create collection", 500, error));
+    }
+  },
+);
 
-        const file = req.file; 
+const partyRateLimit = async (
+  partyId: string,
+  mode: string,
+  amount: number,
+  props: any,
+) => {
+  const partyCollectionLatest = await prisma.collection.findFirst({
+    where: {
+      partyId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  if (!partyCollectionLatest) {
+    return true;
+  }
+
+  if (
+    partyCollectionLatest?.createdAt.toLocaleDateString() !==
+    new Date().toLocaleDateString()
+  ) {
+    return true;
+  }
+
+  if (partyCollectionLatest.paymentMethod !== mode) {
+    return true;
+  }
+
+  console.log(
+    "validation:",
+    Number(amount) === Number(partyCollectionLatest.amount),
+  );
+
+  if (mode === "cash")
+    return Number(amount) === Number(partyCollectionLatest.amount)
+      ? false
+      : true;
+
+  if (mode === "cheque")
+    return props.chequeNumber === partyCollectionLatest.chequeNumber
+      ? false
+      : true;
+
+  if (mode === "online")
+    return props.transactionId === partyCollectionLatest.transactionId
+      ? false
+      : true;
+};
+
+export const generateOtpForColl = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId, partyId, amount, mode, props } = req.body;
+
+    console.log(mode, amount);
+
+    try {
+      // const partyLimit = await partyRateLimit(partyId, mode, amount, props);
+
+      // if (!partyLimit) {
+      //     return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {}));
+      // }
+
+      const otp = crypto.randomInt(100000, 999999).toString();
+
+      const party = await prisma.mstparty.findFirst({
+        where: {
+          ledcd: partyId,
+        },
+        select: {
+          mobile: true,
+          lednm: true,
+        },
+      });
+
+      console.log(party);
+
+      if (!party?.mobile) {
+        return res
+          .status(202)
+          .json(new ApiResponse(202, "Number not found", {}));
+      }
+
+      const finalMessage = `Dear ${party?.lednm?.slice(0, 30)}%0A${otp} is OTP for your payment verification of INR ${amount}.%0A Please share it to our executive.%0ARegards%0AMAHESH OILS%0ASAAVLI BRAND`;
+
+      console.log(finalMessage, party?.mobile, otp, userId);
+
+      const sendOtp = await sendOTP({
+        mobileNumber: party?.mobile!,
+        message: finalMessage,
+        otp,
+        userId,
+        templateId: "1007234171777516053",
+      });
+
+      if (sendOtp?.status === "success") {
+        return res
+          .status(200)
+          .json(new ApiResponse(200, "OTP generated successfully", {}));
+      } else {
+        return res
+          .status(400)
+          .json(new ApiError("unable to generate otp", 400));
+      }
+    } catch (err: any) {
+      console.log(err);
+      return res.status(500).json(new ApiError("Internal server error", 500));
+    }
+  },
+);
+
+export const createCollectionWithMult = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      partyId,
+      partyName,
+      empId,
+      amount,
+      paymentMethod,
+      chequeNumber,
+      chequeDate,
+      bankName,
+      transactionId,
+      otp,
+    } = req.body;
+
+    console.log(req.body);
+
+    const file = req.file;
 
     if (!partyId || !partyName || !empId || !amount || !paymentMethod || !otp) {
-        return res.status(400).json(
-            new ApiError("Missing required fields", 400, {})
-        );
+      return res
+        .status(400)
+        .json(new ApiError("Missing required fields", 400, {}));
     }
-    if (paymentMethod === 'cheque' && (!chequeNumber || !chequeDate || !bankName)) {
-        return res.status(400).json(
-            new ApiError("Missing cheque details or image", 400, {})
-        );
-    }
-
-    if (paymentMethod === 'online' && (!transactionId)) {
-        return res.status(400).json(
-            new ApiError("Missing online payment details or image", 400, {})
-        );
+    if (
+      paymentMethod === "cheque" &&
+      (!chequeNumber || !chequeDate || !bankName)
+    ) {
+      return res
+        .status(400)
+        .json(new ApiError("Missing cheque details or image", 400, {}));
     }
 
-    const cachedOtp = await redisClient.get(`${empId}`); 
+    if (paymentMethod === "online" && !transactionId) {
+      return res
+        .status(400)
+        .json(new ApiError("Missing online payment details or image", 400, {}));
+    }
+
+    const cachedOtp = await redisClient.get(`${empId}`);
 
     if (!cachedOtp) {
-        return res.status(400).json(new ApiError("otp expired", 400))
+      return res.status(400).json(new ApiError("otp expired", 400));
     }
 
     if (otp !== cachedOtp) {
-        return res.status(409).json(new ApiError(
-            'Otps not matched', 409
-        )); 
+      return res.status(409).json(new ApiError("Otps not matched", 409));
     }
 
-    const imageUrl = `${file?.destination.toString()}/${file?.filename}`
+    const imageUrl = `${file?.destination.toString()}/${file?.filename}`;
 
     try {
+      const collection = await prisma.collection.create({
+        data: {
+          partyId,
+          partyName,
+          empId,
+          amount: parseFloat(amount.toString()),
+          paymentMethod,
+          otp,
+          ...(paymentMethod === "cheque" && {
+            chequeNumber,
+            chequeDate,
+            bankName,
+            imageUrl,
+          }),
+          ...(paymentMethod === "online" && {
+            transactionId,
+            imageUrl,
+          }),
+        },
+      });
 
+      const party = await prisma.mstparty.findFirst({
+        where: {
+          ledcd: partyId,
+        },
+        select: {
+          mobile: true,
+          lednm: true,
+        },
+      });
 
-        const collection = await prisma.collection.create({
-            data: {
-                partyId,
-                partyName,
-                empId,
-                amount: parseFloat(amount.toString()),
-                paymentMethod,
-                otp, 
-                ...(paymentMethod === 'cheque' && {
-                    chequeNumber,
-                    chequeDate,
-                    bankName,
-                    imageUrl
-                }),
-                ...(paymentMethod === 'online' && {
-                    transactionId,
-                    imageUrl
-                }),
-            }
-        });
+      const finalMessage = `Dear ${party?.lednm?.slice(0, 30)},%0AThis message confirms that your payment of INR ${amount} has been successfully received.%0A%0ABest Regards%0AMAHESH OIL%0A%0ASAAVLI BRAND`;
 
-        const party = await prisma.mstparty.findFirst({
-            where: {
-                ledcd: partyId
-            }, select: {
-                mobile: true, lednm: true
-            }
-        })
+      const status = await sendOTP({
+        mobileNumber: party?.mobile!,
+        message: finalMessage,
+        otp: "",
+        userId: empId,
+        templateId: "1007966747127410178",
+      });
 
-        const finalMessage = `Dear ${party?.lednm?.slice(0, 30)},%0AThis message confirms that your payment of INR ${amount} has been successfully received.%0A%0ABest Regards%0AMAHESH OIL%0A%0ASAAVLI BRAND`
-
-        const status = await sendOTP({mobileNumber: party?.mobile!, message: finalMessage, otp: '', userId: empId, templateId: '1007966747127410178'})
-
-        return res.status(201).json(
-            new ApiResponse(201, "Collection created successfully", collection)
+      return res
+        .status(201)
+        .json(
+          new ApiResponse(201, "Collection created successfully", collection),
         );
-
     } catch (err) {
-        console.error("Error creating collection:", err);
-        return res.status(500).json(
-            new ApiError("Failed to create collection", 500, err)
-        );
+      console.error("Error creating collection:", err);
+      return res
+        .status(500)
+        .json(new ApiError("Failed to create collection", 500, err));
     }
-})
+  },
+);
 
 // fix - collection name should be pulled by party id
-export const getCollectionsByEmpId = asyncHandler(async (req: Request, res: Response) => {
+export const getCollectionsByEmpId = asyncHandler(
+  async (req: Request, res: Response) => {
     const { empId } = req.params;
 
     if (!empId) {
-        return res.status(400).json(
-            new ApiError("Employee ID is required", 400, {})
-        );
+      return res
+        .status(400)
+        .json(new ApiError("Employee ID is required", 400, {}));
     }
 
     let collections = await prisma.collection.findMany({
-        where: {
-            empId
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
+      where: {
+        empId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
-    return res.status(200).json(
-        new ApiResponse(200, "Collections fetched successfully", collections)
-    );
-});
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, "Collections fetched successfully", collections),
+      );
+  },
+);
 
-export const getCollectionsByLocation = asyncHandler(async (req: Request, res: Response) => {
-    const { states, depots, employees, paymentMethod, fromDate, toDate } = req.query;
+export const getCollectionsByLocation = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { states, depots, employees, paymentMethod, fromDate, toDate } =
+      req.query;
 
     // Parse the query parameters
-    const stateList = states ? (states as string).split(',') : [];
-    const depotList = depots ? (depots as string).split(',') : [];
-    const employeeList = employees ? (employees as string).split(',') : [];
+    const stateList = states ? (states as string).split(",") : [];
+    const depotList = depots ? (depots as string).split(",") : [];
+    const employeeList = employees ? (employees as string).split(",") : [];
 
-    const locationCodes = await Promise.all(depotList.map(async (d) => {
-        console.log(d); 
+    const locationCodes = await Promise.all(
+      depotList.map(async (d) => {
+        console.log(d);
         const data = await prisma.locationNames.findFirst({
-            where: {
-                locationName: d
-            }
-        })
+          where: {
+            locationName: d,
+          },
+        });
 
-        return data?.locationCode; 
-    }))
+        return data?.locationCode;
+      }),
+    );
 
     // Get all users that match the criteria
     const users = await prisma.user.findMany({
-        where: {
-            OR: [
-                { stnm: { in: stateList.length > 0 ? stateList : undefined } },
-                { untnm: { in: depotList.length > 0 ? depotList : undefined } },
-                { user_id: { in: employeeList.length > 0 ? employeeList.map(Number) : undefined } }
-            ]
-        }
+      where: {
+        OR: [
+          { stnm: { in: stateList.length > 0 ? stateList : undefined } },
+          { untnm: { in: depotList.length > 0 ? depotList : undefined } },
+          {
+            user_id: {
+              in:
+                employeeList.length > 0 ? employeeList.map(Number) : undefined,
+            },
+          },
+        ],
+      },
     });
+
+    const employeeLocationCodes = await Promise.all(
+      users.map(async (u) => {
+        // untshnm is the short location code on the user record
+        return u.untshnm ?? u.untcd ?? null;
+      }),
+    );
+
+    const allLocationCodes = [
+      ...new Set([
+        ...locationCodes.filter(Boolean),
+        ...employeeLocationCodes.filter(Boolean),
+      ]),
+    ];
 
     let createdAtFilter: any = {};
     if (fromDate) {
-        const from = new Date(fromDate as string);
-        from.setHours(0, 0, 0, 0);
-        createdAtFilter.gte = from;
+      const from = new Date(fromDate as string);
+      from.setHours(0, 0, 0, 0);
+      createdAtFilter.gte = from;
     }
     if (toDate) {
-        const to = new Date(toDate as string);
-        to.setHours(23, 59, 59, 999);
-        createdAtFilter.lte = to;
+      const to = new Date(toDate as string);
+      to.setHours(23, 59, 59, 999);
+      createdAtFilter.lte = to;
     }
 
     // Build the where clause for collections
     const whereClause: any = {
-        empId: { in: users.map(u => u.username) },
-        createdAt: Object.keys(createdAtFilter).length ? createdAtFilter : undefined
+      empId: { in: users.map((u) => u.username) },
+      createdAt: Object.keys(createdAtFilter).length
+        ? createdAtFilter
+        : undefined,
     };
 
     // Add payment method filter if provided
-    if (paymentMethod && paymentMethod !== 'all') {
-        whereClause.paymentMethod = paymentMethod;
+    if (paymentMethod && paymentMethod !== "all") {
+      whereClause.paymentMethod = paymentMethod;
     }
 
     // Get collections for these users
     const collections = await prisma.collection.findMany({
-        where: whereClause,
-        orderBy: {
-            createdAt: 'desc'
-        }, 
+      where: whereClause,
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
-    console.log(locationCodes); 
-    const ledgers = await Promise.all(locationCodes.map(async (c) => {
-        const ledger = await prisma.mstcashledger.findFirst({
-            where: {
-                untshnm: c
-            }
-        })
+    console.log(allLocationCodes);
+    const ledgers = (
+      await Promise.all(
+        allLocationCodes.map(async (c) => {
+          const locationEntry = await prisma.locationNames.findFirst({
+            where: { locationCode: c },
+          });
 
-        return ledger; 
-    }))
+          if (!locationEntry?.cashLedgerId) return null;
 
-    console.log(ledgers); 
+          const ledger = await prisma.mstcashledger.findFirst({
+            where: { ledcd: locationEntry.cashLedgerId },
+          });
+
+          return ledger;
+        }),
+      )
+    ).filter((l): l is NonNullable<typeof l> => l !== null);
+
+    console.log(ledgers);
 
     const updatedCollections = await Promise.all(
-        collections.map(async (item) => {
-            let empName = "Unknown"
-  
-            const employee = await prisma.user.findFirst({
-            where: { username: item.empId },
-            select: { usrnm: true }
-            });
+      collections.map(async (item) => {
+        let empName = "Unknown";
 
-            empName = employee?.usrnm || "Unknown";
+        const employee = await prisma.user.findFirst({
+          where: { username: item.empId },
+          select: { usrnm: true },
+        });
 
-            return {
-            ...item,
-            empName
-            };
-        })
+        empName = employee?.usrnm || "Unknown";
+
+        return {
+          ...item,
+          empName,
+        };
+      }),
     );
-    
 
     return res.status(200).json(
-        new ApiResponse(200, "Collections fetched successfully", {collections: updatedCollections, ledgers })
+      new ApiResponse(200, "Collections fetched successfully", {
+        collections: updatedCollections,
+        ledgers,
+      }),
     );
-});
+  },
+);
 
-export const verifyCollection = asyncHandler(async (req: Request, res: Response) => {
+export const verifyCollection = asyncHandler(
+  async (req: Request, res: Response) => {
     const { collections, username, ledger } = req.body;
 
-    console.log("collections", collections)
+    console.log("collections", collections);
 
-    console.log(username)
+    console.log(username);
 
     try {
+      const dateTime = new Date(Date.now());
+      console.log(dateTime);
+      console.log(collections);
 
-        const dateTime = new Date(Date.now())
-        console.log(dateTime)
-        console.log(collections)
+      const admin = await prisma.admin.findUnique({
+        where: {
+          username,
+        },
+      });
 
-        const admin = await prisma.admin.findUnique({
-            where: {
-                username
+      if (!admin) {
+        return res.status(400).json(new ApiError("Admin not found", 400));
+      }
+
+      const verifiedCollections = await Promise.all(
+        collections.map(
+          async (item: { collectionId: string; amount: number }) => {
+            // Find the collection to get empId
+            const collection = await prisma.collection.findUnique({
+              where: { collection_id: item.collectionId },
+              select: { empId: true },
+            });
+
+            // Find the employee to get their location code
+            const employee = await prisma.user.findFirst({
+              where: { username: collection?.empId },
+              select: { untshnm: true, untcd: true },
+            });
+
+            // Find the matching LocationNames entry for this employee's depot
+            const locationEntry = await prisma.locationNames.findFirst({
+              where: {
+                OR: [
+                  { locationCode: employee?.untshnm ?? "" },
+                  { locationCode: employee?.untcd ?? "" },
+                ],
+              },
+            });
+
+            const resolvedLedgerId = locationEntry?.cashLedgerId || null;
+
+            console.log("ledgerId", resolvedLedgerId);
+
+            if (!resolvedLedgerId) {
+              return res
+                .status(422)
+                .json(new ApiError("Cash Ledger not found", 422));
             }
-        })
 
-        if (!admin) {
-            return res.status(400).json(new ApiError("Admin not found", 400)); 
-        }
+            await prisma.collection.update({
+              where: { collection_id: item.collectionId },
+              data: {
+                amount: item.amount,
+                verified: true,
+                verifiedAt: dateTime,
+                verifiedBy: admin.username,
+                ledgerId: resolvedLedgerId,
+              },
+            });
+          },
+        ),
+      );
 
-        const verifiedCollections = await Promise.all(
-            collections.map(async (item: { collectionId: string, amount: number }) => {
-                await prisma.collection.update({
-                    where: {
-                        collection_id: item.collectionId
-                    }, 
-                    data: {
-                        amount: item.amount,
-                        verified: true,
-                        verifiedAt: dateTime, 
-                        verifiedBy: admin.username, 
-                        ledgerId: ledger
-                    }
-                })
-            })
-        )
-
-        return res.status(200).json(new ApiResponse(200, "Collections verified successfully", verifiedCollections)); 
-
-    } catch(err) {
-        console.log("verified collections error:", err)
-        return res.status(500).json(new ApiError('Internal server error', 500, {}));
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            "Collections verified successfully",
+            verifiedCollections,
+          ),
+        );
+    } catch (err) {
+      console.log("verified collections error:", err);
+      return res
+        .status(500)
+        .json(new ApiError("Internal server error", 500, {}));
     }
-})
-
+  },
+);
