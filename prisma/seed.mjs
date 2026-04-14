@@ -118,9 +118,9 @@ const sendOTP = async ( mobileNumber, amount, customer, caller ) => {
 }
 
 const callProcedure = async () => {
-  await prisma.$queryRaw`EXEC SAVECOLLECTIONS`; 
+  const locations = await prisma.user.findMany(); 
 
-  return console.log("called")
+  return console.log("called: ", locations); 
 }
 
 callProcedure(); 

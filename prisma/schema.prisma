@@ -107,7 +107,7 @@ model Collection {
   transactionId String?
   createdAt     DateTime  @default(now())
   verified      Boolean   @default(false)
-  verifiedAt    DateTime?
+  verifiedAt    String? 
   imageUrl      String?   @default("")
   otp           String?   @default("")
   verifiedBy    String?

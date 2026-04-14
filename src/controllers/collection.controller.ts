@@ -560,7 +560,6 @@ export const verifyCollection = asyncHandler(
     }
 
     // 3. Run updates sequentially, then call stored procedure once after all succeed
-    const dateTime = new Date();
     try {
       for (const item of resolved) {
         await prisma.collection.update({
@@ -568,7 +567,7 @@ export const verifyCollection = asyncHandler(
           data: {
             amount: item.amount,
             verified: true,
-            verifiedAt: dateTime,
+            verifiedAt: new Date().toISOString().split('T')[0].toString(),
             verifiedBy: admin.username,
             ledgerId: item.ledgerId!,
           },
