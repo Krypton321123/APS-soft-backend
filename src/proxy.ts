@@ -2,9 +2,11 @@ import https from "https";
 import fs from "fs";
 import httpProxy from "http-proxy";
 import { IncomingMessage, ServerResponse } from "http";
+import dotenv from "dotenv"
+dotenv.config(); 
 
 const proxy = httpProxy.createProxyServer({
-  target: "http://localhost:8000",
+  target: `http://localhost:${process.env.PORT}`,
   changeOrigin: true,
 });
 
