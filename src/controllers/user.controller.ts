@@ -513,7 +513,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         ]
       }, 
       select: {
-        partyId: true, orderItems: true 
+        partyId: true, orderItems: true, 
       }
     })
 
@@ -546,7 +546,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           {createdAt: {lte: endDate}}
         ]     
      }, select: {
-      amount: true, partyId: true, paymentMethod: true
+      amount: true, partyId: true, paymentMethod: true, 
      }
     })
 
@@ -574,7 +574,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
             where: {
               ledcd: item.partyId
             }, select: {
-              lednm: true
+              lednm: true, mobile: true
             }
         }); 
 

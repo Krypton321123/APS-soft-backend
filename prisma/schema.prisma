@@ -50,14 +50,14 @@ model Order {
   status         String          @default("pending")
   bulkRate       Decimal?        @db.Decimal(18, 2)
   consumerRate   Decimal?        @db.Decimal(18, 2)
-  accept         AcceptedOrders?
+  accept         AcceptedOrders[]
   orderItems     OrderItem[]
   reject         RejectedOrders?
 }
 
 model AcceptedOrders {
   accept_id    String    @id @default(cuid())
-  order_id     String    @unique
+  order_id     String    
   createdAt    DateTime  @default(now())
   AcceptedAt   DateTime?
   adminName    String
@@ -65,6 +65,8 @@ model AcceptedOrders {
   consumerRate Decimal   @db.Decimal(18, 2)
   remarks      String    @default("")
   status       String
+  sicd         String    @default("")
+  socd          String   @default("")
   admin        admin     @relation(fields: [adminName], references: [username])
   Order        Order     @relation(fields: [order_id], references: [order_id])
 }

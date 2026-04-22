@@ -1,0 +1,20 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[AcceptedOrders] ADD [sicd] NVARCHAR(1000) NOT NULL CONSTRAINT [AcceptedOrders_sicd_df] DEFAULT '',
+[socd] NVARCHAR(1000) NOT NULL CONSTRAINT [AcceptedOrders_socd_df] DEFAULT '';
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
