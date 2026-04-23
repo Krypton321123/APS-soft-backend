@@ -358,8 +358,11 @@ export const getOrdersByLocation = asyncHandler(
         }
 
         // Get sicd from the ACCEPT entry (voucher number), fall back to latest entry
-        const acceptEntry = item.accept?.find((a) => a.status === "ACCEPT") ?? item.accept?.[0];
+        const acceptEntry =
+          item.accept?.find((a) => a.status === "ACCEPT") ?? item.accept?.[0];
         const sicd = acceptEntry?.sicd ?? "";
+        const vehno = acceptEntry?.vehno; 
+        const secFreight = acceptEntry?.secfreight; 
 
         return {
           ...item,
@@ -373,6 +376,8 @@ export const getOrdersByLocation = asyncHandler(
           bulkRate: acceptEntry?.bulkRate ?? item.bulkRate,
           derivedStatus,
           sicd,
+          vehno,
+          secFreight
         };
       }),
     );
@@ -461,6 +466,8 @@ export const handleAcceptOrders = asyncHandler(
               status,
               AcceptedAt: status === "ACCEPT" ? new Date().toISOString() : null,
               remarks: item.remarks ?? "",
+              vehno: item.vehno ?? "",
+              secfreight: Number(item.secfreight ?? 0),
             },
           });
 

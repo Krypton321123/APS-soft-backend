@@ -65,6 +65,8 @@ model AcceptedOrders {
   consumerRate Decimal   @db.Decimal(18, 2)
   remarks      String    @default("")
   status       String
+  vehno        String    @default("")
+  secfreight    Float     @default(0)
   sicd         String    @default("")
   socd          String   @default("")
   admin        admin     @relation(fields: [adminName], references: [username])
