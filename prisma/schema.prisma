@@ -38,26 +38,27 @@ model partyImages {
 }
 
 model Order {
-  order_id       String          @id @default(cuid())
-  partyId        String
-  partyName      String
-  empId          String
-  totalAmount    Decimal         @db.Decimal(18, 2)
-  discountAmount Decimal         @db.Decimal(18, 2)
-  createdAt      DateTime        @default(now())
-  creditDays     Int?
-  paymentMode    String          @default("")
-  status         String          @default("pending")
-  bulkRate       Decimal?        @db.Decimal(18, 2)
-  consumerRate   Decimal?        @db.Decimal(18, 2)
-  accept         AcceptedOrders[]
-  orderItems     OrderItem[]
-  reject         RejectedOrders?
+  order_id           String           @id @default(cuid())
+  partyId            String
+  partyName          String
+  empId              String
+  totalAmount        Decimal          @db.Decimal(18, 2)
+  discountAmount     Decimal          @db.Decimal(18, 2)
+  discountAmountBulk Decimal          @default(0) @db.Decimal(18, 2)
+  createdAt          DateTime         @default(now())
+  creditDays         Int?
+  paymentMode        String           @default("")
+  status             String           @default("pending")
+  bulkRate           Decimal?         @db.Decimal(18, 2)
+  consumerRate       Decimal?         @db.Decimal(18, 2)
+  accept             AcceptedOrders[]
+  orderItems         OrderItem[]
+  reject             RejectedOrders?
 }
 
 model AcceptedOrders {
   accept_id    String    @id @default(cuid())
-  order_id     String    
+  order_id     String
   createdAt    DateTime  @default(now())
   AcceptedAt   DateTime?
   adminName    String
@@ -66,9 +67,9 @@ model AcceptedOrders {
   remarks      String    @default("")
   status       String
   vehno        String    @default("")
-  secfreight    Float     @default(0)
+  secfreight   Float     @default(0)
   sicd         String    @default("")
-  socd          String   @default("")
+  socd         String    @default("")
   admin        admin     @relation(fields: [adminName], references: [username])
   Order        Order     @relation(fields: [order_id], references: [order_id])
 }
@@ -98,26 +99,26 @@ model OrderItem {
 }
 
 model Collection {
-  collection_id String    @id @default(cuid())
+  collection_id String   @id @default(cuid())
   partyId       String
   partyName     String
   empId         String
-  amount        Decimal   @db.Decimal(18, 2)
+  amount        Decimal  @db.Decimal(18, 2)
   paymentMethod String
   chequeNumber  String?
   chequeDate    String?
   bankName      String?
-  upiId         String?   @default("")
+  upiId         String?  @default("")
   transactionId String?
-  createdAt     DateTime  @default(now())
-  verified      Boolean   @default(false)
-  verifiedAt    String? 
-  imageUrl      String?   @default("")
-  otp           String?   @default("")
+  createdAt     DateTime @default(now())
+  verified      Boolean  @default(false)
+  verifiedAt    String?
+  imageUrl      String?  @default("")
+  otp           String?  @default("")
   verifiedBy    String?
   ledgerId      String?
   vchno         String?
-  admin         admin?    @relation(fields: [verifiedBy], references: [username])
+  admin         admin?   @relation(fields: [verifiedBy], references: [username])
 }
 
 model PartyEditRequest {
@@ -235,6 +236,8 @@ model LocationNames {
   locationCode String
   cityName     String
   stateName    String
+  gwncd        String @default("")
+  untcd        String @default("")
   cashLedgerId String @default("")
 }
 
@@ -299,5 +302,4 @@ view mstcashledger {
   lednm   String? @db.VarChar(250)
   buntcd  String? @db.VarChar(50)
   untshnm String? @db.VarChar(50)
-
 }

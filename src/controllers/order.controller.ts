@@ -363,6 +363,7 @@ export const getOrdersByLocation = asyncHandler(
         const sicd = acceptEntry?.sicd ?? "";
         const vehno = acceptEntry?.vehno; 
         const secFreight = acceptEntry?.secfreight; 
+        const remarks = acceptEntry?.remarks;
 
         return {
           ...item,
@@ -377,7 +378,8 @@ export const getOrdersByLocation = asyncHandler(
           derivedStatus,
           sicd,
           vehno,
-          secFreight
+          secFreight,
+          remarks
         };
       }),
     );
@@ -476,6 +478,8 @@ export const handleAcceptOrders = asyncHandler(
       );
 
       console.log("CREATED ACCEPTS:", createAccepts);
+
+      await prisma.$executeRaw`EXEC CREATEINVOICES`; 
 
       return res
         .status(200)
