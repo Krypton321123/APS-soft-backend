@@ -373,8 +373,8 @@ export const getOrdersByLocation = asyncHandler(
           outstanding: outStanding?.outamt,
           collection: { ...collection, amount: collection?.amount || 0 },
           // Expose the latest accept entry's rates for the table
-          consumerRate: acceptEntry?.consumerRate ?? item.consumerRate,
-          bulkRate: acceptEntry?.bulkRate ?? item.bulkRate,
+          consumerRate:  item.consumerRate,
+          bulkRate: item.bulkRate,
           derivedStatus,
           sicd,
           vehno,
