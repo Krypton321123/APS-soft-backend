@@ -498,7 +498,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         areanm: currentDay, empcd: username
       }, 
       select: {
-        lednm: true, outs: true, ledcd: true
+        lednm: true, outs: true, ledcd: true, mobile: true
       }
     })
 
@@ -513,7 +513,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         ]
       }, 
       select: {
-        partyId: true, orderItems: true, 
+        partyId: true, orderItems: true, consumerRate: true, bulkRate: true, discountAmount: true, discountAmountBulk: true
       }
     })
 
@@ -522,7 +522,8 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
       order.map(async (item, index) => {
 
         const quan = item.orderItems.map((item) => item.quantity).reduce((acc: number, curr: number) => acc + curr, 0)
-
+        const consumerRateAfterDisc = (Number(item.consumerRate) - Number(item.discountAmount)) || 0; 
+        const bulkRateAfterDisc = (Number(item.bulkRate) - Number(item.discountAmountBulk)) || 0; 
         const partyName = await prisma.mstparty.findUnique({
           where: {
             ledcd: item.partyId
@@ -531,9 +532,11 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           }
         }); 
 
-        return {...item, partyName: partyName?.lednm, totalAmount: quan}; 
+        return {...item, partyName: partyName?.lednm, totalAmount: quan, consumerRate: consumerRateAfterDisc, bulkRate: bulkRateAfterDisc}; 
       })
     )
+
+    console.log("orders", sendOrder); 
 
     sendOrder.map((item) => total.totalQty += item.totalAmount); 
 
@@ -574,7 +577,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
             where: {
               ledcd: item.partyId
             }, select: {
-              lednm: true, mobile: true
+              lednm: true
             }
         }); 
 
