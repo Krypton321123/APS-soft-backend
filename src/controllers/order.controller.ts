@@ -53,6 +53,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
           data: {
             totalAmount: orderData.totalAmount,
             discountAmount: orderData.discountAmount,
+            discountAmountBulk: orderData.discountAmountBulk,
             paymentMode: orderData.paymentMode,
             creditDays: orderData.creditDays,
             orderItems: {
@@ -93,6 +94,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
             empId: orderData.empId,
             totalAmount: orderData.totalAmount,
             discountAmount: orderData.discountAmount,
+            discountAmountBulk: orderData.discountAmountBulk,
             paymentMode: orderData.paymentMode,
             creditDays: orderData.creditDays,
             consumerRate: orderData.consumerRate,
