@@ -91,10 +91,10 @@ export const getAvailableLocations = asyncHandler(async (req: Request, res: Resp
             name: loc.locationName
         }));
 
-        console.log(formattedLocations); 
 
         formattedLocations = formattedLocations.map((item) => {
-            if (item.id === 'VNS') return {...item, id: 'VAR'}; 
+            if (item.id === 'VNS') return {...item, id: 'VAR'};
+            if (item.id === 'DHN') return {...item, id: 'DHA'}; 
             return {...item}; 
         })
 
