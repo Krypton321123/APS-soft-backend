@@ -18,38 +18,25 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
   console.log(orderData);
 
   try {
-    // Get today's date at midnight for comparison
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const order = await prisma.$transaction(async (tx) => {
-      // Check if an order exists for today
       const existingOrder = await tx.order.findFirst({
         where: {
           partyId: orderData.partyId,
-          createdAt: {
-            gte: today,
-          },
+          createdAt: { gte: today },
         },
-        include: {
-          orderItems: true,
-        },
+        include: { orderItems: true },
       });
 
       if (existingOrder) {
-        // Update existing order
-        // First delete all existing order items
         await tx.orderItem.deleteMany({
-          where: {
-            orderId: existingOrder.order_id,
-          },
+          where: { orderId: existingOrder.order_id },
         });
 
-        // Update the order and create new items
         const updatedOrder = await tx.order.update({
-          where: {
-            order_id: existingOrder.order_id,
-          },
+          where: { order_id: existingOrder.order_id },
           data: {
             totalAmount: orderData.totalAmount,
             discountAmount: orderData.discountAmount,
@@ -66,9 +53,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
               })),
             },
           },
-          include: {
-            orderItems: true,
-          },
+          include: { orderItems: true },
         });
 
         return updatedOrder;
@@ -78,7 +63,6 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
             const itemDetails = await tx.mstitm.findUnique({
               where: { itmcd: item.itmcd },
             });
-
             return {
               ...item,
               packType: itemDetails?.itmsubcat || "Unknown",
@@ -86,7 +70,6 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
           }),
         );
 
-        // Create new order if none exists
         const newOrder = await tx.order.create({
           data: {
             partyId: orderData.partyId,
@@ -110,9 +93,7 @@ export const createOrder = asyncHandler(async (req: Request, res: Response) => {
               })),
             },
           },
-          include: {
-            orderItems: true,
-          },
+          include: { orderItems: true },
         });
 
         return newOrder;
@@ -143,15 +124,9 @@ export const getOrders = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const orders = await prisma.order.findMany({
-    where: {
-      empId: empId as string,
-    },
-    include: {
-      orderItems: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
+    where: { empId: empId as string },
+    include: { orderItems: true },
+    orderBy: { createdAt: "desc" },
   });
 
   return res
@@ -186,9 +161,7 @@ export const getOrdersByLocation = asyncHandler(
     });
 
     const admin = await prisma.admin.findFirst({
-      where: {
-        username: user as string,
-      },
+      where: { username: user as string },
     });
 
     if (admin?.userType !== "ADMIN") {
@@ -201,7 +174,6 @@ export const getOrdersByLocation = asyncHandler(
 
     console.log("Users found:", users.length);
 
-    // Create date filters
     let createdAtFilter: any = {};
 
     if (from) {
@@ -217,19 +189,20 @@ export const getOrdersByLocation = asyncHandler(
     // ── Filter logic per user type ─────────────────────────────────────────────
     //
     // DEPOT-INCHARGE:
-    //   PARK   → orders that have a PARK accept entry
-    //   REJECT → orders that have a reject entry
+    //   ALL    → unverified orders (no accept, no reject)
+    //   PARK   → orders with a PARK accept entry
+    //   REJECT → orders with a reject entry
     //
     // HEAD-OFFICE:
     //   ALL    → orders that have at least one PARK accept (ready for HO review)
-    //   ACCEPT → orders that have an ACCEPT accept entry
-    //   REJECT → orders that have a reject entry
+    //   ACCEPT → orders with an ACCEPT accept entry
+    //   REJECT → orders with a reject entry
     //
     // ADMIN:
-    //   ALL    → no accept/reject filter (see everything)
+    //   ALL    → everything
     //   PARK   → orders with a PARK accept entry
     //   ACCEPT → orders with an ACCEPT accept entry
-    //   REJECT → orders that have a reject entry
+    //   REJECT → orders with a reject entry
     //
     let whereAccept: any = undefined;
     let whereReject: any = undefined;
@@ -240,13 +213,11 @@ export const getOrdersByLocation = asyncHandler(
       } else if (filter === "REJECT") {
         whereReject = { isNot: null };
       } else {
-        // Default / ALL for depot-incharge: show unverified orders (no accept, no reject)
         whereAccept = { none: {} };
         whereReject = null;
       }
     } else if (admin?.userType === "HEAD-OFFICE") {
       if (filter === "ALL") {
-        // HO sees orders that have been parked by depot
         whereAccept = { some: { status: "PARK" } };
       } else if (filter === "ACCEPT") {
         whereAccept = { some: { status: "ACCEPT" } };
@@ -257,7 +228,6 @@ export const getOrdersByLocation = asyncHandler(
       }
     } else if (admin?.userType === "ADMIN") {
       if (filter === "ALL") {
-        // Admin sees everything — no filter
         whereAccept = undefined;
         whereReject = undefined;
       } else if (filter === "PARK") {
@@ -280,15 +250,10 @@ export const getOrdersByLocation = asyncHandler(
       },
       include: {
         orderItems: true,
-        // Include all accept entries, ordered so latest is first
-        accept: {
-          orderBy: { createdAt: "desc" },
-        },
+        accept: { orderBy: { createdAt: "desc" } },
         reject: true,
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
     const updatedOrders = await Promise.all(
@@ -344,11 +309,7 @@ export const getOrdersByLocation = asyncHandler(
 
         empName = employee?.usrnm || "Unknown";
 
-        // Derive the "effective" status for this order:
-        // If any accept entry has status ACCEPT → "ACCEPT"
-        // Else if any accept entry has status PARK  → "PARK"
-        // Else if a reject entry exists           → "REJECT"
-        // Else                                    → "UNVERIFIED"
+        // Derive effective status
         let derivedStatus = "UNVERIFIED";
         if (item.accept && item.accept.length > 0) {
           const hasAccept = item.accept.some((a) => a.status === "ACCEPT");
@@ -359,13 +320,35 @@ export const getOrdersByLocation = asyncHandler(
           derivedStatus = "REJECT";
         }
 
-        // Get sicd from the ACCEPT entry (voucher number), fall back to latest entry
+        // Prefer ACCEPT entry for sicd/vehno/secFreight/remarks, fall back to latest
         const acceptEntry =
           item.accept?.find((a) => a.status === "ACCEPT") ?? item.accept?.[0];
+        const parkEntry = item.accept?.find((a) => a.status === "PARK");
+
         const sicd = acceptEntry?.sicd ?? "";
-        const vehno = acceptEntry?.vehno; 
-        const secFreight = acceptEntry?.secfreight; 
+        const vehno = acceptEntry?.vehno;
+        const secFreight = acceptEntry?.secfreight;
         const remarks = acceptEntry?.remarks;
+
+        // ── Rate resolution ──────────────────────────────────────────────────
+        // Order.consumerRate / bulkRate always hold the ORIGINAL base rate
+        // (set by the salesman's app and never mutated after that).
+        //
+        // Order.discountAmount / discountAmountBulk are updated by the backend
+        // whenever an admin parks or accepts, so they always reflect the last
+        // applied discount.
+        //
+        // AcceptedOrders.consumerRate / bulkRate hold the post-discount rate
+        // that was actually pushed to the ERP.
+        //
+        // The frontend needs:
+        //   • consumerRate / bulkRate   → original base rate (for the "Rate" columns)
+        //   • discountAmount / discountAmountBulk → applied discount (pre-fills inputs)
+        //   • (after-discount is computed client-side: base − discount)
+        //
+        // For PARK orders the discount inputs should show what the depot incharge
+        // entered, which is now stored back on Order.discountAmount. So we just
+        // return those fields as-is from the Order row — no extra derivation needed.
 
         return {
           ...item,
@@ -374,14 +357,17 @@ export const getOrdersByLocation = asyncHandler(
           orderItems: fixedOrderItems,
           outstanding: outStanding?.outamt,
           collection: { ...collection, amount: collection?.amount || 0 },
-          // Expose the latest accept entry's rates for the table
-          consumerRate:  item.consumerRate,
+          // Original base rates — never overwrite these
+          consumerRate: item.consumerRate,
           bulkRate: item.bulkRate,
+          // Applied discounts — updated on every park/accept so they round-trip correctly
+          discountAmount: item.discountAmount,
+          discountAmountBulk: item.discountAmountBulk,
           derivedStatus,
           sicd,
           vehno,
           secFreight,
-          remarks
+          remarks,
         };
       }),
     );
@@ -402,23 +388,16 @@ export const getTodayOrdersByPartyId = asyncHandler(
         .json(new ApiError("Party ID is required", 400, {}));
     }
 
-    // Get today's date at midnight for comparison
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const orders = await prisma.order.findMany({
       where: {
         partyId,
-        createdAt: {
-          gte: today,
-        },
+        createdAt: { gte: today },
       },
-      include: {
-        orderItems: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      include: { orderItems: true },
+      orderBy: { createdAt: "desc" },
     });
 
     return res
@@ -448,12 +427,9 @@ export const handleAcceptOrders = asyncHandler(
 
       const createAccepts = await Promise.all(
         orders.map(async (item: any) => {
-          // Guard: if the order already has an ACCEPT entry, skip it
+          // Guard: skip orders already fully ACCEPTED
           const existingAccept = await prisma.acceptedOrders.findFirst({
-            where: {
-              order_id: item.id,
-              status: "ACCEPT",
-            },
+            where: { order_id: item.id, status: "ACCEPT" },
           });
 
           if (existingAccept) {
@@ -461,12 +437,28 @@ export const handleAcceptOrders = asyncHandler(
             return existingAccept;
           }
 
+          // ── Step 1: persist the applied discounts back onto the Order row ──
+          // This means when the order is fetched again (e.g. by HEAD-OFFICE
+          // after a DEPOT-INCHARGE parks it) the discount inputs will correctly
+          // show what the previous admin entered.
+          await prisma.order.update({
+            where: { order_id: item.id },
+            data: {
+              discountAmount: Number(item.discountConsumer ?? 0),
+              discountAmountBulk: Number(item.discountBulk ?? 0),
+            },
+          });
+
+          // ── Step 2: create the AcceptedOrders row ────────────────────────
+          // consumerRate / bulkRate stored here are the POST-discount rates
+          // that get pushed to the ERP via CREATEINVOICES.
           const createdAccept = await prisma.acceptedOrders.create({
             data: {
               order_id: item.id,
               adminName: admin.username,
-              bulkRate: Number(item.bulkRate),
+              // Post-discount rates sent to ERP
               consumerRate: Number(item.consumerRate),
+              bulkRate: Number(item.bulkRate),
               status,
               AcceptedAt: status === "ACCEPT" ? new Date().toISOString() : null,
               remarks: item.remarks ?? "",
@@ -481,7 +473,7 @@ export const handleAcceptOrders = asyncHandler(
 
       console.log("CREATED ACCEPTS:", createAccepts);
 
-      await prisma.$executeRaw`EXEC CREATEINVOICES`; 
+      await prisma.$executeRaw`EXEC CREATEINVOICES`;
 
       return res
         .status(200)
@@ -497,7 +489,7 @@ export const handleAcceptOrders = asyncHandler(
 
 export const handleRejectOrders = asyncHandler(
   async (req: Request, res: Response) => {
-    const { orders, adminName, remarks } = req.body;
+    const { orders, adminName } = req.body;
 
     try {
       if (!orders || !adminName) {
@@ -514,7 +506,15 @@ export const handleRejectOrders = asyncHandler(
 
       const rejectedOrders = await Promise.all(
         orders.map(async (item: any) => {
-          // Upsert: if reject row already exists, update it; otherwise create
+          // ── Persist applied discounts back onto the Order row ────────────
+          await prisma.order.update({
+            where: { order_id: item.id },
+            data: {
+              discountAmount: Number(item.discountConsumer ?? 0),
+              discountAmountBulk: Number(item.discountBulk ?? 0),
+            },
+          });
+
           const existing = await prisma.rejectedOrders.findUnique({
             where: { order_id: item.id },
           });
