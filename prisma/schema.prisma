@@ -32,6 +32,8 @@ model partyImages {
   imageUrl2       String?
   imageUrl3       String?
   profileImageUrl String
+  latValue        String   @default("")
+  longValue       String   @default("")
   userId          String?
   remarks         String   @default("")
   user            User?    @relation(fields: [userId], references: [username])

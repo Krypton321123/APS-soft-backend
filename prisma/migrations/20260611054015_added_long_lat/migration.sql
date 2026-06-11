@@ -1,0 +1,20 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[partyImages] ADD [latValue] NVARCHAR(1000) NOT NULL CONSTRAINT [partyImages_latValue_df] DEFAULT '',
+[longValue] NVARCHAR(1000) NOT NULL CONSTRAINT [partyImages_longValue_df] DEFAULT '';
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

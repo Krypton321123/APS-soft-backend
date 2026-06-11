@@ -214,7 +214,7 @@ export const uploadPartyImage = asyncHandler(async (req: Request, res: Response)
 
 export const uploadPartyImagesWithMulter = asyncHandler(async (req: Request, res: Response) => {
   const file = req.file; 
-  const {partyId, userId} = req.body;
+  const {partyId, userId, latValue, longValue} = req.body;
 
   console.log(file?.destination.toString()); 
   console.log(file?.filename)
@@ -223,7 +223,7 @@ export const uploadPartyImagesWithMulter = asyncHandler(async (req: Request, res
 
   await prisma.partyImages.create({
     data: {
-      partyId: partyId, profileImageUrl: `${file?.destination.toString()}/${file?.filename}` || "", userId: userId
+      partyId: partyId, profileImageUrl: `${file?.destination.toString()}/${file?.filename}` || "", userId: userId, latValue, longValue
     }
   })
 
@@ -426,44 +426,64 @@ export const fetchRates = asyncHandler(async (req: Request, res: Response) => {
 })
 
 export const submitRates = asyncHandler(async (req: Request, res: Response) => {
-  const { submittedValues, date } = req.body; 
+  const { submittedValues, date } = req.body;
 
   if (!date || !submittedValues) {
-    return res.status(400).json(new ApiError("Empty data sent", 400))
+    return res.status(400).json(
+      new ApiError("Empty data sent", 400)
+    );
   }
 
-  const targetDate = new Date(date)
-  console.log(targetDate)
-  
-  const arr = Object.entries(submittedValues)
-  console.log(arr)
+  const targetDate = new Date(date);
 
   try {
-     const rates = await Promise.all(
-    arr.map(async (item: any) => {
-      const untcd = item[0]; 
-      console.log(untcd)
-      
-      const values: any = item[1]
-      console.log(arr[1])
+    const arr = Object.entries(submittedValues);
 
-      let insertData: any = { untcd, date: targetDate }; 
+    const rates = await Promise.all(
+      arr.map(async ([untcd, values]: any) => {
+        const insertData: any = {};
 
-      if (values.consumerRate !== undefined) insertData.consumerRate = values.consumerRate; 
-      if (values.bulkRate !== undefined) insertData.bulkRate = values.bulkRate; 
+        if (values.consumerRate !== undefined) {
+          insertData.consumerRate = values.consumerRate;
+        }
 
-      await prisma.dailyRateList.create({
-        data: insertData
+        if (values.bulkRate !== undefined) {
+          insertData.bulkRate = values.bulkRate;
+        }
+
+        return await prisma.dailyRateList.upsert({
+          where: {
+            untcd_date: {
+              untcd,
+              date: targetDate,
+            },
+          },
+
+          update: {
+            ...insertData,
+          },
+
+          create: {
+            untcd,
+            date: targetDate,
+            ...insertData,
+          },
+        });
       })
-    })
-)
+    );
 
-  return res.status(200).json(new ApiResponse(200, "Done", rates))
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Done", rates));
+
   } catch (err: any) {
-    console.log("inserting rate error: ", err)
-    res.status(500).json(new ApiError("Internal server error", 500))
+    console.log("inserting rate error:", err);
+
+    return res.status(500).json(
+      new ApiError("Internal server error", 500)
+    );
   }
-})
+});
 
 export const getSummary = asyncHandler(async (req: Request, res: Response) => {
   const { username, date } = req.body; 
