@@ -59,13 +59,14 @@ export const searchImages = async (req: Request, res: Response) => {
         createdAt: {
           gte: startDate ? new Date(startDate as string) : undefined,
           lte: endDate ? new Date(endDate as string) : undefined
-        }
+        },
+        
       },
       select: {
         profileImageUrl: true,
-
       }
     });
+
 
     const convertToBase64 = (relativePath: string | null) => {
       console.log(__dirname)
@@ -107,6 +108,7 @@ export const getImages = asyncHandler(async (req: Request, res: Response) => {
     if (!user) return res.json([]);
 
     const images = await prisma.partyImages.findMany({
+      distinct: ['partyId'],
       where: {
         userId: user.username,
         createdAt: {
