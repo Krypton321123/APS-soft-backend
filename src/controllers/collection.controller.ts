@@ -182,12 +182,6 @@ export const generateOtpForColl = asyncHandler(
     console.log(mode, amount);
 
     try {
-      // const partyLimit = await partyRateLimit(partyId, mode, amount, props);
-
-      // if (!partyLimit) {
-      //     return res.status(201).json(new ApiResponse(201, "Already uploaded today's payment for this party", {}));
-      // }
-
       const otp = crypto.randomInt(100000, 999999).toString();
 
       const party = await prisma.mstparty.findFirst({
@@ -489,9 +483,16 @@ export const getCollectionsByLocation = asyncHandler(
 
         empName = employee?.usrnm || "Unknown";
 
+        // Fetch party mobile from mstparty view
+        const party = await prisma.mstparty.findFirst({
+          where: { ledcd: item.partyId },
+          select: { mobile: true },
+        });
+
         return {
           ...item,
           empName,
+          mobile: party?.mobile ?? null,
         };
       }),
     );
