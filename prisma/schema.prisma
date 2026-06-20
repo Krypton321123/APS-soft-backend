@@ -249,6 +249,11 @@ model Flags {
   flag    String
 }
 
+model AppConfig {
+  id                  String @id @default(cuid())
+  minAndroidVersion   Int    @default(1)  
+}
+
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view mstemp {
   empcd String  @unique @db.VarChar(50)

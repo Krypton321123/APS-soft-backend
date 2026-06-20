@@ -14,6 +14,9 @@ import path from 'path'
 import locationRouter from './routes/location.router.js';
 import otpRouter from './routes/otp.router.js';
 import deliveryRouter from './routes/delivery.router.js';
+import asyncHandler from './util/asyncHandler.js';
+import ApiResponse from './util/ApiResponse.js';
+import ApiError from './util/ApiError.js';
 
 const app = express()
 
@@ -37,6 +40,19 @@ app.get("/debug", async (_, res) => {
     res.status(500).send(err);
   }
 });
+
+export const getAppConfig = asyncHandler(async (req: Request, res: Response) => {
+  try {
+    const config = await prisma.appConfig.findFirst();
+    return res.status(200).json(new ApiResponse(200, "Fetched successfully", {
+      minAndroidVersion: config?.minAndroidVersion ?? 1,
+    }));
+  } catch (err) {
+    return res.status(500).json(new ApiError("Internal server error", 500));
+  }
+});
+
+app.get("/api/v1/app/config", getAppConfig);
 
 
 

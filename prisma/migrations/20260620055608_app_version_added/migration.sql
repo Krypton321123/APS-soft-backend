@@ -1,0 +1,23 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- CreateTable
+CREATE TABLE [dbo].[AppConfig] (
+    [id] NVARCHAR(1000) NOT NULL,
+    [minAndroidVersion] INT NOT NULL CONSTRAINT [AppConfig_minAndroidVersion_df] DEFAULT 1,
+    CONSTRAINT [AppConfig_pkey] PRIMARY KEY CLUSTERED ([id])
+);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH
