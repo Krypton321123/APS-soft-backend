@@ -314,15 +314,13 @@ export const getItems = asyncHandler(async (req: Request, res: Response) => {
       return { ...item, itmrate: finalRate };
     });
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, "Items fetched", {
-          items,
-          consumerRate: latestRate[0].consumerRate,
-          bulkRate: latestRate[0].bulkRate,
-        }),
-      );
+    return res.status(200).json(
+      new ApiResponse(200, "Items fetched", {
+        items,
+        consumerRate: latestRate[0].consumerRate,
+        bulkRate: latestRate[0].bulkRate,
+      }),
+    );
   } catch (err) {
     return res.status(500).json(new ApiError("Internal server error", 500, {}));
   } finally {
@@ -471,14 +469,12 @@ export const fetchRates = asyncHandler(async (req: Request, res: Response) => {
     },
   });
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, "Rates fetched successfully", {
-        depots: uniqueDepots,
-        rates,
-      }),
-    );
+  return res.status(200).json(
+    new ApiResponse(200, "Rates fetched successfully", {
+      depots: uniqueDepots,
+      rates,
+    }),
+  );
 });
 
 export const submitRates = asyncHandler(async (req: Request, res: Response) => {
@@ -706,6 +702,39 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
           })
         : "N/A";
 
+    const partyImagesPerParty = await prisma.partyImages.findMany({
+      where: {
+        userId: username,
+        AND: [
+          { createdAt: { gte: startDate } },
+          { createdAt: { lte: endDate } },
+        ],
+      },
+      select: {
+        partyId: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    // Build a map of partyId -> first visit time
+    const partyVisitTimeMap: Record<string, string> = {};
+    partyImagesPerParty.forEach((item) => {
+      // Since ordered by asc, first occurrence = first visit time
+      if (!partyVisitTimeMap[item.partyId]) {
+        partyVisitTimeMap[item.partyId] = item.createdAt.toLocaleTimeString(
+          "en-IN",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          },
+        );
+      }
+    });
+
     const sendCollection = await Promise.all(
       collection.map(async (item) => {
         const partyName = await prisma.mstparty.findUnique({
@@ -723,19 +752,18 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
     console.log(sendCollection);
 
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, "Fetched successfully", {
-          order: sendOrder,
-          collection: sendCollection,
-          stock,
-          parties,
-          total,
-          startTime,   
-          endTime   
-        }),
-      );
+    return res.status(200).json(
+      new ApiResponse(200, "Fetched successfully", {
+        order: sendOrder,
+        collection: sendCollection,
+        stock,
+        parties,
+        total,
+        startTime,
+        endTime,
+        partyVisitTimeMap,
+      }),
+    );
   } catch (err: any) {
     console.log("Summary error: ", err);
     return res.status(500).json(new ApiError("Internal server error", 500));
