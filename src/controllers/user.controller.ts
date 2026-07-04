@@ -577,30 +577,17 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         outs: true,
         ledcd: true,
         mobile: true,
+        billdt: true,
       },
     });
 
     parties.map((item) => (total.outstanding += Number(item.outs)));
 
-    // Fetch bill dates for these parties from OutstandingAmt
-    const outstandingAmts = await prisma.outstandingAmt.findMany({
-      where: {
-        ledcd: { in: parties.map((p) => p.ledcd) },
-      },
-      select: {
-        ledcd: true,
-        billdt: true,
-      },
-    });
-
-    const billDateMap: Record<string, string> = {};
-    outstandingAmts.forEach((item) => {
-      billDateMap[item.ledcd] = item.billdt || "N/A";
-    });
-
+    // billdt now lives directly on mstparty, so no separate OutstandingAmt
+    // lookup or billDateMap merge is needed anymore.
     const partiesWithBillDate = parties.map((item) => ({
       ...item,
-      billdt: billDateMap[item.ledcd] || "N/A",
+      billdt: item.billdt ? item.billdt.toLocaleDateString("en-IN") : "N/A",
     }));
 
     const order = await prisma.order.findMany({
@@ -783,6 +770,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         total,
         startTime,
         endTime,
+        partyVisitTimeMap,
       }),
     );
   } catch (err: any) {
@@ -939,80 +927,3 @@ export const getPreSummary = asyncHandler(
     }
   },
 );
-
-// ---------------------- DELETED FUNCTIONALITIES --------------------------
-
-// export const uploadPartyImage = asyncHandler(async (req: Request, res: Response) => {
-//     const { image_data, partyId, userId } = req.body;
-
-//     if (!image_data || !partyId || !userId) {
-//         return res.status(400).json(new ApiError("Missing required data", 400, {}));
-//     }
-
-//     // Decode base64 string
-//     const matches = image_data.match(/^data:image\/([a-zA-Z]+);base64,(.+)$/);
-//     if (!matches || matches.length !== 3) {
-//         return res.status(400).json(new ApiError("Invalid base64 image", 400, {}));
-//     }
-
-//     const extension = matches[1];
-//     const base64Data = matches[2];
-
-//     // Generate human readable date format DD-MM-YYYY
-//     const today = new Date();
-//     const day = String(today.getDate()).padStart(2, '0');
-//     const month = String(today.getMonth() + 1).padStart(2, '0');
-//     const year = today.getFullYear();
-//     const hours = String(today.getHours()).padStart(2, '0');
-//     const minutes = String(today.getMinutes()).padStart(2, '0');
-//     const seconds = String(today.getSeconds()).padStart(2, '0');
-//     const dateString = `${day}-${month}-${year}`;
-
-//     // Generate random ID for image
-//     const randomId = Math.random().toString(36).substring(2, 15);
-
-//     // Create directory structure
-//     const baseDir = path.join("uploads", "party_images_by_employees");
-//     const employeeDir = path.join(baseDir, userId);
-//     const partyDateDir = path.join(employeeDir, `${partyId}_${dateString}`);
-//     const filename = `${randomId}-${hours}_${minutes}_${seconds}.${extension}`;
-//     const filePath = path.join(partyDateDir, filename);
-
-//     try {
-//         // Create base directory if it doesn't exist
-//         if (!fs.existsSync(baseDir)) {
-//             fs.mkdirSync(baseDir, { recursive: true });
-//         }
-
-//         // Create employee directory if it doesn't exist
-//         if (!fs.existsSync(employeeDir)) {
-//             fs.mkdirSync(employeeDir, { recursive: true });
-//         }
-
-//         // Check if party folder exists for today
-//         if (!fs.existsSync(partyDateDir)) {
-//             fs.mkdirSync(partyDateDir, { recursive: true });
-//         }
-
-//         // Save the image file
-//         fs.writeFileSync(filePath, base64Data, { encoding: "base64" });
-
-//         const imageUrl = `/uploads/party_images_by_employees/${userId}/${partyId}_${dateString}/${filename}`;
-
-//         // Store image path in DB
-//         await prisma.partyImages.create({
-//             data: {
-//                 partyId,
-//                 profileImageUrl: imageUrl,
-//                 userId
-//             }
-//         });
-
-//         return res.status(200).json(new ApiResponse(200, "Image uploaded", { imageUrl }));
-//     } catch (error) {
-//         console.error("Error saving image:", error);
-//         return res.status(500).json(new ApiError("Failed to save image", 500, error));
-//     } finally {
-//       await prisma.$disconnect();
-//     }
-// });
