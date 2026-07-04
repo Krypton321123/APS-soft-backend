@@ -32,10 +32,10 @@ model partyImages {
   imageUrl2       String?
   imageUrl3       String?
   profileImageUrl String
-  latValue        String   @default("")
-  longValue       String   @default("")
   userId          String?
   remarks         String   @default("")
+  latValue        String   @default("")
+  longValue       String   @default("")
   user            User?    @relation(fields: [userId], references: [username])
 }
 
@@ -46,13 +46,13 @@ model Order {
   empId              String
   totalAmount        Decimal          @db.Decimal(18, 2)
   discountAmount     Decimal          @db.Decimal(18, 2)
-  discountAmountBulk Decimal          @default(0) @db.Decimal(18, 2)
   createdAt          DateTime         @default(now())
   creditDays         Int?
   paymentMode        String           @default("")
   status             String           @default("pending")
   bulkRate           Decimal?         @db.Decimal(18, 2)
   consumerRate       Decimal?         @db.Decimal(18, 2)
+  discountAmountBulk Decimal          @default(0) @db.Decimal(18, 2)
   accept             AcceptedOrders[]
   orderItems         OrderItem[]
   reject             RejectedOrders?
@@ -68,10 +68,10 @@ model AcceptedOrders {
   consumerRate Decimal   @db.Decimal(18, 2)
   remarks      String    @default("")
   status       String
-  vehno        String    @default("")
-  secfreight   Float     @default(0)
   sicd         String    @default("")
   socd         String    @default("")
+  secfreight   Float     @default(0)
+  vehno        String    @default("")
   admin        admin     @relation(fields: [adminName], references: [username])
   Order        Order     @relation(fields: [order_id], references: [order_id])
 }
@@ -118,8 +118,8 @@ model Collection {
   imageUrl      String?  @default("")
   otp           String?  @default("")
   verifiedBy    String?
-  ledgerId      String?
   vchno         String?
+  ledgerId      String?
   admin         admin?   @relation(fields: [verifiedBy], references: [username])
 }
 
@@ -238,9 +238,9 @@ model LocationNames {
   locationCode String
   cityName     String
   stateName    String
+  cashLedgerId String @default("")
   gwncd        String @default("")
   untcd        String @default("")
-  cashLedgerId String @default("")
 }
 
 model Flags {
@@ -250,8 +250,8 @@ model Flags {
 }
 
 model AppConfig {
-  id                  String @id @default(cuid())
-  minAndroidVersion   Int    @default(1)  
+  id                String @id @default(cuid())
+  minAndroidVersion Int    @default(1)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -263,14 +263,14 @@ view mstemp {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view mstparty {
-  ledcd   String   @unique @db.VarChar(250)
-  lednm   String?  @db.VarChar(250)
-  empcd   String?  @db.VarChar(50)
-  areacd  String   @db.VarChar(50)
-  areanm  String?  @db.VarChar(250)
-  ledadr1 String?  @db.VarChar(500)
-  outs    Decimal? @db.Decimal(38, 2)
-  mobile  String?  @db.VarChar(100)
+  ledcd   String  @unique @db.VarChar(250)
+  lednm   String? @db.VarChar(250)
+  empcd   String? @db.VarChar(50)
+  areacd  String  @db.VarChar(50)
+  areanm  String? @db.VarChar(250)
+  ledadr1 String? @db.VarChar(500)
+  outs    Decimal @db.Decimal(38, 2)
+  mobile  String? @db.VarChar(100)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -290,6 +290,7 @@ view mstitm {
 view OutstandingAmt {
   ledcd  String   @id @unique @db.VarChar(250)
   outamt Decimal? @db.Decimal(38, 2)
+  billdt String?  @db.VarChar(11)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.

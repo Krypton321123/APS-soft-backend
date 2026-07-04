@@ -1,5 +1,5 @@
 SELECT
-  si.sicd AS billno,
+  TOP (1000) si.sicd AS billno,
   CONVERT(varchar(11), sidt, 103) AS billdt,
   led.lednm AS ptynm,
   led.ledadr1 AS addr,
@@ -10,11 +10,12 @@ FROM
   APSPLUS_AOI_2021.dbo.trnsinfo_vw AS si
   JOIN APSPLUS_AOI_2021.dbo.trnsidetnfo_vw AS sidet ON si.sicd = sidet.sicd
   JOIN APSPLUS_AOI_2021.dbo.mstlednfo_vw AS led ON si.ptyledcd = led.ledcd
-WHERE
-  CONVERT(varchar(11), sidt, 103) = CONVERT(varchar(11), getdate(), 103)
 GROUP BY
   si.sicd,
   sidt,
   led.lednm,
   led.ledadr1,
-  led.mobile;
+  led.mobile
+ORDER BY
+  si.sidt DESC,
+  si.sicd DESC;

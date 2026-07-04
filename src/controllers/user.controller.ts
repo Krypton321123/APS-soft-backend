@@ -582,6 +582,27 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
     parties.map((item) => (total.outstanding += Number(item.outs)));
 
+    // Fetch bill dates for these parties from OutstandingAmt
+    const outstandingAmts = await prisma.outstandingAmt.findMany({
+      where: {
+        ledcd: { in: parties.map((p) => p.ledcd) },
+      },
+      select: {
+        ledcd: true,
+        billdt: true,
+      },
+    });
+
+    const billDateMap: Record<string, string> = {};
+    outstandingAmts.forEach((item) => {
+      billDateMap[item.ledcd] = item.billdt || "N/A";
+    });
+
+    const partiesWithBillDate = parties.map((item) => ({
+      ...item,
+      billdt: billDateMap[item.ledcd] || "N/A",
+    }));
+
     const order = await prisma.order.findMany({
       where: {
         empId: username,
@@ -757,11 +778,10 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         order: sendOrder,
         collection: sendCollection,
         stock,
-        parties,
+        parties: partiesWithBillDate,
         total,
         startTime,
         endTime,
-        partyVisitTimeMap,
       }),
     );
   } catch (err: any) {
