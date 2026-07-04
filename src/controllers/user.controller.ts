@@ -618,6 +618,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         bulkRate: true,
         discountAmount: true,
         discountAmountBulk: true,
+        paymentMode: true,
       },
     });
 
