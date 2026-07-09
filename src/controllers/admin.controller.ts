@@ -118,6 +118,9 @@ export const getAvailableScreens = asyncHandler(async (req: Request, res: Respon
             { id: 'attendance', name: 'Attendance' },
             { id: 'images', name: 'Images' },
             { id: 'ratelist', name: 'Rate List' },
+            { id: 'secondary-rates', name: 'Secondary Rates' },
+
+
             { id: 'location', name: 'Location' }, 
             { id: 'user-management', name: 'User Management'},
             { id: 'location-distance', name: 'Location Distance Report'}
