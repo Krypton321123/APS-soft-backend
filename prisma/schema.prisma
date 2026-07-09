@@ -254,6 +254,31 @@ model AppConfig {
   minAndroidVersion Int    @default(1)
 }
 
+model SecondaryRate {
+  rate_id      String   @id @default(cuid())
+  depotCd      String   @default("") // untcd of the depot this batch was for
+  depotNm      String   @default("")
+  partyType    String   @default("") // pcatnm at time of send (RETAILOR / WHOLE SALLER / DISTRIBUTOR)
+  empId        String? // optional employee filter used, if any (username)
+  empName      String? // usrnm at time of send, for display in history
+  partyId      String // ledcd from mstparty
+  partyName    String
+  mobile       String   @default("")
+  consumerRate Decimal  @db.Decimal(18, 2)
+  bulkRate     Decimal  @db.Decimal(18, 2)
+  rateDate     DateTime // the date selected in the filter (not necessarily "today")
+  sentBy       String // admin username who triggered the send
+  status       String   @default("pending") // pending | sent | failed
+  responseId   String? // "RequestId" from the SMS API's 3001 response
+  errorMsg     String?
+  createdAt    DateTime @default(now())
+
+  @@index([depotCd, rateDate])
+  @@index([partyId])
+  @@index([status])
+}
+
+
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view mstemp {
   empcd String  @unique @db.VarChar(50)
@@ -265,6 +290,7 @@ view mstemp {
 view mstparty {
   ledcd   String    @unique @db.VarChar(250)
   lednm   String?   @db.VarChar(250)
+  pcatnm  String?   @db.VarChar(250)
   empcd   String?   @db.VarChar(50)
   areacd  String    @db.VarChar(50)
   areanm  String?   @db.VarChar(250)

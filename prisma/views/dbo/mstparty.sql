@@ -1,23 +1,34 @@
 SELECT
   led.ledcd,
   led.lednm,
+  pcatnm,
   led.empcd,
   area.areacd,
   area.areanm,
   led.ledadr1,
   isnull(SUM(vou.amtdr - vou.amtcr), 0) AS outs,
   led.mobile,
-  max(sidt) AS billdt
+  max(mbilldt) AS billdt
 FROM
   APSPLUS_AOI_2021.dbo.mstlednfo_vw AS led
+  JOIN APSPLUS_AOI_2021.dbo.mstpartycat AS pcat ON pcat.pcatcd = led.pcatcd
   JOIN APSPLUS_AOI_2021.dbo.mstareanfo_vw AS area ON area.areacd = led.areacd
   LEFT JOIN APSPLUS_AOI_2021.dbo.auto_voucher_vw AS vou ON vou.ledcd = led.ledcd
-  LEFT JOIN APSPLUS_AOI_2021.dbo.trnsinfo AS si ON si.ptyledcd = vou.ledcd
+  LEFT JOIN (
+    SELECT
+      DISTINCT ptyledcd,
+      max(sidt) AS mbilldt
+    FROM
+      apsplus_aoi_2021.dbo.trnsinfo_vw AS si
+    GROUP BY
+      ptyledcd
+  ) AS ptysi ON ptysi.ptyledcd = vou.ledcd
 WHERE
   ledsts = 'Active'
 GROUP BY
   led.ledcd,
   led.lednm,
+  pcatnm,
   led.empcd,
   area.areacd,
   area.areanm,

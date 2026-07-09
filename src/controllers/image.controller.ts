@@ -250,3 +250,98 @@ export const getFlags = asyncHandler(async (req: Request, res: Response) => {
 
     return res.status(200).json(new ApiResponse(200, "Fetched successfully", flags)); 
 })
+
+// Haversine formula: distance in km between two lat/long points
+const toRad = (deg: number) => (deg * Math.PI) / 180;
+
+const haversineKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // Earth radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+export const getEmployeeDayDistance = asyncHandler(async (req: Request, res: Response) => {
+  const { depot, employee, date } = req.query;
+
+  if (!depot || !employee || !date) {
+    return res.status(400).json(new ApiError("depot, employee and date are required", 400));
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      untnm: depot as string,
+      username: employee as string
+    },
+    select: { username: true }
+  });
+
+  if (!user) {
+    return res.status(200).json(new ApiResponse(200, "No user found", { points: [], legs: [], totalDistanceKm: 0 }));
+  }
+
+  const dayStart = new Date(date as string);
+  dayStart.setUTCHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setUTCHours(23, 59, 59, 999);
+
+  const images = await prisma.partyImages.findMany({
+    where: {
+      userId: user.username,
+      createdAt: {
+        gte: dayStart,
+        lte: dayEnd
+      }
+    },
+    orderBy: {
+      createdAt: 'asc'
+    },
+    select: {
+      image_id: true,
+      partyId: true,
+      latValue: true,
+      longValue: true,
+      createdAt: true
+    }
+  });
+
+  // Keep only points with usable coordinates, in time order
+  const points = images
+    .map((img) => ({
+      image_id: img.image_id,
+      partyId: img.partyId,
+      createdAt: img.createdAt,
+      lat: parseFloat(img.latValue),
+      long: parseFloat(img.longValue)
+    }))
+    .filter((p) => !isNaN(p.lat) && !isNaN(p.long));
+
+  const legs = [];
+  let totalDistanceKm = 0;
+
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1];
+    const curr = points[i];
+    const distanceKm = haversineKm(prev.lat, prev.long, curr.lat, curr.long);
+    totalDistanceKm += distanceKm;
+
+    legs.push({
+      from: { image_id: prev.image_id, partyId: prev.partyId, createdAt: prev.createdAt },
+      to: { image_id: curr.image_id, partyId: curr.partyId, createdAt: curr.createdAt },
+      distanceKm: Number(distanceKm.toFixed(3))
+    });
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, "fetched", {
+      points,
+      legs,
+      totalDistanceKm: Number(totalDistanceKm.toFixed(3))
+    })
+  );
+});

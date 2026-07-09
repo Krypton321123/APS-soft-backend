@@ -17,6 +17,7 @@ import deliveryRouter from './routes/delivery.router.js';
 import asyncHandler from './util/asyncHandler.js';
 import ApiResponse from './util/ApiResponse.js';
 import ApiError from './util/ApiError.js';
+import router from './routes/secondaryRate.router.js';
 
 const app = express()
 
@@ -67,6 +68,7 @@ app.use('/api/v1/images', imageRouter);
 app.use('/api/v1/location', locationRouter); 
 app.use('/api/v1/delivery', deliveryRouter); 
 app.use('/api/v1/otp', otpRouter); 
+app.use("/api/v1/secondary-rates", router);
 
 app.use(globalCatch)
 
