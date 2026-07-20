@@ -641,6 +641,53 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
 
     sendOrder.map((item) => (total.totalQty += item.totalAmount));
 
+    // ── New-party orders ──────────────────────────────────────────────
+    // Separate table entirely from mstparty/Order — these are shops that
+    // don't exist as a registered party yet, so there's no ledcd to join
+    // against. Scoped to the same empId + date window as Order/Collection
+    // above, per the same "today's summary" semantics. The mandatory shop
+    // photo is taken immediately before save (see NewPartyOrder.tsx
+    // handleTakePhoto -> handleSave), so createdAt doubles as visit time
+    // here the same way partyImages.createdAt already does for
+    // partyVisitTimeMap below — there's no separate photo timestamp field
+    // on this model to use instead.
+    const newPartyOrders = await prisma.newPartyOrder.findMany({
+      where: {
+        empId: username,
+        AND: [
+          { createdAt: { gte: startDate } },
+          { createdAt: { lte: endDate } },
+        ],
+      },
+      select: {
+        partyName: true,
+        createdAt: true,
+        orderItems: {
+          select: {
+            quantity: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    const sendNewPartyOrders = newPartyOrders.map((item) => ({
+      partyName: item.partyName,
+      visitTime: item.createdAt.toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      totalQty: item.orderItems.reduce(
+        (acc: number, curr: { quantity: number }) => acc + curr.quantity,
+        0,
+      ),
+    }));
+
+    console.log("newPartyOrders", sendNewPartyOrders);
+
     const collection = await prisma.collection.findMany({
       where: {
         empId: username,
@@ -771,6 +818,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         startTime,
         endTime,
         partyVisitTimeMap,
+        newPartyOrders: sendNewPartyOrders,
       }),
     );
   } catch (err: any) {

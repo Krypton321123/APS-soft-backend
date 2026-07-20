@@ -3,6 +3,7 @@ import prisma from '../util/prisma.js';
 import ApiResponse from '../util/ApiResponse.js';
 import asyncHandler from '../util/asyncHandler.js';
 import { format } from 'path';
+import ip from 'ip';
 
 // Get distinct depot names
 export const getDepots = async (req: Request, res: Response) => {
@@ -59,6 +60,8 @@ export const getAttendance = async (req: Request, res: Response) => {
         const userIds = users.map((u: { username: string }) => u.username);
 
         // Get attendance records
+        // NOTE: now also pulling markedAt + attendancePhoto so the frontend can show
+        // a photo/time modal when a "present" cell is clicked.
         const attendanceRecords = await prisma.attendance.findMany({
             where: {
                 userId: { in: userIds },
@@ -66,36 +69,64 @@ export const getAttendance = async (req: Request, res: Response) => {
                     gte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-01`,
                     lte: `${yearNum}-${String(monthIndex + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`
                 }
+            },
+            select: {
+                userId: true,
+                date: true,
+                status: true,
+                markedAt: true,
+                attendancePhoto: true
             }
         });
 
+        // Same host/port convention used in images controller (getImages) for
+        // profileImageUrl: strip everything up to and including "uploads" and
+        // re-host it behind this server's own address, since attendancePhoto
+        // is stored as a relative path the same way partyImages.profileImageUrl is.
+        let ipAdd = ip.address();
+        if (process.env.PRODUCTION_MODE === "prod") ipAdd = "122.160.12.232";
 
-        const userAttendance: Record<string, Record<string, string>> = {};
+        const toPhotoUrl = (relativePath: string | null | undefined) => {
+            if (!relativePath) return null;
+            const parts = relativePath.split('uploads');
+            if (parts.length < 2) return null;
+            return `http://${ipAdd}:${process.env.PORT}${parts[1]}`;
+        };
+
+        const userAttendance: Record<string, Record<string, { status: string; markedAt: Date | null; photoUrl: string | null }>> = {};
         attendanceRecords.forEach((record: any) => {
             const dateStr = record.date;
             const formattedUserId = record.userId.toUpperCase().trim()
             if (!userAttendance[formattedUserId]) {
                 userAttendance[formattedUserId] = {};
             }
-            
-            userAttendance[formattedUserId][dateStr] = record.status;
-            console.log(userAttendance[formattedUserId], formattedUserId); 
+
+            userAttendance[formattedUserId][dateStr] = {
+                status: record.status,
+                markedAt: record.markedAt,
+                photoUrl: toPhotoUrl(record.attendancePhoto)
+            };
         });
 
-        console.log(userAttendance)
-
-        
         // Prepare response
         const daysInMonth = endDate.getDate();
         const response = users.map((user: { username: string; usrnm: string }) => {
             const statuses = [];
+            const details: Record<number, { markedAt: Date | null; photoUrl: string | null }> = {};
             user.username = user.username.toUpperCase()
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = new Date(yearNum, monthIndex, day);
-                
                 const dateKey = date.toLocaleDateString('en-CA');
-           
-                statuses.push(userAttendance[user.username]?.[dateKey] || '-');
+
+                const dayRecord = userAttendance[user.username]?.[dateKey];
+                statuses.push(dayRecord?.status || '-');
+
+                if (dayRecord) {
+                    details[day] = {
+                        markedAt: dayRecord.markedAt,
+                        photoUrl: dayRecord.photoUrl
+                    };
+                }
             }
             
             const presentCount = statuses.filter(s => s === 'present' || s === 'H').length;
@@ -104,6 +135,7 @@ export const getAttendance = async (req: Request, res: Response) => {
             return {
                 employee: user.usrnm,
                 statuses,
+                details,
                 totalPresent: presentCount,
                 totalDays: daysInMonth,
                 netAbsent: absentCount
@@ -119,18 +151,13 @@ export const getAttendance = async (req: Request, res: Response) => {
 };
 
 export const getAttendanceStatus = asyncHandler(async (req: Request, res: Response) => {
-    console.log("came here")
     const { userId, date } = req.body; 
-
-    console.log(userId, date)
 
     const checkAttendance = await prisma.attendance.findFirst({
         where: {
             date, userId
         }
     })
-
-    console.log(checkAttendance)
 
     if (checkAttendance?.status === "absent") {
         return res.status(200).json(new ApiResponse(200, "You already logged out", {status: false}))

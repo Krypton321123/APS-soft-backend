@@ -84,6 +84,35 @@ const attendanceImageDest = multer.diskStorage({
     }
 })
 
+const newPartyImageDest = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const empId = req.body.empId;
+        const date = new Date(Date.now());
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const dateStr = `${day}-${month}-${year}`;
+        const fullPath = path.join('../', 'uploads', 'new_party', `${empId}`, `${dateStr}`);
+        if (!fs.existsSync(fullPath)) {
+            fs.mkdirSync(fullPath, { recursive: true });
+        }
+        cb(null, fullPath);
+    },
+    filename: (req, file, cb) => {
+        const date = new Date(Date.now());
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        const randomId = Math.random().toString(36).substring(2, 15);
+        const ext = path.extname(file.originalname);
+        const filename = `${randomId}-${hours}-${minutes}-${seconds}${ext}`;
+        cb(null, filename);
+    }
+});
+
+
 export const collectionImageUpload = multer({ storage: collectionImagesDest })
 export const partyImageUpload = multer({storage: partyImagesDest})
 export const attendanceUpload = multer({storage: attendanceImageDest})
+export const newPartyImageUpload = multer({ storage: newPartyImageDest });
+

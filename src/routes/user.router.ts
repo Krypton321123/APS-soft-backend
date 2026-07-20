@@ -2,9 +2,8 @@ import { Router } from "express";
 import { loginHandler, fetchParties, fetchParty, uploadPartyImage, getItems, fetchUsersByLocation, markAttendance, fetchRates, submitRates, getSummary, getPreSummary, uploadPartyImagesWithMulter } from "../controllers/user.controller.js";
 import { getOutstanding } from "../controllers/partyEdit.controller.js";
 import { attendanceUpload, partyImageUpload } from "../util/multer.js";
-
+import { checkVendorsExist, getVendorDetails, getVendorsByParent, getSecondaryPartySummary } from "../controllers/secondaryParty.controller.js";
 const userRouter = Router();
-
 userRouter.route('/login').post(loginHandler)
 userRouter.route('/fetchParty').post(fetchParties)
 userRouter.route('/fetchPartyWithId').post(fetchParty); 
@@ -18,5 +17,8 @@ userRouter.post('/getOutstanding', getOutstanding)
 userRouter.post('/getSummary', getSummary)
 userRouter.post('/getPreSummary', getPreSummary); 
 userRouter.post('/uploadwithmulter', partyImageUpload.single('photo'), uploadPartyImagesWithMulter); 
-
+userRouter.get('/checkVendorsExist', checkVendorsExist);
+userRouter.get('/getVendorsByParent', getVendorsByParent);
+userRouter.get('/getVendorDetails/:vendcd', getVendorDetails);
+userRouter.post('/getSecondaryPartySummary', getSecondaryPartySummary);
 export default userRouter;

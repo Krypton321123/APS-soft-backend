@@ -256,26 +256,124 @@ model AppConfig {
 
 model SecondaryRate {
   rate_id      String   @id @default(cuid())
-  depotCd      String   @default("") // untcd of the depot this batch was for
+  depotCd      String   @default("")
   depotNm      String   @default("")
-  partyType    String   @default("") // pcatnm at time of send (RETAILOR / WHOLE SALLER / DISTRIBUTOR)
-  empId        String? // optional employee filter used, if any (username)
-  empName      String? // usrnm at time of send, for display in history
-  partyId      String // ledcd from mstparty
+  partyType    String   @default("")
+  empId        String?
+  empName      String?
+  partyId      String
   partyName    String
   mobile       String   @default("")
   consumerRate Decimal  @db.Decimal(18, 2)
   bulkRate     Decimal  @db.Decimal(18, 2)
-  rateDate     DateTime // the date selected in the filter (not necessarily "today")
-  sentBy       String // admin username who triggered the send
-  status       String   @default("pending") // pending | sent | failed
-  responseId   String? // "RequestId" from the SMS API's 3001 response
+  rateDate     DateTime
+  sentBy       String
+  status       String   @default("pending")
+  responseId   String?
   errorMsg     String?
   createdAt    DateTime @default(now())
 
   @@index([depotCd, rateDate])
   @@index([partyId])
   @@index([status])
+}
+
+
+model NewPartyOrder {
+  new_party_order_id String              @id @default(cuid())
+  partyName           String
+  partyMobile         String
+  address              String              @default("")
+  pincode              String              @default("")
+  gstNumber            String?             // Optional — unlike name/mobile/address/
+                                           // pincode, a shop may not have GST
+                                           // registration yet.
+  source              String
+  parentLedcd         String?             // NEW — set only when source = "secondary";
+                                           // null for primary-sourced rows, which have
+                                           // no parent party by definition.
+  empId               String
+  photoUrl             String
+  totalAmount          Decimal             @db.Decimal(18, 2)
+  consumerRate         Decimal?            @db.Decimal(18, 2)
+  bulkRate             Decimal?            @db.Decimal(18, 2)
+  paymentMode          String              @default("")
+  creditDays           Int?
+  status               String              @default("pending")
+  createdAt            DateTime            @default(now())
+  orderItems           NewPartyOrderItem[]
+
+  @@index([empId])
+  @@index([createdAt])
+}
+
+
+model NewPartyOrderItem {
+  id              String        @id @default(cuid())
+  newPartyOrderId String
+  itemCode        String
+  itemName        String
+  quantity        Int
+  rate            Decimal       @db.Decimal(18, 2)
+  amount          Decimal       @db.Decimal(18, 2)
+  packType        String        @default("")
+  order           NewPartyOrder @relation(fields: [newPartyOrderId], references: [new_party_order_id])
+}
+
+model SecondaryOrder {
+  secondary_order_id String               @id @default(cuid())
+  vendId              String // mstvendor.vendcd — the child party
+  parentLedcd         String // mstvendor.ledcd — the parent party
+  vendName            String
+  empId               String
+  totalAmount         Decimal              @db.Decimal(18, 2)
+  discountAmount      Decimal              @default(0) @db.Decimal(18, 2)
+  discountAmountBulk  Decimal              @default(0) @db.Decimal(18, 2)
+  paymentMode         String               @default("")
+  creditDays          Int?
+  consumerRate        Decimal?             @db.Decimal(18, 2)
+  bulkRate             Decimal?             @db.Decimal(18, 2)
+  createdAt           DateTime             @default(now())
+  orderItems          SecondaryOrderItem[]
+
+  @@index([vendId])
+  @@index([parentLedcd])
+  @@index([empId])
+}
+
+model SecondaryOrderItem {
+  id               String         @id @default(cuid())
+  secondaryOrderId String
+  itemCode         String
+  itemName         String
+  quantity         Int
+  rate             Decimal        @db.Decimal(18, 2)
+  amount           Decimal        @db.Decimal(18, 2)
+  packType         String         @default("")
+  order            SecondaryOrder @relation(fields: [secondaryOrderId], references: [secondary_order_id])
+}
+
+model SecondaryStock {
+  secondary_stock_id String               @id @default(cuid())
+  vendId              String // mstvendor.vendcd — the child party
+  parentLedcd         String // mstvendor.ledcd — the parent party
+  vendName            String
+  empId               String
+  createdAt           DateTime             @default(now())
+  stockItems          SecondaryStockItem[]
+
+  @@index([vendId])
+  @@index([parentLedcd])
+  @@index([empId])
+}
+
+model SecondaryStockItem {
+  id               String         @id @default(cuid())
+  secondaryStockId String
+  itemCode         String
+  itemName         String
+  quantity         Int
+  stock            SecondaryStock @relation(fields: [secondaryStockId], references: [secondary_stock_id])
 }
 
 
@@ -337,4 +435,25 @@ view mstcashledger {
   lednm   String? @db.VarChar(250)
   buntcd  String? @db.VarChar(50)
   untshnm String? @db.VarChar(50)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view mstvendor {
+  rowid    BigInt   @id @default(autoincrement())
+  vendcd   String?  @db.VarChar(250)
+  untcd    String?  @db.VarChar(50)
+  pcatcd   String?  @db.VarChar(50)
+  ledcd    String?  @db.VarChar(50)
+  name     String?  @db.VarChar(250)
+  adrs     String?  @db.VarChar(250)
+  contper  String?  @db.VarChar(250)
+  contno   String?  @db.VarChar(50)
+  tin      String?  @db.VarChar(50)
+  pan      String?  @db.VarChar(50)
+  tsale    Decimal? @db.Decimal(18, 2)
+  ssale    Decimal? @db.Decimal(18, 2)
+  entusrnm String   @db.VarChar(250)
+  entdt    DateTime @db.DateTime
+
+
 }

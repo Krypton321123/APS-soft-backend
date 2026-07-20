@@ -18,6 +18,9 @@ import asyncHandler from './util/asyncHandler.js';
 import ApiResponse from './util/ApiResponse.js';
 import ApiError from './util/ApiError.js';
 import router from './routes/secondaryRate.router.js';
+import secondaryOrderRouter from './routes/secondaryOrder.router.js';
+import secondaryStockRouter from './routes/secondaryStock.order.js';
+import newPartyOrderRouter from './routes/newParty.router.js';
 
 const app = express()
 
@@ -69,6 +72,9 @@ app.use('/api/v1/location', locationRouter);
 app.use('/api/v1/delivery', deliveryRouter); 
 app.use('/api/v1/otp', otpRouter); 
 app.use("/api/v1/secondary-rates", router);
+app.use('/api/v1/secondary-order', secondaryOrderRouter)
+app.use('/api/v1/secondary-stock', secondaryStockRouter)
+app.use('/api/v1/new-party-order', newPartyOrderRouter); 
 
 app.use(globalCatch)
 

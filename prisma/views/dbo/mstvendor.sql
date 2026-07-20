@@ -1,0 +1,18 @@
+SELECT
+  rowid,
+  vendcd,
+  untcd,
+  pcatcd,
+  ledcd,
+  name,
+  adrs,
+  contper,
+  contno,
+  tin,
+  pan,
+  tsale,
+  ssale,
+  entusrnm,
+  entdt
+FROM
+  apsplus_aoi_2021.dbo.mstvendornfo;
