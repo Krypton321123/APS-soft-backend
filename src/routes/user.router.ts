@@ -3,6 +3,7 @@ import { loginHandler, fetchParties, fetchParty, uploadPartyImage, getItems, fet
 import { getOutstanding } from "../controllers/partyEdit.controller.js";
 import { attendanceUpload, partyImageUpload } from "../util/multer.js";
 import { checkVendorsExist, getVendorDetails, getVendorsByParent, getSecondaryPartySummary } from "../controllers/secondaryParty.controller.js";
+import { setPartyLocation } from "../controllers/partyLocation.controller.js";
 const userRouter = Router();
 userRouter.route('/login').post(loginHandler)
 userRouter.route('/fetchParty').post(fetchParties)
@@ -21,4 +22,5 @@ userRouter.get('/checkVendorsExist', checkVendorsExist);
 userRouter.get('/getVendorsByParent', getVendorsByParent);
 userRouter.get('/getVendorDetails/:vendcd', getVendorDetails);
 userRouter.post('/getSecondaryPartySummary', getSecondaryPartySummary);
+userRouter.post('/setPartyLocation', setPartyLocation);
 export default userRouter;

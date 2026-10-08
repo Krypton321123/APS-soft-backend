@@ -2,6 +2,7 @@ import asyncHandler from "../util/asyncHandler.js";
 import ApiError from "../util/ApiError.js";
 import prisma from "../util/prisma.js";
 import ApiResponse from "../util/ApiResponse.js";
+import { attachPartyLocations } from "./partyLocation.controller.js";
 import { Request, Response } from "express";
 import fs from "fs";
 import path from "path";
@@ -67,9 +68,9 @@ export const fetchParties = asyncHandler(
         .json(new ApiError("No parties found for this day", 400, {}));
     }
 
-    return res
-      .status(200)
-      .json(new ApiResponse(200, "Parties fetched successfully", parties));
+    const partiesWithLocation = await attachPartyLocations(parties);
+
+    return res.status(200).json(new ApiResponse(200, "Parties fetched successfully", partiesWithLocation));
   },
 );
 
@@ -560,12 +561,14 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
       "SATURDAY",
     ];
     const currentDay = days[day];
+    console.log(currentDay, "day")
 
     let total = {
       outstanding: 0,
       totalQty: 0,
       totalAmount: 0,
     };
+    console.log("username", username)
 
     const parties = await prisma.mstparty.findMany({
       where: {
@@ -580,6 +583,7 @@ export const getSummary = asyncHandler(async (req: Request, res: Response) => {
         billdt: true,
       },
     });
+    console.log("parties", parties)
 
     parties.map((item) => (total.outstanding += Number(item.outs)));
 

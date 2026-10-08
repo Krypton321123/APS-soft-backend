@@ -1,5 +1,7 @@
 import { Router } from "express";
 import { adminLogin, createUser, deleteUser, getAllUsers, getAvailableLocations, getAvailableScreens, getUserById, searchUsers, updateUser } from "../controllers/admin.controller.js";
+import { listPartyLocations } from "../controllers/partyLocation.controller.js";
+import partyLocationRouter from "./partyLocation.router.js";
 
 const adminRouter = Router(); 
 
@@ -12,5 +14,7 @@ adminRouter.get('/screens', getAvailableScreens);
 adminRouter.post('/users', createUser);
 adminRouter.patch('/users/:admin_id', updateUser);
 adminRouter.delete('/users/:admin_id', deleteUser);
+
+adminRouter.use('/party-locations', partyLocationRouter)
 
 export default adminRouter; 
